@@ -1,0 +1,41 @@
+server:
+  applicationConnectors:
+    - type: http
+      port: 9090
+  adminConnectors:
+    - type: http
+      port: 9091
+  requestLog:
+    appenders:
+      - type: console
+      - type: file
+        # The file to which current statements will be logged.
+        currentLogFilename: ./logs/api_requests.log
+
+        # When the log file rotates, the archived log will be renamed to this and gzipped. The
+        # %d is replaced with the previous day (yyyy-MM-dd). Custom rolling windows can be created
+        # by passing a SimpleDateFormat-compatible format as an argument: "%d{yyyy-MM-dd-hh}".
+        archivedLogFilenamePattern: ./logs/api_requests-%d.log.gz
+
+        # The number of archived files to keep.
+        archivedFileCount: 5
+
+        # The timezone used to format dates. HINT: USE THE DEFAULT, UTC.
+        timeZone: UTC
+
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: DEBUG
+  appenders:
+    - type: console
+    - type: file
+      currentLogFilename: ./logs/api_internal.log
+      archivedLogFilenamePattern: ./logs/api_internal-%d.log.gz
+      archivedFileCount: 5
+      timeZone: UTC
+
+# the only required property is resourcePackage, for more config options see below
+swagger:
+  resourcePackage: org.metadatacenter.fairware
+
