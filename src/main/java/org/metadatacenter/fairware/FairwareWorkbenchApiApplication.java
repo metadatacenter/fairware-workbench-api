@@ -6,6 +6,7 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +54,10 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
 
     // Add URL mapping
     cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
+
+    // Register resources
+    final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource();
+    environment.jersey().register(fairwareWorkbenchResource);
 
   }
 }
