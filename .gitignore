@@ -1,3 +1,6 @@
+# Dropwizard config file
+config.yml
+
 # Compiled class file
 *.class
 

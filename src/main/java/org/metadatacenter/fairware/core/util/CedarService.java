@@ -1,46 +1,44 @@
 package org.metadatacenter.fairware.core.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
+import org.apache.http.entity.ContentType;
+import org.metadatacenter.fairware.api.cedar.resourceserver.recommend.request.CedarRecommendTemplatesRequest;
+import org.metadatacenter.fairware.api.cedar.resourceserver.recommend.response.CedarRecommendTemplatesResponse;
+import org.metadatacenter.fairware.config.cedar.CedarConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.util.List;
 
 public class CedarService {
 
-  public JsonNode searchTemplatesByFieldName(List<String> fieldNames, int limit, int offset) throws IOException {
+  private static final Logger logger = LoggerFactory.getLogger(CedarService.class);
+  private final CedarConfig cedarConfig;
+  // TODO reuse ObjectMapper
+  private final ObjectMapper mapper = new ObjectMapper();
 
-    StringBuilder query = new StringBuilder();
-    for (int i = 0; i < fieldNames.size() - 1; i++) {
-      query.append("\"").append(fieldNames.get(i)).append("\"").append(": OR ");
-    }
-    int lastIndex = fieldNames.size() - 1;
-    query.append(fieldNames.get(lastIndex)).append(":");
-
-    StringBuilder uri = new StringBuilder("https://resource.metadatacenter.org/search?")
-        .append("q=").append(URLEncoder.encode(query.toString(), "UTF-8"))
-        .append("&limit=").append(limit)
-        .append("&offset=").append(offset)
-        .append("&resource_types=template&version=all");
-
-    // TODO: read URL from constants file
-    HttpResponse response = Request.Get(uri.toString()).addHeader("Authorization", "apiKey " +
-        "<your_api_key>").execute().returnResponse();
-
-    //int statusCode = response.returnResponse().getStatusLine().getStatusCode();
-    //String res = response.returnResponse().toString();
-    return new ObjectMapper().readTree(new String(EntityUtils.toByteArray(response.getEntity())));
-
-    // TODO: error handling
-    //return new ObjectMapper().readTree(response.getEntity().toString());
-
+  public CedarService(CedarConfig cedarConfig) {
+    this.cedarConfig = cedarConfig;
   }
 
+  public CedarRecommendTemplatesResponse recommendTemplates(CedarRecommendTemplatesRequest rcRequest)
+      throws IOException, HttpException {
+
+    Request request = Request.Post(cedarConfig.getResourceServer().getRecommendTemplatesUrl())
+        .bodyString(mapper.writeValueAsString(rcRequest), ContentType.APPLICATION_JSON)
+        .addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
+    HttpResponse response = request.execute().returnResponse();
+
+    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+      CedarRecommendTemplatesResponse cedarResponse = mapper.
+          readValue(response.getEntity().getContent(), CedarRecommendTemplatesResponse.class);
+      return cedarResponse;
+    } else {
+      throw new HttpException("Error connecting CEDAR: " + response.getStatusLine());
+    }
+  }
 }

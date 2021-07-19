@@ -35,7 +35,11 @@ logging:
       archivedFileCount: 5
       timeZone: UTC
 
-# the only required property is resourcePackage, for more config options see below
+# the only required property is resourcePackage
 swagger:
   resourcePackage: org.metadatacenter.fairware
 
+cedar:
+  apiKey: 'ae7a5d2bf6254707b3d9c51822e5ef49c528428791c3e2f84b9e75532326e74b'
+  resourceServer:
+    recommendTemplatesUrl: 'https://resource.metadatacenter.orgx/templates/recommend'

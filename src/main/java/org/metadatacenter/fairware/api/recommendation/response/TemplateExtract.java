@@ -1,6 +1,6 @@
-package org.metadatacenter.fairware.api.evaluation.output;
+package org.metadatacenter.fairware.api.recommendation.response;
 
-public class TemplateInfo {
+public class TemplateExtract {
 
   private String id;
   private String name;
@@ -8,10 +8,8 @@ public class TemplateInfo {
   private String createdByCedarUserId;
   private String createdByCedarUserName;
 
-  public TemplateInfo() {};
-
-  public TemplateInfo(String id, String name, String description, String createdByCedarUserId,
-                      String createdByCedarUserName) {
+  public TemplateExtract(String id, String name, String description, String createdByCedarUserId,
+                              String createdByCedarUserName) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -58,4 +56,5 @@ public class TemplateInfo {
   public void setCreatedByCedarUserName(String createdByCedarUserName) {
     this.createdByCedarUserName = createdByCedarUserName;
   }
+
 }

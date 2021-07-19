@@ -6,6 +6,7 @@ import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerBundle;
 import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.metadatacenter.fairware.core.util.CedarService;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
 
   @Override
   public String getName() {
-    return "Metadata Provider API";
+    return "FAIRware Workbench API";
   }
 
   @Override
@@ -40,8 +41,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
   }
 
   @Override
-  public void run(final FairwareWorkbenchApiConfiguration configuration,
-                  final Environment environment) {
+  public void run(final FairwareWorkbenchApiConfiguration configuration, final Environment environment) {
 
     // Enable CORS headers
     final FilterRegistration.Dynamic cors =
@@ -56,7 +56,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
     // Register resources
-    final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource();
+    CedarService cedarService = new CedarService(configuration.cedar);
+    final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource(configuration, cedarService);
     environment.jersey().register(fairwareWorkbenchResource);
 
   }
