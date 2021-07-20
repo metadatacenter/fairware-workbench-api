@@ -67,7 +67,7 @@ public class FairwareWorkbenchResource {
 
   @GET
   @Path("/tos")
-  @ApiOperation(hidden = false, value = "Terms of service")
+  @ApiOperation(hidden = true, value = "Terms of service")
   @Timed
   public Response tos() {
     String tos = "The FAIRware Workbench (\"the Service\") is provided by the Stanford Center for Biomedical Informatics " +
