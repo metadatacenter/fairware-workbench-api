@@ -1,13 +1,9 @@
-/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/cedar/resourceserver/recommend/response/CedarRecommendTemplatesRequestSummary.java
-/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/cedar/resourceserver/recommend/response/CedarRecommendTemplatesResponse.java
+/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/recommendation/request/RecommendTemplatesRequest2.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/config/cedar/CedarConfig.java
-/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/cedar/resourceserver/recommend/response/CedarTemplateExtract.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/FairwareWorkbenchApiConfiguration.java
-/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/cedar/resourceserver/recommend/request/CedarRecommendTemplatesRequest.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/FairwareWorkbenchApiApplication.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/recommendation/response/RecommendTemplatesResponse.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/recommendation/response/TemplateExtract.java
-/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/core/util/ObjectConverter.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/recommendation/response/RecommendTemplatesRequestSummary.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/core/util/CedarService.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/config/cedar/ResourceServerConfig.java
@@ -15,5 +11,4 @@
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/core/MetadataEvaluationService.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/core/IMetadataEvaluationService.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/recommendation/response/TemplateRecommendation.java
-/Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/api/cedar/resourceserver/recommend/response/CedarTemplateRecommendation.java
 /Users/marcosmr/Development/CEDAR/fairware-workbench-api/src/main/java/org/metadatacenter/fairware/resources/FairwareWorkbenchResource.java

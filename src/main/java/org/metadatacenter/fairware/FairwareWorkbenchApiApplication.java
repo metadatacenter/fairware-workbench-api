@@ -59,6 +59,5 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     CedarService cedarService = new CedarService(configuration.cedar);
     final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource(configuration, cedarService);
     environment.jersey().register(fairwareWorkbenchResource);
-
   }
 }

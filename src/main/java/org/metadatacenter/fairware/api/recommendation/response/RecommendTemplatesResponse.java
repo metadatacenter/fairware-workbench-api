@@ -1,5 +1,8 @@
 package org.metadatacenter.fairware.api.recommendation.response;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.List;
 
 public class RecommendTemplatesResponse {

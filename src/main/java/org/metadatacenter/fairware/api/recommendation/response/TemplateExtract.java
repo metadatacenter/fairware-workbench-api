@@ -1,60 +1,57 @@
 package org.metadatacenter.fairware.api.recommendation.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TemplateExtract {
 
+  @JsonProperty("@id")
+  private String cedarId;
+  @JsonProperty("schema:identifier")
   private String id;
+  @JsonProperty("schema:name")
   private String name;
+  @JsonProperty("schema:description")
   private String description;
-  private String createdByCedarUserId;
-  private String createdByCedarUserName;
+  @JsonProperty("pav:version")
+  private String version;
+  @JsonProperty("bibo:status")
+  private String status;
 
-  public TemplateExtract(String id, String name, String description, String createdByCedarUserId,
-                              String createdByCedarUserName) {
+  public TemplateExtract() {
+  }
+
+  public TemplateExtract(String cedarId, String id, String name, String description, String version, String status) {
+    this.cedarId = cedarId;
     this.id = id;
     this.name = name;
     this.description = description;
-    this.createdByCedarUserId = createdByCedarUserId;
-    this.createdByCedarUserName = createdByCedarUserName;
+    this.version = version;
+    this.status = status;
+  }
+
+  public String getCedarId() {
+    return cedarId;
   }
 
   public String getId() {
     return id;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
   public String getName() {
     return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   public String getDescription() {
     return description;
   }
 
-  public void setDescription(String description) {
-    this.description = description;
+  public String getVersion() {
+    return version;
   }
 
-  public String getCreatedByCedarUserId() {
-    return createdByCedarUserId;
+  public String getStatus() {
+    return status;
   }
-
-  public void setCreatedByCedarUserId(String createdByCedarUserId) {
-    this.createdByCedarUserId = createdByCedarUserId;
-  }
-
-  public String getCreatedByCedarUserName() {
-    return createdByCedarUserName;
-  }
-
-  public void setCreatedByCedarUserName(String createdByCedarUserName) {
-    this.createdByCedarUserName = createdByCedarUserName;
-  }
-
 }

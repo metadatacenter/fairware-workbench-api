@@ -1,0 +1,15 @@
+org/metadatacenter/fairware/api/recommendation/response/RecommendTemplatesResponse.class
+org/metadatacenter/fairware/core/IMetadataEvaluationService.class
+org/metadatacenter/fairware/core/util/CedarService.class
+org/metadatacenter/fairware/config/cedar/CedarConfig.class
+org/metadatacenter/fairware/resources/FairwareWorkbenchResource.class
+org/metadatacenter/fairware/api/recommendation/response/TemplateExtract.class
+org/metadatacenter/fairware/core/MetadataEvaluationService.class
+org/metadatacenter/fairware/FairwareWorkbenchApiApplication$1.class
+org/metadatacenter/fairware/FairwareWorkbenchApiApplication.class
+org/metadatacenter/fairware/api/recommendation/request/RecommendTemplatesRequest2.class
+org/metadatacenter/fairware/api/recommendation/request/RecommendTemplatesRequest.class
+org/metadatacenter/fairware/api/recommendation/response/TemplateRecommendation.class
+org/metadatacenter/fairware/FairwareWorkbenchApiConfiguration.class
+org/metadatacenter/fairware/config/cedar/ResourceServerConfig.class
+org/metadatacenter/fairware/api/recommendation/response/RecommendTemplatesRequestSummary.class

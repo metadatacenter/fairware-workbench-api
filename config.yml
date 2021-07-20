@@ -35,7 +35,7 @@ logging:
       archivedFileCount: 5
       timeZone: UTC
 
-# the only required property is resourcePackage
+# the only required property is resourcePackage (more info at https://github.com/smoketurner/dropwizard-swagger)
 swagger:
   resourcePackage: org.metadatacenter.fairware
 

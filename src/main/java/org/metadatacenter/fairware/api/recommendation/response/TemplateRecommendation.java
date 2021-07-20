@@ -1,10 +1,13 @@
 package org.metadatacenter.fairware.api.recommendation.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class TemplateRecommendation {
 
   double recommendationScore;
   int sourceFieldsMatched;
   int targetFieldsCount;
+  @JsonProperty("resourceExtract")
   TemplateExtract templateExtract;
 
   public TemplateRecommendation() {
