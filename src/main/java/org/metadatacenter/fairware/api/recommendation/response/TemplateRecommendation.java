@@ -7,7 +7,6 @@ public class TemplateRecommendation {
   double recommendationScore;
   int sourceFieldsMatched;
   int targetFieldsCount;
-  @JsonProperty("resourceExtract")
   TemplateExtract templateExtract;
 
   public TemplateRecommendation() {
@@ -45,10 +44,12 @@ public class TemplateRecommendation {
     this.targetFieldsCount = targetFieldsCount;
   }
 
+  @JsonProperty("templateExtract") // I'm using different mappings for serialization and deserialization
   public TemplateExtract getTemplateExtract() {
     return templateExtract;
   }
 
+  @JsonProperty("resourceExtract")
   public void setTemplateExtract(TemplateExtract templateExtract) {
     this.templateExtract = templateExtract;
   }
