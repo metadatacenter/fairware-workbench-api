@@ -1,7 +1,16 @@
 package org.metadatacenter.fairware.resources;
 
 import com.codahale.metrics.annotation.Timed;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.FairwareWorkbenchApiConfiguration;
 import org.metadatacenter.fairware.api.recommendation.request.RecommendTemplatesRequest;
@@ -16,39 +25,43 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 
-@SwaggerDefinition(
-    info = @Info(
-        title = "FAIRware Workbench API",
-        version = "prototype",
-        description = "This API provides several endpoints to assess and enhance metadata quality based on <a href=\"https://www.go-fair.org/fair-principles/\">the FAIR guiding principles</a>.",
-        termsOfService = "/tos",
-        //license = @License(name = "Apache 2.0 License", url = "https://www.apache.org/licenses/LICENSE-2.0"),
-        contact = @Contact(name = " ", email = "marcosmr@stanford.edu")
-    )
-)
-
 @Path("/")
-@Api("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class FairwareWorkbenchResource {
 
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchResource.class);
-  private final FairwareWorkbenchApiConfiguration configuration;
   private final CedarService cedarService;
 
-  public FairwareWorkbenchResource(FairwareWorkbenchApiConfiguration configuration, CedarService cedarService) {
-    this.configuration = configuration;
+  public FairwareWorkbenchResource(CedarService cedarService) {
     this.cedarService = cedarService;
   }
 
   @POST
-  @ApiOperation(
-      value = "Searches the CEDAR repository for templates that match the field names in an input metadata record.",
-      response = RecommendTemplatesResponse.class)
-  @Path("/recommend-templates")
+  @Operation(
+      summary = "Searches the CEDAR repository for templates that match the field names in an input metadata record.")
+  @Path("/templates/recommend")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  @Timed
+  @Tag(name = "Templates")
+  @RequestBody(description = "Metadata record", required = true,
+      content = @Content(
+          schema = @Schema(implementation = RecommendTemplatesRequest.class),
+      examples = {
+          @ExampleObject(value = "{\"metadataRecord\":{" +
+              "\"disease\":\"influenza\"," +
+              "\"tissue\":\"lung\"}}")
+      }
+  ))
+  @ApiResponse(
+      responseCode = "200",
+      description = "voila!",
+      content = @Content(
+          schema = @Schema(implementation = RecommendTemplatesResponse.class),
+          examples = {
+              @ExampleObject(name = "boo", value = "example",
+                  summary = "example of boo", externalValue = "example of external value")
+          }
+      ))
   public Response recommendTemplates(RecommendTemplatesRequest request) {
 
     MetadataEvaluationService service = new MetadataEvaluationService(cedarService);
@@ -67,7 +80,7 @@ public class FairwareWorkbenchResource {
 
   @GET
   @Path("/tos")
-  @ApiOperation(hidden = true, value = "Terms of service")
+  @Operation(hidden = true, summary = "Terms of service")
   @Timed
   public Response tos() {
     String tos = "The FAIRware Workbench (\"the Service\") is provided by the Stanford Center for Biomedical Informatics " +

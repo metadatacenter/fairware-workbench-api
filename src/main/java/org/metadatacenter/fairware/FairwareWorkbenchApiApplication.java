@@ -1,13 +1,14 @@
 package org.metadatacenter.fairware;
 
+import in.vectorpro.dropwizard.swagger.SwaggerBundle;
+import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.federecio.dropwizard.swagger.SwaggerBundle;
-import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.metadatacenter.fairware.core.util.CedarService;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
+import org.metadatacenter.fairware.resources.OpenApiDefinitionResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +57,12 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
     // Register resources
+
+    final OpenApiDefinitionResource openApiDefinitionResource = new OpenApiDefinitionResource();
+    environment.jersey().register(openApiDefinitionResource);
+
     CedarService cedarService = new CedarService(configuration.cedar);
-    final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource(configuration, cedarService);
+    final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource(cedarService);
     environment.jersey().register(fairwareWorkbenchResource);
   }
 }
