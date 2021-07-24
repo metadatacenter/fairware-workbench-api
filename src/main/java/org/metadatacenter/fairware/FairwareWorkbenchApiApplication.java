@@ -8,7 +8,7 @@ import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
-import org.metadatacenter.fairware.core.services.external.CedarService;
+import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.resources.CommonApiDocumentationResource;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
 import org.slf4j.Logger;

@@ -15,7 +15,6 @@ import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
-import org.metadatacenter.fairware.core.services.external.CedarService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

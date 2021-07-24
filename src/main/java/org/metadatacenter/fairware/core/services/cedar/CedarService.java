@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.core.services.external;
+package org.metadatacenter.fairware.core.services.cedar;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

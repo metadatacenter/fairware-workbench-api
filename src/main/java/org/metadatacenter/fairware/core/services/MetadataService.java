@@ -2,7 +2,9 @@ package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
-import org.metadatacenter.fairware.core.services.external.CedarService;
+import org.metadatacenter.fairware.core.domain.TemplateNode;
+import org.metadatacenter.fairware.core.services.cedar.CedarService;
+import org.metadatacenter.fairware.core.util.CedarTemplateContentExtractor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,8 +21,13 @@ public class MetadataService implements IMetadataService {
   }
 
   @Override
-  public List<FieldAlignment> alignMetadata(String templateId, Map<String, Object> metadataRecord) throws IOException, HttpException {
+  public List<FieldAlignment> alignMetadata(String templateId, Map<String, Object> metadataRecord)
+      throws IOException, HttpException {
     Map<String, Object> template = cedarService.findTemplate(templateId);
+
+    List<TemplateNode> nodes = CedarTemplateContentExtractor.getTemplateNodes(template);
+
+
     return new ArrayList<>();
   }
 }
