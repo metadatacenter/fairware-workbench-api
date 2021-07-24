@@ -42,4 +42,5 @@ swagger:
 cedar:
   apiKey: 'ae7a5d2bf6254707b3d9c51822e5ef49c528428791c3e2f84b9e75532326e74b'
   resourceServer:
-    recommendTemplatesUrl: 'https://resource.metadatacenter.orgx/templates/recommend'
+    templatesUrl: 'https://resource.metadatacenter.orgx/templates/'
+    recommendTemplatesUrl: 'https://resource.metadatacenter.orgx/templates/recommend/'

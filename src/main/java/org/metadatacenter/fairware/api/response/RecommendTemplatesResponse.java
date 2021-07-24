@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.api.recommendation.response;
+package org.metadatacenter.fairware.api.response;
 
 import java.util.List;
 

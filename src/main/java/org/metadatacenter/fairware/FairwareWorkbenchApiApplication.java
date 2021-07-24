@@ -6,9 +6,11 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.metadatacenter.fairware.core.util.CedarService;
+import org.metadatacenter.fairware.core.services.MetadataService;
+import org.metadatacenter.fairware.core.services.TemplateService;
+import org.metadatacenter.fairware.core.services.external.CedarService;
+import org.metadatacenter.fairware.resources.CommonApiDocumentationResource;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
-import org.metadatacenter.fairware.resources.OpenApiDefinitionResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +60,14 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
 
     // Register resources
 
-    final OpenApiDefinitionResource openApiDefinitionResource = new OpenApiDefinitionResource();
-    environment.jersey().register(openApiDefinitionResource);
+    final CommonApiDocumentationResource commonApiDocumentationResource = new CommonApiDocumentationResource();
+    environment.jersey().register(commonApiDocumentationResource);
 
     CedarService cedarService = new CedarService(configuration.cedar);
-    final FairwareWorkbenchResource fairwareWorkbenchResource = new FairwareWorkbenchResource(cedarService);
+    TemplateService templateService = new TemplateService(cedarService);
+    MetadataService metadataService = new MetadataService(cedarService);
+    final FairwareWorkbenchResource fairwareWorkbenchResource =
+        new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);
   }
 }
