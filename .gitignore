@@ -1,5 +1,5 @@
 # Dropwizard config file
-config.yml
+/config.yml
 
 # Compiled class file
 *.class
