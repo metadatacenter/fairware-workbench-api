@@ -1,54 +1,31 @@
 package org.metadatacenter.fairware.api.shared;
 
+import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
+import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
+
 public class FieldAlignment {
 
-  private String metadataFieldPath;
-  private String metadataFieldName;
-  private String metadataFieldId;
-  private String templateFieldPath;
-  private String templateFieldName;
-  private String templateFieldLabel;
   private double similarityScore;
+  private MetadataFieldInfo metadataField;
+  private TemplateNodeInfo templateField;
 
   public FieldAlignment() { }
 
-  public FieldAlignment(String metadataFieldPath, String metadataFieldName, String metadataFieldId,
-                        String templateFieldPath, String templateFieldName, String templateFieldLabel,
-                        double similarityScore) {
-    this.metadataFieldPath = metadataFieldPath;
-    this.metadataFieldName = metadataFieldName;
-    this.metadataFieldId = metadataFieldId;
-    this.templateFieldPath = templateFieldPath;
-    this.templateFieldName = templateFieldName;
-    this.templateFieldLabel = templateFieldLabel;
+  public FieldAlignment(double similarityScore, MetadataFieldInfo metadataField, TemplateNodeInfo templateField) {
     this.similarityScore = similarityScore;
-  }
-
-  public String getMetadataFieldPath() {
-    return metadataFieldPath;
-  }
-
-  public String getMetadataFieldName() {
-    return metadataFieldName;
-  }
-
-  public String getMetadataFieldId() {
-    return metadataFieldId;
-  }
-
-  public String getTemplateFieldPath() {
-    return templateFieldPath;
-  }
-
-  public String getTemplateFieldName() {
-    return templateFieldName;
-  }
-
-  public String getTemplateFieldLabel() {
-    return templateFieldLabel;
+    this.metadataField = metadataField;
+    this.templateField = templateField;
   }
 
   public double getSimilarityScore() {
     return similarityScore;
+  }
+
+  public MetadataFieldInfo getMetadataField() {
+    return metadataField;
+  }
+
+  public TemplateNodeInfo getTemplateField() {
+    return templateField;
   }
 }

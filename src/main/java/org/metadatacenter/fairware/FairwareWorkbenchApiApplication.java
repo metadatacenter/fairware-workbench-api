@@ -38,7 +38,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     bootstrap.addBundle(new SwaggerBundle<FairwareWorkbenchApiConfiguration>() {
       @Override
       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FairwareWorkbenchApiConfiguration configuration) {
-        return configuration.swaggerBundleConfiguration;
+        return configuration.getSwaggerBundleConfiguration();
       }
     });
   }
@@ -63,9 +63,9 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     final CommonApiDocumentationResource commonApiDocumentationResource = new CommonApiDocumentationResource();
     environment.jersey().register(commonApiDocumentationResource);
 
-    CedarService cedarService = new CedarService(configuration.cedar);
+    CedarService cedarService = new CedarService(configuration.getCedarConfig());
     TemplateService templateService = new TemplateService(cedarService);
-    MetadataService metadataService = new MetadataService(cedarService);
+    MetadataService metadataService = new MetadataService(cedarService, configuration.getCoreConfig());
     final FairwareWorkbenchResource fairwareWorkbenchResource =
         new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);

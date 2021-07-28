@@ -10,7 +10,7 @@ import java.util.List;
  * 4) An array of template fields
  *
  */
-public class TemplateNode {
+public class TemplateNodeInfo {
 
   /**
    * Artifact id. It corresponds to the '@id' JSON field.
@@ -42,7 +42,7 @@ public class TemplateNode {
    */
   private boolean isArray;
 
-  public TemplateNode(String id, String name, String prefLabel, List<String> path,
+  public TemplateNodeInfo(String id, String name, String prefLabel, List<String> path,
                       CedarArtifactType type, boolean isArray) {
 
     if (type.equals(CedarArtifactType.ELEMENT) || type.equals(CedarArtifactType.FIELD)) {

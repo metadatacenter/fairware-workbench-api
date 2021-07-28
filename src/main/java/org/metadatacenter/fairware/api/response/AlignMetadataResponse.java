@@ -6,8 +6,10 @@ import java.util.List;
 
 public class AlignMetadataResponse {
 
-  public AlignMetadataResponse(int totalCount) {
-    this.totalCount = totalCount;
+  private int totalCount;
+  private List<FieldAlignment> fieldAlignments;
+
+  public AlignMetadataResponse() {
   }
 
   public AlignMetadataResponse(int totalCount, List<FieldAlignment> fieldAlignments) {
@@ -15,7 +17,11 @@ public class AlignMetadataResponse {
     this.fieldAlignments = fieldAlignments;
   }
 
-  private int totalCount;
-  private List<FieldAlignment> fieldAlignments;
+  public int getTotalCount() {
+    return totalCount;
+  }
 
+  public List<FieldAlignment> getFieldAlignments() {
+    return fieldAlignments;
+  }
 }

@@ -3,7 +3,7 @@ package org.metadatacenter.fairware.core.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.metadatacenter.fairware.core.domain.CedarArtifactType;
-import org.metadatacenter.fairware.core.domain.TemplateNode;
+import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ public class CedarTemplateContentExtractor {
 
   private static final Logger log = LoggerFactory.getLogger(CedarTemplateContentExtractor.class);
 
-  public static List<TemplateNode> getTemplateNodes(JsonNode node, CedarArtifactType resourceType) {
+  public static List<TemplateNodeInfo> getTemplateNodes(JsonNode node, CedarArtifactType resourceType) {
     // If it's a field, we nest it in a JsonNode to make the getSchemaNodes method work
     if (resourceType.equals(CedarArtifactType.FIELD)) {
       node = new ObjectMapper().createObjectNode().set("field", node);
@@ -28,11 +28,11 @@ public class CedarTemplateContentExtractor {
 
   // If the resource type is not specified, it assumes that it will be a Template/Element. There is no need to nest
   // the JsonNode inside another node
-  public static List<TemplateNode> getTemplateNodes(JsonNode schema) {
+  public static List<TemplateNodeInfo> getTemplateNodes(JsonNode schema) {
     return getTemplateNodes(schema, null, null);
   }
 
-  public static List<TemplateNode> getTemplateNodes(Map<String, Object> schema) {
+  public static List<TemplateNodeInfo> getTemplateNodes(Map<String, Object> schema) {
     return getTemplateNodes((JsonNode) new ObjectMapper().valueToTree(schema));
   }
 
@@ -44,7 +44,7 @@ public class CedarTemplateContentExtractor {
    * @param results     Used internally to store the results
    * @return A list of the template elements and fields in the template, represented using the TemplateNode class
    */
-  private static List<TemplateNode> getTemplateNodes(JsonNode node, List<String> currentPath, List results) {
+  private static List<TemplateNodeInfo> getTemplateNodes(JsonNode node, List<String> currentPath, List results) {
     if (currentPath == null) {
       currentPath = new ArrayList<>();
     }
@@ -104,11 +104,11 @@ public class CedarTemplateContentExtractor {
             // Get instance type (@type) if it exists)
             Optional<String> instanceType = getInstanceType(jsonFieldNode);
 
-            results.add(new TemplateNode(id, name, prefLabel, jsonFieldPath, CedarArtifactType.FIELD, isArray));
+            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath, CedarArtifactType.FIELD, isArray));
           }
           // Element
           else if (isTemplateElementNode(jsonFieldNode)) {
-            results.add(new TemplateNode(id, name, prefLabel, jsonFieldPath, CedarArtifactType.ELEMENT, isArray));
+            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath, CedarArtifactType.ELEMENT, isArray));
             getTemplateNodes(jsonFieldNode, jsonFieldPath, results);
           }
         }

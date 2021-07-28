@@ -4,8 +4,10 @@ config.yml
 # Compiled class file
 *.class
 
-# Log file
+# Logs
 *.log
+logs/
+log/
 
 # BlueJ files
 *.ctxt
