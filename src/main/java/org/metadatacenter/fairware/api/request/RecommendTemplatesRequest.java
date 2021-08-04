@@ -1,15 +1,13 @@
 package org.metadatacenter.fairware.api.request;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 public class RecommendTemplatesRequest {
 
-  @Valid
-  @NotNull
+  @NotEmpty // ensure that name isn't null or blank
   private Map<String, Object> metadataRecord;
 
   public RecommendTemplatesRequest() { }

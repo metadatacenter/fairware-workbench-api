@@ -18,6 +18,8 @@ import org.metadatacenter.fairware.core.services.TemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -48,22 +50,28 @@ public class FairwareWorkbenchResource {
       content = @Content(
           schema = @Schema(implementation = RecommendTemplatesRequest.class),
       examples = {
-          @ExampleObject(value = "{\"metadataRecord\":{" +
-              "\"disease\":\"influenza\"," +
-              "\"tissue\":\"lung\"}}")
+          @ExampleObject(value = "{\"metadataRecord\":{\"study_id\":\"12811\",\"study title\":\"My Study\",\"contact " +
+              "e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\",\"age\":76,\"sex\":\"male\"," +
+              "\"tissue\":\"liver\",\"platform\":\"Illumina\"}}")
       }
   ))
   @ApiResponse(
       responseCode = "200",
-      description = "voila!",
+      description = "OK",
       content = @Content(
           schema = @Schema(implementation = RecommendTemplatesResponse.class),
           examples = {
-              @ExampleObject(name = "boo", value = "example",
-                  summary = "example of boo", externalValue = "example of external value")
+              @ExampleObject(value = "{\"totalCount\":0,\"requestSummary\":{\"sourceFieldsCount\":0}," +
+                  "\"recommendations\":[{\"recommendationScore\":0,\"sourceFieldsMatched\":0,\"targetFieldsCount\":0," +
+                  "\"resourceExtract\":{\"@id\":\"string\",\"schema:identifier\":\"string\"," +
+                  "\"schema:name\":\"string\",\"schema:description\":\"string\",\"pav:version\":\"string\"," +
+                  "\"bibo:status\":\"string\"}}]}")
           }
       ))
-  public Response recommendTemplates(RecommendTemplatesRequest request) {
+  @ApiResponse(responseCode = "400", description = "Bad request")
+  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  public Response recommendTemplates(@NotNull @Valid RecommendTemplatesRequest request) {
 
     try {
       RecommendTemplatesResponse recommendations = templateService.recommendCedarTemplates(request.getMetadataRecord());
@@ -88,22 +96,25 @@ public class FairwareWorkbenchResource {
       content = @Content(
           schema = @Schema(implementation = AlignMetadataRequest.class),
           examples = {
-              @ExampleObject(value = "{\"templateId\":\"https://repo.metadatacenter" +
-                  ".orgx/templates/2f56d1cd-b0c9-4103-9cc5-18888dbf5594\"," +
-                  "\"metadataRecord\":{\"disease\":\"influenza\",\"tissue\":\"lung\"}}")
+              @ExampleObject(value = "{\"metadataRecord\":{\"study_id\":\"12811\",\"study title\":\"My Study\"," +
+                  "\"contact e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\",\"age\":76," +
+                  "\"sex\":\"male\",\"tissue\":\"liver\",\"platform\":\"Illumina\"},\"templateId\":\"https://repo" +
+                  ".metadatacenter.orgx/templates/262cac6c-4245-4ce3-90d2-122a488c36cd\"}")
           }
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "voila!",
+      description = "OK",
       content = @Content(
-          schema = @Schema(implementation = RecommendTemplatesResponse.class),
+          schema = @Schema(implementation = AlignMetadataResponse.class),
           examples = {
-              @ExampleObject(name = "boo", value = "example",
-                  summary = "example of boo", externalValue = "example of external value")
+              @ExampleObject()
           }
       ))
-  public Response alignMetadata(AlignMetadataRequest request) {
+  @ApiResponse(responseCode = "400", description = "Bad request")
+  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  public Response alignMetadata(@NotNull @Valid AlignMetadataRequest request) {
 
     try {
       List<FieldAlignment> fieldAlignments =

@@ -43,6 +43,11 @@
       <version>2.0.23-2</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.dropwizard</groupId>
+      <artifactId>dropwizard-assets</artifactId>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/fluent-hc -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>

@@ -1,11 +1,11 @@
 package org.metadatacenter.fairware.resources;
 
-
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response;
         version = "prototype",
         description = "This API provides several endpoints to assess and enhance metadata quality based on <a href=\"https://www.go-fair.org/fair-principles/\">the FAIR guiding principles</a>.",
         termsOfService = "/tos",
-        //license = @License(name = "Apache 2.0 License", url = "https://www.apache.org/licenses/LICENSE-2.0"),
+        license = @License(name = "Apache 2.0 License", url = "https://www.apache.org/licenses/LICENSE-2.0"),
         contact = @Contact(name = " ", email = "marcosmr@stanford.edu")
     )
 )

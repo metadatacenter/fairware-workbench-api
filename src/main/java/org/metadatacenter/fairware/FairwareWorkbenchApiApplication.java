@@ -41,6 +41,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
         return configuration.getSwaggerBundleConfiguration();
       }
     });
+    // Serve static files
+    //bootstrap.addBundle(new AssetsBundle("/examples/", "/examples/"));
   }
 
   @Override
@@ -59,7 +61,6 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
     // Register resources
-
     final CommonApiDocumentationResource commonApiDocumentationResource = new CommonApiDocumentationResource();
     environment.jersey().register(commonApiDocumentationResource);
 
