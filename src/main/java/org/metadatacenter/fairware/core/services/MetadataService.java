@@ -40,11 +40,11 @@ public class MetadataService implements IMetadataService {
     List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
 
     // Find alignments between metadata fields and template fields
-    double[][] similarityMatrix = new double[metadataFields.size()][templateFields.size()];
-    int minDimension = Math.min(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
-    for (int i=0; i<metadataFields.size(); i++) {
-      for (int j=0; j<templateFields.size(); j++) {
-        if (i>=minDimension || j>=minDimension) {
+    int maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
+    double[][] similarityMatrix = new double[maxDimension][maxDimension];
+    for (int i=0; i<maxDimension; i++) {
+      for (int j=0; j<maxDimension; j++) {
+        if (i>=metadataFields.size() || j>=templateFields.size()) {
           similarityMatrix[i][j] = -1;
         }
         else {
