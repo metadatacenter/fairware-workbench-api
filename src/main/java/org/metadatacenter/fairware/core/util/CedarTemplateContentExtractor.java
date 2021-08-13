@@ -72,7 +72,7 @@ public class CedarTemplateContentExtractor {
         if (isTemplateFieldNode(jsonFieldNode) || isTemplateElementNode(jsonFieldNode)) {
 
           // Get field/element identifier
-          String id = null;
+          String id;
           if ((jsonFieldNode.get(JSON_LD_ID) != null) && (jsonFieldNode.get(JSON_LD_ID).asText().length() > 0)) {
             id = jsonFieldNode.get(JSON_LD_ID).asText();
           } else {
@@ -83,17 +83,15 @@ public class CedarTemplateContentExtractor {
           String name = null;
           if ((jsonFieldNode.get(SCHEMA_ORG_NAME) != null) && (jsonFieldNode.get(SCHEMA_ORG_NAME).asText().length() > 0)) {
             name = jsonFieldNode.get(SCHEMA_ORG_NAME).asText();
-          } else {
-            // Do nothing. This field is not required.
-          }
+          }  // Else, do nothing. This field is not required.
+
 
           // Get preferred label
           String prefLabel = null;
           if ((jsonFieldNode.get(SKOS_PREFLABEL) != null) && (jsonFieldNode.get(SKOS_PREFLABEL).asText().length() > 0)) {
             prefLabel = jsonFieldNode.get(SKOS_PREFLABEL).asText();
-          } else {
-            // Do nothing. This field is not required.
-          }
+          }  // Do nothing. This field is not required.
+
 
           // Add json field path to the results. I create a new list to not modify currentPath
           List<String> jsonFieldPath = new ArrayList<>(currentPath);
@@ -128,11 +126,7 @@ public class CedarTemplateContentExtractor {
    * @return
    */
   private static boolean isTemplateFieldNode(JsonNode node) {
-    if (node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.FIELD.getAtType())) {
-      return true;
-    } else {
-      return false;
-    }
+    return node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.FIELD.getAtType());
   }
 
   /**
@@ -142,11 +136,7 @@ public class CedarTemplateContentExtractor {
    * @return
    */
   private static boolean isTemplateElementNode(JsonNode node) {
-    if (node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.ELEMENT.getAtType())) {
-      return true;
-    } else {
-      return false;
-    }
+    return node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.ELEMENT.getAtType());
   }
 
   /**

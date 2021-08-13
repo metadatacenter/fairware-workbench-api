@@ -38,10 +38,9 @@ public class CedarService {
     HttpResponse response = request.execute().returnResponse();
 
     if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-      Map<String, Object> templateMap = objectMapper.readValue(
+      return objectMapper.readValue(
           response.getEntity().getContent(),
           new TypeReference<HashMap<String,Object>>(){});
-      return templateMap;
     } else {
       throw new HttpException("Error connecting to CEDAR: " + response.getStatusLine());
     }
@@ -58,9 +57,8 @@ public class CedarService {
     HttpResponse response = request.execute().returnResponse();
 
     if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-      RecommendTemplatesResponse cedarResponse = objectMapper.
+      return objectMapper.
           readValue(response.getEntity().getContent(), RecommendTemplatesResponse.class);
-      return cedarResponse;
     } else {
       throw new HttpException("Error connecting to CEDAR: " + response.getStatusLine());
     }

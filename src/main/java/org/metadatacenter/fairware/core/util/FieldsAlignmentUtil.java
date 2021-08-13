@@ -42,9 +42,8 @@ public class FieldsAlignmentUtil {
     }
 
     /* 3. Aggregate name and path similarities */
-    double aggregatedSimilarity = nameSimilarityWeight * nameSimilarity + pathSimilarityWeight * pathSimilarity;
 
-    return aggregatedSimilarity;
+    return nameSimilarityWeight * nameSimilarity + pathSimilarityWeight * pathSimilarity;
   }
 
   /**
@@ -92,11 +91,10 @@ public class FieldsAlignmentUtil {
                                                              double[][] similarityMatrix, int[] selectedAlignments) {
     List<FieldAlignment> alignments = new ArrayList<>();
     for (int i=0; i<selectedAlignments.length; i++) {
-      int metadataFieldIndex = i;
-      int templateFieldIndex = selectedAlignments[i];
-      if (templateFieldIndex > -1 && similarityMatrix[metadataFieldIndex][templateFieldIndex] >= 0) {
-        alignments.add(new FieldAlignment(similarityMatrix[metadataFieldIndex][templateFieldIndex],
-            metadataFields.get(metadataFieldIndex),
+      int templateFieldIndex = selectedAlignments[i]; // note that i corresponds to the metadata field index
+      if (templateFieldIndex > -1 && similarityMatrix[i][templateFieldIndex] >= 0) {
+        alignments.add(new FieldAlignment(similarityMatrix[i][templateFieldIndex],
+            metadataFields.get(i),
             templateFields.get(templateFieldIndex)));
       }
     }

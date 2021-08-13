@@ -1,9 +1,5 @@
 package org.metadatacenter.fairware.constants;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class CedarModelConstants
 {
 
@@ -159,6 +155,4 @@ public class CedarModelConstants
   public static final String OSLC = "oslc";
   public static final String SKOS = "skos";
   public static final String BIBO = "bibo";
-
-
 }
