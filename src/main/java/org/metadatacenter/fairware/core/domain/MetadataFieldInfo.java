@@ -1,15 +1,16 @@
 package org.metadatacenter.fairware.core.domain;
 
+import java.util.List;
 import java.util.Objects;
 
 public class MetadataFieldInfo {
 
   private String name;
-  private String path;
+  private List<String> path;
 
   public MetadataFieldInfo() {}
 
-  public MetadataFieldInfo(String name, String path) {
+  public MetadataFieldInfo(String name, List<String> path) {
     this.name = name;
     this.path = path;
   }
@@ -22,11 +23,11 @@ public class MetadataFieldInfo {
     this.name = name;
   }
 
-  public String getPath() {
+  public List<String> getPath() {
     return path;
   }
 
-  public void setPath(String path) {
+  public void setPath(List<String> path) {
     this.path = path;
   }
 

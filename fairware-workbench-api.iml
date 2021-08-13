@@ -105,7 +105,6 @@
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.31" level="project" />
     <orderEntry type="library" name="Maven: in.vectorpro.dropwizard:dropwizard-swagger:2.0.23-2" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard:dropwizard-views:2.0.23" level="project" />
-    <orderEntry type="library" name="Maven: io.dropwizard:dropwizard-assets:2.0.23" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard:dropwizard-auth:2.0.23" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard.metrics:metrics-caffeine:4.1.23" level="project" />
     <orderEntry type="library" name="Maven: io.dropwizard:dropwizard-views-freemarker:2.0.23" level="project" />
@@ -119,6 +118,7 @@
     <orderEntry type="library" name="Maven: io.swagger.core.v3:swagger-jaxrs2:2.0.10" level="project" />
     <orderEntry type="library" name="Maven: io.github.classgraph:classgraph:4.6.32" level="project" />
     <orderEntry type="library" name="Maven: io.swagger.core.v3:swagger-integration:2.0.10" level="project" />
+    <orderEntry type="library" name="Maven: io.dropwizard:dropwizard-assets:2.0.23" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:fluent-hc:4.5.13" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.13" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.15" level="project" />

@@ -104,7 +104,7 @@ public class CedarTemplateContentExtractor {
             // Get instance type (@type) if it exists)
             Optional<String> instanceType = getInstanceType(jsonFieldNode);
 
-            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath, CedarArtifactType.FIELD, isArray));
+            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1), CedarArtifactType.FIELD, isArray));
           }
           // Element
           else if (isTemplateElementNode(jsonFieldNode)) {

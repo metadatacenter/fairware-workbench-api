@@ -1,5 +1,7 @@
 package org.metadatacenter.fairware.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 /**
@@ -35,11 +37,13 @@ public class TemplateNodeInfo {
   /**
    * Artifact type, that is, 'FIELD' or 'ELEMENT'.
    */
+  @JsonIgnore
   private CedarArtifactType type; // Node type (e.g. field)
 
   /**
    * Specifies if the JSON node contains just one artifact or an array of artifacts.
    */
+  @JsonIgnore
   private boolean isArray;
 
   public TemplateNodeInfo(String id, String name, String prefLabel, List<String> path,
@@ -77,6 +81,7 @@ public class TemplateNodeInfo {
     return type;
   }
 
+  @JsonIgnore
   public boolean isArray() {
     return isArray;
   }
@@ -89,6 +94,7 @@ public class TemplateNodeInfo {
     return "['" + String.join("']['", path) + "']";
   }
 
+  @JsonIgnore
   public boolean isTemplateFieldNode() {
     if (type.equals(CedarArtifactType.FIELD)) {
       return true;
@@ -97,6 +103,7 @@ public class TemplateNodeInfo {
     }
   }
 
+  @JsonIgnore
   public boolean isTemplateElementNode() {
     if (type.equals(CedarArtifactType.ELEMENT)) {
       return true;

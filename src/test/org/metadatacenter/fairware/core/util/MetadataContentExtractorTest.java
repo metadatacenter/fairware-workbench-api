@@ -1,9 +1,5 @@
 package org.metadatacenter.fairware.core.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 
@@ -28,8 +24,8 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(2, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", "");
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", "");
+    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
+    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>());
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
   }
@@ -43,8 +39,8 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(2, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", "");
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", "");
+    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
+    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>());
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
   }
@@ -59,9 +55,9 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(3, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", "");
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", "");
-    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", "");
+    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
+    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>());
+    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", new ArrayList<>());
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
     Assertions.assertTrue(fieldsInfo.contains(f3Info));
@@ -88,9 +84,9 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(3, fieldsInfo.size());
 
-    MetadataFieldInfo f0Info = new MetadataFieldInfo("f0", "");
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", "arrayOfObjects");
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", "arrayOfObjects");
+    MetadataFieldInfo f0Info = new MetadataFieldInfo("f0", new ArrayList<>());
+    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>(Arrays.asList("arrayOfObjects")));
+    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>(Arrays.asList("arrayOfObjects")));
     Assertions.assertTrue(fieldsInfo.contains(f0Info));
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
@@ -107,15 +103,14 @@ public class MetadataContentExtractorTest {
     metadataRecord.put("f1", Arrays.asList(new String[]{"v1", "v2"}));
     metadataRecord.put("nestedFields", nestedMap);
 
-
     List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(5, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", "");
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", "nestedFields");
-    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", "nestedFields");
-    MetadataFieldInfo f4Info = new MetadataFieldInfo("f4", "nestedFields");
-    MetadataFieldInfo f5Info = new MetadataFieldInfo("f5", "nestedFields");
+    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
+    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>(Arrays.asList("nestedFields")));
+    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", new ArrayList<>(Arrays.asList("nestedFields")));
+    MetadataFieldInfo f4Info = new MetadataFieldInfo("f4", new ArrayList<>(Arrays.asList("nestedFields")));
+    MetadataFieldInfo f5Info = new MetadataFieldInfo("f5", new ArrayList<>(Arrays.asList("nestedFields")));
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
     Assertions.assertTrue(fieldsInfo.contains(f3Info));

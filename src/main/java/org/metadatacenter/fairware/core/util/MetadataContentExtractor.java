@@ -25,7 +25,7 @@ public class MetadataContentExtractor {
     for (Map.Entry<String, Object> entry : current.entrySet()) {
 
       if (entry.getValue() instanceof String || entry.getValue() instanceof Number) { // String or Numeric
-        result.add(new MetadataFieldInfo(entry.getKey(), getPathDotNotation(currentPath)));
+        result.add(new MetadataFieldInfo(entry.getKey(), new ArrayList<>(currentPath)));
       }
       else if (entry.getValue() instanceof Map<?, ?>) { // Another object
         currentPath.add(entry.getKey());
@@ -34,7 +34,7 @@ public class MetadataContentExtractor {
       else if (entry.getValue() instanceof List<?>) { // Array
         Object firstValue = ((List<?>)entry.getValue()).get(0);
         if (firstValue instanceof String || firstValue instanceof Number) { // non-primitive types, e.g., String[]
-          result.add(new MetadataFieldInfo(entry.getKey(), getPathDotNotation(currentPath)));
+          result.add(new MetadataFieldInfo(entry.getKey(), new ArrayList<>(currentPath)));
         }
         else if (firstValue instanceof Map<?, ?>) { // Another object
           currentPath.add(entry.getKey());

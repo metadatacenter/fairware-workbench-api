@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware.core.util;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
+import org.apache.commons.lang3.StringUtils;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
@@ -10,11 +11,16 @@ import java.util.List;
 
 public class FieldsAlignmentUtil {
 
-  public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateNodeInfo templateField) {
-    // Apply basic normalization
-    String metadataFieldName = StringUtil.basicNormalization(metadataField.getName());
-    String templateFieldName = StringUtil.basicNormalization(templateField.getName());
-    String templateFieldPrefLabel = StringUtil.basicNormalization(templateField.getPrefLabel());
+  /**
+   * Calculates the similarity between a metadata field and a template field
+   * @param metadataField
+   * @param templateField
+   * @param nameSimilarityWeight
+   * @param pathSimilarityWeight
+   * @return Similarity value in the range [0,1]
+   */
+  public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateNodeInfo templateField,
+                                           double nameSimilarityWeight, double pathSimilarityWeight) {
 
     if (metadataField == null || templateField == null) {
       throw new IllegalArgumentException("Null argument");
@@ -22,14 +28,65 @@ public class FieldsAlignmentUtil {
     if (metadataField.getName() == null || templateField.getName() == null) {
       throw new IllegalArgumentException("The field name cannot be null");
     }
-    // FuzzySearch.weightedRatio calculates a weighted ratio between the different FuzzyWuzzy algorithms for best results
-    int ratio = FuzzySearch.weightedRatio(metadataFieldName, templateFieldName);
-    if (templateFieldPrefLabel != null && templateFieldPrefLabel.length() > 0) {
-      ratio = Math.max(ratio, FuzzySearch.weightedRatio(metadataFieldName, templateFieldPrefLabel));
+
+    /* 1. Name similarity */
+    double nameSimilarity = calculateNameSimilarity(metadataField.getName(), templateField.getName());
+    if (templateField.getPrefLabel() != null && templateField.getPrefLabel().length() > 0) {
+      nameSimilarity = Math.max(nameSimilarity, calculateNameSimilarity(metadataField.getName(), templateField.getPrefLabel()));
     }
+
+    double pathSimilarity = 0;
+    /* 2. Path similarity */
+    if (nameSimilarity > 0) {
+      pathSimilarity = calculatePathSimilarity(metadataField.getPath(), templateField.getPath());
+    }
+
+    /* 3. Aggregate name and path similarities */
+    double aggregatedSimilarity = nameSimilarityWeight * nameSimilarity + pathSimilarityWeight * pathSimilarity;
+
+    return aggregatedSimilarity;
+  }
+
+  /**
+   * Calculates the similarity between two field names using the FuzzyWuzzy library.
+   * @param fieldName1
+   * @param fieldName2
+   * @return Similarity value in the range [0,1]
+   */
+  private static double calculateNameSimilarity(String fieldName1, String fieldName2) {
+    // FuzzySearch.weightedRatio calculates a weighted ratio between different FuzzyWuzzy algorithms for best results
+    int ratio = FuzzySearch.weightedRatio(StringUtil.basicNormalization(fieldName1),
+        StringUtil.basicNormalization(fieldName2));
     return (double) ratio / (double) 100;
   }
 
+  /**
+   * Calculates the similarity between two field paths using the FuzzyWuzzy library.
+   * @param fieldPath1
+   * @param fieldPath2
+   * @return Similarity value in the range [0,1]
+   */
+  private static double calculatePathSimilarity(List<String> fieldPath1, List<String> fieldPath2) {
+    if (fieldPath1.isEmpty() && fieldPath2.isEmpty()) {
+      return 1;
+    }
+    if (fieldPath1.isEmpty() || fieldPath2.isEmpty()) {
+      return 0;
+    }
+    String fieldPath1Str = StringUtil.basicNormalization(StringUtils.join(fieldPath1, "."));
+    String fieldPath2Str = StringUtil.basicNormalization(StringUtils.join(fieldPath2, "."));
+    int ratio = FuzzySearch.ratio(fieldPath1Str, fieldPath2Str);
+    return (double) ratio / (double) 100;
+  }
+
+  /**
+   * Generates a list of FieldAlignment objects
+   * @param metadataFields
+   * @param templateFields
+   * @param similarityMatrix
+   * @param selectedAlignments
+   * @return
+   */
   public static List<FieldAlignment> generateFieldAlignments(List<MetadataFieldInfo> metadataFields,
                                                              List<TemplateNodeInfo> templateFields,
                                                              double[][] similarityMatrix, int[] selectedAlignments) {
@@ -63,7 +120,7 @@ public class FieldsAlignmentUtil {
   }
 
   /**
-   * Translates a similarity matrix in the interval [0,1] to a distance matrix in [0,1], or viceversa
+   * Translates a similarity matrix in the interval [0,1] to a distance matrix in [0,1], and viceversa
    * @param matrix
    * @return
    */

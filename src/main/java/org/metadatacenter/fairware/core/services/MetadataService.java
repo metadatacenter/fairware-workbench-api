@@ -48,8 +48,9 @@ public class MetadataService implements IMetadataService {
           similarityMatrix[i][j] = -1;
         }
         else {
-          // Calculate and save distance (1 - similarity)
-          similarityMatrix[i][j] = FieldsAlignmentUtil.calculateSimilarity(metadataFields.get(i), templateFields.get(j));
+          // Calculate and save similarity
+          similarityMatrix[i][j] = FieldsAlignmentUtil.calculateSimilarity(metadataFields.get(i), templateFields.get(j),
+              coreConfig.getNameSimilarityWeight(), coreConfig.getPathSimilarityWeight());
         }
       }
     }
