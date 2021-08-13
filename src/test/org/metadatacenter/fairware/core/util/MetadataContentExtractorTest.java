@@ -7,14 +7,6 @@ import java.util.*;
 
 public class MetadataContentExtractorTest {
 
-  @BeforeAll
-  static void setup() {
-  }
-
-  @BeforeEach
-  void setupThis() {
-  }
-
   @Test
   void testExtractMetadataFieldsInfoFlatStrings() {
     final Map<String, Object> metadataRecord = new HashMap<>();
@@ -117,14 +109,5 @@ public class MetadataContentExtractorTest {
     Assertions.assertTrue(fieldsInfo.contains(f4Info));
     Assertions.assertTrue(fieldsInfo.contains(f5Info));
   }
-
-  @AfterEach
-  void tearThis() {
-  }
-
-  @AfterAll
-  static void tear() {
-  }
-
 
 }

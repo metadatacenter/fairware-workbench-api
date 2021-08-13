@@ -43,7 +43,7 @@ public class MetadataService implements IMetadataService {
 
     // Extract template nodes from the template. Keep fields only
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
-        .stream().filter(n->n.isTemplateFieldNode()).collect(Collectors.toList());
+        .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
     // Extract metadata fields from the metadata record
     List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
 

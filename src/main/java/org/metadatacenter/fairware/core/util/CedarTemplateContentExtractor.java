@@ -44,12 +44,12 @@ public class CedarTemplateContentExtractor {
    * @param results     Used internally to store the results
    * @return A list of the template elements and fields in the template, represented using the TemplateNode class
    */
-  private static List<TemplateNodeInfo> getTemplateNodes(JsonNode node, List<String> currentPath, List results) {
+  private static List<TemplateNodeInfo> getTemplateNodes(JsonNode node, List<String> currentPath, List<TemplateNodeInfo> results) {
     if (currentPath == null) {
       currentPath = new ArrayList<>();
     }
     if (results == null) {
-      results = new ArrayList();
+      results = new ArrayList<>();
     }
     Iterator<Map.Entry<String, JsonNode>> jsonFieldsIterator = node.fields();
     while (jsonFieldsIterator.hasNext()) {
@@ -99,9 +99,6 @@ public class CedarTemplateContentExtractor {
 
           // Field
           if (isTemplateFieldNode(jsonFieldNode)) {
-            // Get instance type (@type) if it exists)
-            Optional<String> instanceType = getInstanceType(jsonFieldNode);
-
             results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1), CedarArtifactType.FIELD, isArray));
           }
           // Element
@@ -122,8 +119,8 @@ public class CedarTemplateContentExtractor {
   /**
    * Checks if a Json node corresponds to a CEDAR template field
    *
-   * @param node
-   * @return
+   * @param node a Json node
+   * @return true if the node corresponds to a template field, or false otherwise
    */
   private static boolean isTemplateFieldNode(JsonNode node) {
     return node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.FIELD.getAtType());
@@ -132,33 +129,11 @@ public class CedarTemplateContentExtractor {
   /**
    * Checks if a Json node corresponds to a CEDAR template element
    *
-   * @param node
-   * @return
+   * @param node a Json node
+   * @return true if the node corresponds to a template element, or false otherwise
    */
   private static boolean isTemplateElementNode(JsonNode node) {
     return node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.ELEMENT.getAtType());
-  }
-
-  /**
-   * Returns the instance type of a field node
-   *
-   * @param fieldNode
-   * @return
-   */
-  private static Optional<String> getInstanceType(JsonNode fieldNode) {
-    if (isTemplateFieldNode(fieldNode)) {
-      if (fieldNode.get(JSON_SCHEMA_PROPERTIES) != null &&
-          fieldNode.get(JSON_SCHEMA_PROPERTIES).get(JSON_LD_TYPE) != null &&
-          fieldNode.get(JSON_SCHEMA_PROPERTIES).get(JSON_LD_TYPE).get(JSON_SCHEMA_ONE_OF) != null &&
-          fieldNode.get(JSON_SCHEMA_PROPERTIES).get(JSON_LD_TYPE).get(JSON_SCHEMA_ONE_OF).size() > 0 &&
-          fieldNode.get(JSON_SCHEMA_PROPERTIES).get(JSON_LD_TYPE).get(JSON_SCHEMA_ONE_OF).get(0).get(JSON_SCHEMA_ENUM) != null &&
-          fieldNode.get(JSON_SCHEMA_PROPERTIES).get(JSON_LD_TYPE).get(JSON_SCHEMA_ONE_OF).get(0).get(JSON_SCHEMA_ENUM).size() > 0) {
-
-        return Optional.of(fieldNode.get(JSON_SCHEMA_PROPERTIES).
-            get(JSON_LD_TYPE).get(JSON_SCHEMA_ONE_OF).get(0).get(JSON_SCHEMA_ENUM).get(0).asText());
-      }
-    }
-    return Optional.empty();
   }
 
 }

@@ -13,10 +13,10 @@ public class FieldsAlignmentUtil {
 
   /**
    * Calculates the similarity between a metadata field and a template field
-   * @param metadataField
-   * @param templateField
-   * @param nameSimilarityWeight
-   * @param pathSimilarityWeight
+   * @param metadataField a metadata field
+   * @param templateField a template field
+   * @param nameSimilarityWeight weight in the interval [0,1] assigned to the field name similarity
+   * @param pathSimilarityWeight weight in the interval [0,1] assigned to the field path similarity
    * @return Similarity value in the range [0,1]
    */
   public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateNodeInfo templateField,
@@ -48,8 +48,8 @@ public class FieldsAlignmentUtil {
 
   /**
    * Calculates the similarity between two field names using the FuzzyWuzzy library.
-   * @param fieldName1
-   * @param fieldName2
+   * @param fieldName1 a field name
+   * @param fieldName2 another field name
    * @return Similarity value in the range [0,1]
    */
   private static double calculateNameSimilarity(String fieldName1, String fieldName2) {
@@ -61,9 +61,9 @@ public class FieldsAlignmentUtil {
 
   /**
    * Calculates the similarity between two field paths using the FuzzyWuzzy library.
-   * @param fieldPath1
-   * @param fieldPath2
-   * @return Similarity value in the range [0,1]
+   * @param fieldPath1 the path of the first field
+   * @param fieldPath2 the path of the second field
+   * @return a similarity value in the range [0,1] that represents the similarity between the two input paths
    */
   private static double calculatePathSimilarity(List<String> fieldPath1, List<String> fieldPath2) {
     if (fieldPath1.isEmpty() && fieldPath2.isEmpty()) {
@@ -80,18 +80,21 @@ public class FieldsAlignmentUtil {
 
   /**
    * Generates a list of FieldAlignment objects
-   * @param metadataFields
-   * @param templateFields
-   * @param similarityMatrix
-   * @param selectedAlignments
-   * @return
+   *
+   * @param metadataFields     the list of metadata fields
+   * @param templateFields     the list of template fields
+   * @param similarityMatrix   a matrix with the similarity between metadata fields and template fields
+   * @param selectedAlignments array with optimal alignments, selected by the hungarian algorithm. For
+   *                           selectedAlignments[i]=j, the metadata field with index i is aligned to the
+   *                           template field with index j in the similarity matrix
+   * @return a list of alignments between metadata and template fields, represented using the FieldAlignment class
    */
   public static List<FieldAlignment> generateFieldAlignments(List<MetadataFieldInfo> metadataFields,
                                                              List<TemplateNodeInfo> templateFields,
                                                              double[][] similarityMatrix, int[] selectedAlignments) {
     List<FieldAlignment> alignments = new ArrayList<>();
     for (int i=0; i<selectedAlignments.length; i++) {
-      int templateFieldIndex = selectedAlignments[i]; // note that i corresponds to the metadata field index
+      int templateFieldIndex = selectedAlignments[i];
       if (templateFieldIndex > -1 && similarityMatrix[i][templateFieldIndex] >= 0) {
         alignments.add(new FieldAlignment(similarityMatrix[i][templateFieldIndex],
             metadataFields.get(i),
@@ -102,10 +105,11 @@ public class FieldsAlignmentUtil {
   }
 
   /**
-   * Transform the similarity matrix to ignore (set to -1) all correspondences with similarity under a given threshold
-   * @param matrix
-   * @param threshold
-   * @return
+   * Transforms the similarity matrix to ignore (set to -1) all correspondences with similarity under a given threshold
+   *
+   * @param matrix a similarity matrix, with similarity values in the interval [0,1]
+   * @param threshold a threshold in the interval [0,1]
+   * @return a transformed similarity matrix, with all values lower than the threshold set to -1
    */
   public static double[][] filterBySimilarity(double[][] matrix, double threshold) {
     double[][] result = new double[matrix.length][matrix[0].length];
@@ -119,8 +123,9 @@ public class FieldsAlignmentUtil {
 
   /**
    * Translates a similarity matrix in the interval [0,1] to a distance matrix in [0,1], and viceversa
-   * @param matrix
-   * @return
+   *
+   * @param matrix a similarity/distance matrix
+   * @return a translated similarity/distance matrix
    */
   public static double[][] translateMatrix(double[][] matrix) {
     double[][] result = new double[matrix.length][matrix[0].length];
