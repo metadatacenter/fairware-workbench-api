@@ -5,7 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 /**
- * This class stores information about JSON nodes in a CEDAR template. A template node can contain:
+ * This class stores information about JSON nodes in a CEDAR template. A template node may contain:
+ *
  * 1) A template element, or
  * 2) A template field, or
  * 3) An array of template elements, or

@@ -27,10 +27,17 @@ public class CedarService {
 
   public CedarService(CedarConfig cedarConfig) {
     this.cedarConfig = cedarConfig;
-    // TODO find better place to define and reuse ObjectMapper
     objectMapper = new ObjectMapper();
   }
 
+  /**
+   * Find CEDAR template by id
+   *
+   * @param templateId  the template identifier
+   * @return  a CEDAR template
+   * @throws IOException
+   * @throws HttpException
+   */
   public Map<String, Object> findTemplate(String templateId) throws IOException, HttpException {
     templateId = URLEncoder.encode(templateId, StandardCharsets.UTF_8.toString());
     String url = cedarConfig.getResourceServer().getTemplatesUrl() + templateId;
@@ -46,6 +53,15 @@ public class CedarService {
     }
   }
 
+  /**
+   * Makes a call to CEDAR's template recommendation endpoint to retrieve a ranked list of recommended templates for
+   * the given input metadata record
+   *
+   * @param metadataRecord  the input metadata record
+   * @return  a ranked list of recommended CEDAR templates
+   * @throws IOException
+   * @throws HttpException
+   */
   public RecommendTemplatesResponse recommendTemplates(Map<String, Object> metadataRecord)
       throws IOException, HttpException {
 

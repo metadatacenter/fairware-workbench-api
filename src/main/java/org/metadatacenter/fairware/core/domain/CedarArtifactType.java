@@ -18,19 +18,10 @@ public enum CedarArtifactType {
   }
 
   public static class Prefix {
-    public static final String FOLDERS = "folders";
     public static final String FIELDS = "template-fields";
     public static final String ELEMENTS = "template-elements";
     public static final String TEMPLATES = "templates";
-    //TODO: this should be removed once we don't need it in the frontend and the validation
-    public static final String ELEMENT_INSTANCES = "template-element-instances";
     public static final String INSTANCES = "template-instances";
-    public static final String USERS = "users";
-    public static final String GROUPS = "groups";
-    public static final String MESSAGES = "messages";
-    public static final String USERMESSAGES = "user-messages";
-    public static final String PROCESS_TYPES = "process-types";
-    public static final String CATEGORIES = "categories";
   }
 
   public static class AtType {

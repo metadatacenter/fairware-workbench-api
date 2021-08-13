@@ -27,6 +27,15 @@ public class MetadataService implements IMetadataService {
     this.coreConfig = coreConfig;
   }
 
+  /**
+   * This method finds an alignment between the fields in a metadata record and a given CEDAR template. It makes use
+   * of the Hungarian algorithm to ensure that the alignment is optimal.
+   * @param templateId  CEDAR template identifier
+   * @param metadataRecord  Input metadata record
+   * @return  A list of alignments between fields in the metadata record and fields in the given template
+   * @throws IOException
+   * @throws HttpException
+   */
   @Override
   public List<FieldAlignment> alignMetadata(String templateId, Map<String, Object> metadataRecord)
       throws IOException, HttpException {
