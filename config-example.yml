@@ -35,11 +35,17 @@ logging:
       archivedFileCount: 5
       timeZone: UTC
 
+core:
+  similarityThreshold: 0.7
+  nameSimilarityWeight: 0.9
+  pathSimilarityWeight: 0.1
+
 # the only required property is resourcePackage (more info at https://github.com/smoketurner/dropwizard-swagger)
 swagger:
   resourcePackage: org.metadatacenter.fairware
 
 cedar:
-  apiKey: 'ae7a5d2bf6254707b3d9c51822e5ef49c528428791c3e2f84b9e75532326e74b'
+  apiKey: '<your CEDAR api key>'
   resourceServer:
-    recommendTemplatesUrl: 'https://resource.metadatacenter.orgx/templates/recommend'
+    templatesUrl: 'https://resource.metadatacenter.orgx/templates/'
+    recommendTemplatesUrl: 'https://resource.metadatacenter.orgx/templates/recommend/'
