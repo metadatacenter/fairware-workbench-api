@@ -1,5 +1,7 @@
 # FAIRware Workbench API
 
+![example workflow](https://github.com/metadatacenter/fairware-workbench-api/actions/workflows/ci.yml/badge.svg)
+
 How to start the FAIRware Workbench API application
 ---
 
