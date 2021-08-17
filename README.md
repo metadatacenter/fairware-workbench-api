@@ -9,7 +9,15 @@ Build status
 
 Introduction
 ---
-This repository contains the code associated to the API layer of the FAIRware Workbench. The FAIRware Workbench is a tool under development that will evaluate the metadata for digital research objects based on the [FAIR principles](https://www.go-fair.org/fair-principles/) and will provide actionable advice on how to make the metadata FAIR. Our system’s advice will centre on the one thing directly under the control of the investigator—the quality of the metadata used to annotate the digital research objects under consideration.
+This repository contains the code associated with the API layer of the FAIRware Workbench. 
+
+The FAIRware Workbench is a tool to evaluate the metadata for digital research objects based on the [FAIR principles](https://www.go-fair.org/fair-principles/). This tool will provide researchers with actionable advice on how to improve the quality of the metadata used to annotate the digital research objects under consideration.
+
+For more information about the FAIRware initiative, take a look at this [press release from the Research on Research Institute (RoRI)](https://researchonresearch.org/tpost/9f5ems1x81-rori-selects-the-stanford-center-for-bio).
+
+The following diagram shows the architecture of the FAIRware Workbench. The code in the current repository corresponds to the Open APIs and Backend services layers, highlighted in red.
+
+![Screen Shot 2021-08-17 at 3 58 05 PM](https://user-images.githubusercontent.com/7634440/129739276-388240df-c742-43ff-bd5c-a2627f956fe9.png)
 
 
 How to start the FAIRware Workbench API application
