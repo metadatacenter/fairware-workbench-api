@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: org.metadatacenter.fairware.core.util.MetadataContentExtractorTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.036 s - in org.metadatacenter.fairware.core.util.MetadataContentExtractorTest
