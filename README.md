@@ -1,6 +1,10 @@
 # FAIRware Workbench API
 
+**Build status**
+
+develop:
 ![ci-develop](https://github.com/metadatacenter/fairware-workbench-api/actions/workflows/ci.yml/badge.svg?branch=develop)
+master:
 ![ci-master](https://github.com/metadatacenter/fairware-workbench-api/actions/workflows/ci.yml/badge.svg?branch=master)
 
 How to start the FAIRware Workbench API application
