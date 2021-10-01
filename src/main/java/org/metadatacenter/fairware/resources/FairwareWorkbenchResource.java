@@ -27,6 +27,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -167,7 +168,7 @@ public class FairwareWorkbenchResource {
       List<EvaluationReportItem> reportItems =
           metadataService.evaluateMetadata(request.getTemplateId(), request.getMetadataRecord(), request.getFieldAlignments());
       EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getTemplateId(),
-          new Date(System.currentTimeMillis()), request.getMetadataRecord(), reportItems);
+          LocalDateTime.now(), request.getMetadataRecord(), reportItems);
       return Response.ok(report).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
