@@ -39,8 +39,8 @@ public class CedarService {
    * @throws HttpException
    */
   public Map<String, Object> findTemplate(String templateId) throws IOException, HttpException {
-    templateId = URLEncoder.encode(templateId, StandardCharsets.UTF_8.toString());
-    String url = cedarConfig.getResourceServer().getTemplatesUrl() + templateId;
+    String url = cedarConfig.getResourceServer().getTemplatesUrl() +
+        URLEncoder.encode(templateId, StandardCharsets.UTF_8.toString());
     Request request = Request.Get(url).addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
     HttpResponse response = request.execute().returnResponse();
 
@@ -48,8 +48,10 @@ public class CedarService {
       return objectMapper.readValue(
           response.getEntity().getContent(),
           new TypeReference<HashMap<String,Object>>(){});
-    } else {
-      throw new HttpException("Error connecting to CEDAR: " + response.getStatusLine());
+    }
+    else {
+      throw new HttpException("Couldn't find CEDAR template (templateId = " + templateId + "). Cause: "
+          + response.getStatusLine());
     }
   }
 
