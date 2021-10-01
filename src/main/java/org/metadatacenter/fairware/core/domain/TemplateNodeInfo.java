@@ -18,37 +18,39 @@ public class TemplateNodeInfo {
   /**
    * Artifact id. It corresponds to the '@id' JSON field.
    */
-  private final String id;
+  private String id;
 
   /**
    * Artifact name. It corresponds to the 'schema:name' JSON field.
    */
-  private final String name;
+  private String name;
 
   /**
    * Artifact preferred label. It corresponds to the 'skos:prefLabel' JSON field.
    */
-  private final String prefLabel;
+  private String prefLabel;
 
   /**
    * List of JSON keys from the root, including the key of the current JSON node.
    */
-  private final List<String> path;
+  private List<String> path;
 
   /**
    * Artifact type, that is, 'FIELD' or 'ELEMENT'.
    */
   @JsonIgnore
-  private final CedarArtifactType type; // Node type (e.g. field)
+  private CedarArtifactType type; // Node type (e.g. field)
 
   /**
    * Specifies if the JSON node contains just one artifact or an array of artifacts.
    */
   @JsonIgnore
-  private final boolean isArray;
+  private boolean isArray;
+
+  public TemplateNodeInfo() {}
 
   public TemplateNodeInfo(String id, String name, String prefLabel, List<String> path,
-                      CedarArtifactType type, boolean isArray) {
+                          CedarArtifactType type, boolean isArray) {
 
     if (type.equals(CedarArtifactType.ELEMENT) || type.equals(CedarArtifactType.FIELD)) {
       this.id = id;

@@ -9,8 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
+import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
+import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
+import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.services.MetadataService;
@@ -24,6 +27,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @Path("/")
@@ -130,5 +134,46 @@ public class FairwareWorkbenchResource {
     }
   }
 
-  
+  @POST
+  @Operation(
+      summary = "Evaluate an input metadata record based on a given CEDAR template and a list of metadata-template alignments.")
+  @Path("/metadata/evaluate")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Tag(name = "Metadata")
+  @RequestBody(description = "Metadata record and CEDAR template identifier", required = true,
+      content = @Content(
+          schema = @Schema(implementation = FieldAlignment.class),
+          examples = {
+              @ExampleObject(value = "")
+          }
+      ))
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content = @Content(
+          schema = @Schema(implementation = EvaluateMetadataResponse.class),
+          examples = {
+              @ExampleObject()
+          }
+      ))
+  @ApiResponse(responseCode = "400", description = "Bad request")
+  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  public Response evaluateMetadata(@NotNull @Valid EvaluateMetadataRequest request) {
+
+    try {
+
+      List<EvaluationReportItem> reportItems =
+          metadataService.evaluateMetadata(request.getTemplateId(), request.getMetadataRecord(), request.getFieldAlignments());
+      EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getTemplateId(),
+          new Date(System.currentTimeMillis()), request.getMetadataRecord(), reportItems);
+      return Response.ok(report).build();
+    } catch (BadRequestException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+  }
+
+
 }

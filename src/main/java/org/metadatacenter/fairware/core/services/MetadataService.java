@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
+import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.cedar.CoreConfig;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
@@ -12,12 +13,12 @@ import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MetadataService implements IMetadataService {
-
 
   private final CedarService cedarService;
   private final CoreConfig coreConfig;
@@ -73,4 +74,17 @@ public class MetadataService implements IMetadataService {
         similarityMatrix, optimalAlignment);
 
   }
+
+  @Override
+  public List<EvaluationReportItem> evaluateMetadata(String templateId, Map<String, Object> metadataRecord,
+                                                     List<FieldAlignment> fieldAlignments) {
+    List<EvaluationReportItem> reportItems = new ArrayList<>();
+
+    for (FieldAlignment fieldAlignment : fieldAlignments) {
+      reportItems.add(new EvaluationReportItem(fieldAlignment.getMetadataField(), EvaluationReportItem.Issue.MISSING_REQUIRED_VALUE));
+    }
+    return reportItems;
+  }
+
+
 }
