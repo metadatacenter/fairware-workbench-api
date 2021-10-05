@@ -7,12 +7,20 @@ public class MetadataFieldInfo {
 
   private String name;
   private List<String> path;
+  private String value; // TODO: extend implementation to deal with multiple cardinality
 
   public MetadataFieldInfo() {}
 
   public MetadataFieldInfo(String name, List<String> path) {
     this.name = name;
     this.path = path;
+    this.value =  null;
+  }
+
+  public MetadataFieldInfo(String name, List<String> path, String value) {
+    this.name = name;
+    this.path = path;
+    this.value =  value;
   }
 
   public String getName() {
@@ -27,9 +35,7 @@ public class MetadataFieldInfo {
     return path;
   }
 
-  public void setPath(List<String> path) {
-    this.path = path;
-  }
+  public String getValue() { return value; }
 
   @Override
   public boolean equals(Object o) {

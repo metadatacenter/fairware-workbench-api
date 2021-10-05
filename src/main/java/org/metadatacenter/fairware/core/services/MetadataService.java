@@ -1,24 +1,27 @@
 package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
+import org.metadatacenter.fairware.FairwareWorkbenchApiApplication;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.cedar.CoreConfig;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
-import org.metadatacenter.fairware.core.util.CedarTemplateContentExtractor;
-import org.metadatacenter.fairware.core.util.FieldsAlignmentUtil;
-import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
-import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
+import org.metadatacenter.fairware.core.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MetadataService implements IMetadataService {
+
+  private static final Logger logger = LoggerFactory.getLogger(IMetadataService.class);
 
   private final CedarService cedarService;
   private final CoreConfig coreConfig;
@@ -75,14 +78,56 @@ public class MetadataService implements IMetadataService {
 
   }
 
+  /**
+   * Evaluates an input metadata record against a given metadata template
+   * @param templateId
+   * @param metadataRecord
+   * @param fieldAlignments
+   * @return
+   */
   @Override
   public List<EvaluationReportItem> evaluateMetadata(String templateId, Map<String, Object> metadataRecord,
-                                                     List<FieldAlignment> fieldAlignments) {
+                                                     List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
+    // 1. Extract template nodes from the template (limited to fields) and store them into a Map for access in O(1)
+    Map<String, Object> template = cedarService.findTemplate(templateId);
+    List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
+        .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
+    Map<String, TemplateNodeInfo> tfMap = new HashMap<>();
+    for (TemplateNodeInfo tf : templateFields) {
+      tfMap.put(GeneralUtil.generateFullPathDotNotation(tf), tf);
+    }
+    // 2. Extract metadata fields from the metadata record and store them into a Map too.
+    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
+    for (MetadataFieldInfo mf : metadataFields) {
+      mfMap.put(GeneralUtil.generateFullPathDotNotation(mf), mf);
+    }
+
+    // 3. Use the alignments to apply the template constraints against each metadata field
+
     List<EvaluationReportItem> reportItems = new ArrayList<>();
 
-    for (FieldAlignment fieldAlignment : fieldAlignments) {
-      reportItems.add(new EvaluationReportItem(fieldAlignment.getMetadataField(), EvaluationReportItem.Issue.MISSING_REQUIRED_VALUE));
+    for (FieldAlignment al : fieldAlignments) {
+
+      MetadataFieldInfo mf = mfMap.get(al.getMetadataFieldPath());
+      if (mf == null) {
+        logger.warn("Field referenced in the alignmnet not found in the metadata record: " + al.getMetadataFieldPath());
+        continue;
+      }
+
+      TemplateNodeInfo tf = tfMap.get(al.getTemplateFieldPath());
+      if (tf == null) {
+        logger.warn("Field referenced in the alignment not found in the template: " + al.getTemplateFieldPath());
+        continue;
+      }
+
+      // Check Required value
+      if (tf.isValueRequired() && (mf.getValue() == null || mf.getValue().trim().isEmpty())) {
+        reportItems.add(new EvaluationReportItem(al.getMetadataFieldPath(), EvaluationReportItem.Issue.MISSING_REQUIRED_VALUE));
+      }
+
     }
+
     return reportItems;
   }
 

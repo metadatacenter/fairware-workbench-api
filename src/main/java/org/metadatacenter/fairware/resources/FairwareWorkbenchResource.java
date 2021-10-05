@@ -173,6 +173,9 @@ public class FairwareWorkbenchResource {
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (IOException | HttpException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }
   }
 

@@ -14,6 +14,8 @@ public class CedarModelConstants {
    * JSON Schema Keywords
    */
   public static final String JSON_SCHEMA_ITEMS = "items";
+  public static final String VALUE_CONSTRAINTS = "_valueConstraints";
+  public static final String REQUIRED_VALUE = "requiredValue";
 
   /*
    * CEDAR Artifact Keywords

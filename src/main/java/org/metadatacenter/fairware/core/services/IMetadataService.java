@@ -11,6 +11,6 @@ import java.util.Map;
 public interface IMetadataService {
 
   List<FieldAlignment> alignMetadata(String templateId, Map<String, Object> metadataRecord) throws IOException, HttpException;
-  List<EvaluationReportItem> evaluateMetadata(String templateId, Map<String, Object> metadataRecord, List<FieldAlignment> fieldAlignments);
+  List<EvaluationReportItem> evaluateMetadata(String templateId, Map<String, Object> metadataRecord, List<FieldAlignment> fieldAlignments) throws HttpException, IOException;
 
 }

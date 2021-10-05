@@ -85,13 +85,11 @@ public class CedarTemplateContentExtractor {
             name = jsonFieldNode.get(SCHEMA_ORG_NAME).asText();
           }  // Else, do nothing. This field is not required.
 
-
           // Get preferred label
           String prefLabel = null;
           if ((jsonFieldNode.get(SKOS_PREFLABEL) != null) && (jsonFieldNode.get(SKOS_PREFLABEL).asText().length() > 0)) {
             prefLabel = jsonFieldNode.get(SKOS_PREFLABEL).asText();
           }  // Do nothing. This field is not required.
-
 
           // Add json field path to the results. I create a new list to not modify currentPath
           List<String> jsonFieldPath = new ArrayList<>(currentPath);
@@ -99,11 +97,12 @@ public class CedarTemplateContentExtractor {
 
           // Field
           if (isTemplateFieldNode(jsonFieldNode)) {
-            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1), CedarArtifactType.FIELD, isArray));
+            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1),
+                CedarArtifactType.FIELD, isArray, hasRequiredValue(jsonFieldNode)));
           }
           // Element
           else if (isTemplateElementNode(jsonFieldNode)) {
-            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath, CedarArtifactType.ELEMENT, isArray));
+            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath, CedarArtifactType.ELEMENT, isArray, null));
             getTemplateNodes(jsonFieldNode, jsonFieldPath, results);
           }
         }
@@ -134,6 +133,17 @@ public class CedarTemplateContentExtractor {
    */
   private static boolean isTemplateElementNode(JsonNode node) {
     return node.get(JSON_LD_TYPE) != null && node.get(JSON_LD_TYPE).asText().equals(CedarArtifactType.ELEMENT.getAtType());
+  }
+
+  /**
+   * Checks if a template field requires a value
+   * @param templateFieldNode
+   * @return
+   */
+  public static boolean hasRequiredValue(JsonNode templateFieldNode) {
+    return (templateFieldNode.get(VALUE_CONSTRAINTS) != null
+        && templateFieldNode.get(VALUE_CONSTRAINTS).get(REQUIRED_VALUE) != null
+        && templateFieldNode.get(VALUE_CONSTRAINTS).get(REQUIRED_VALUE).asBoolean());
   }
 
 }

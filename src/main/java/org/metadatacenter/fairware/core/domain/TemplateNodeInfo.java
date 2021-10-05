@@ -47,10 +47,13 @@ public class TemplateNodeInfo {
   @JsonIgnore
   private boolean isArray;
 
+  @JsonIgnore
+  private boolean valueRequired;
+
   public TemplateNodeInfo() {}
 
   public TemplateNodeInfo(String id, String name, String prefLabel, List<String> path,
-                          CedarArtifactType type, boolean isArray) {
+                          CedarArtifactType type, boolean isArray, Boolean valueRequired) {
 
     if (type.equals(CedarArtifactType.ELEMENT) || type.equals(CedarArtifactType.FIELD)) {
       this.id = id;
@@ -59,6 +62,7 @@ public class TemplateNodeInfo {
       this.path = path;
       this.type = type;
       this.isArray = isArray;
+      this.valueRequired = valueRequired;
     } else {
       throw new IllegalArgumentException("Invalid node type: " + type.name());
     }
@@ -89,8 +93,20 @@ public class TemplateNodeInfo {
     return isArray;
   }
 
-  public String generatePathDotNotation() {
-    return String.join(".", path);
+  public boolean isValueRequired() {
+    return valueRequired;
+  }
+
+  /**
+   * Generates the full path using dot notation. Dots are first removed from the field keys to avoid confusion
+   * @return The full node path in dot notation (includes the node name)
+   */
+  public String generateFullPathDotNotation() {
+    StringBuilder pathSb = new StringBuilder();
+    for (int i=0; i<this.path.size(); i++) {
+      pathSb.append(this.path.get(i).replaceAll(".", "").trim()).append(".");
+    }
+    return pathSb.append(this.name).toString();
   }
 
   public String generatePathBracketNotation() {
