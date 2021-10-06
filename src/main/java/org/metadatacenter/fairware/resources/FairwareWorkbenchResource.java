@@ -66,11 +66,16 @@ public class FairwareWorkbenchResource {
       content = @Content(
           schema = @Schema(implementation = RecommendTemplatesResponse.class),
           examples = {
-              @ExampleObject(value = "{\"totalCount\":0,\"requestSummary\":{\"sourceFieldsCount\":0}," +
-                  "\"recommendations\":[{\"recommendationScore\":0,\"sourceFieldsMatched\":0,\"targetFieldsCount\":0," +
-                  "\"resourceExtract\":{\"@id\":\"string\",\"schema:identifier\":\"string\"," +
-                  "\"schema:name\":\"string\",\"schema:description\":\"string\",\"pav:version\":\"string\"," +
-                  "\"bibo:status\":\"string\"}}]}")
+              @ExampleObject(value = "{\"totalCount\":2,\"requestSummary\":{\"sourceFieldsCount\":3}," +
+                  "\"recommendations\":[{\"recommendationScore\":0.5,\"sourceFieldsMatched\":2," +
+                  "\"targetFieldsCount\":3,\"templateExtract\":{\"@id\":\"https://repo.metadatacenter" +
+                  ".orgx/templates/f76ad487-43a2-4693-97cd-0aaca90e85a8\",\"schema:identifier\":null," +
+                  "\"schema:name\":\"Research Study\",\"schema:description\":\"\",\"pav:version\":\"0.0.1\"," +
+                  "\"bibo:status\":\"bibo:draft\"}},{\"recommendationScore\":0.16666666666666666," +
+                  "\"sourceFieldsMatched\":1,\"targetFieldsCount\":4,\"templateExtract\":{\"@id\":\"https://repo" +
+                  ".metadatacenter.orgx/templates/82ceb37e-7edd-4dd1-b541-d55311de62bb\",\"schema:identifier\":null," +
+                  "\"schema:name\":\"Study Template\",\"schema:description\":\"\",\"pav:version\":\"0.0.1\"," +
+                  "\"bibo:status\":\"bibo:draft\"}}]}")
           }
       ))
   @ApiResponse(responseCode = "400", description = "Bad request")
@@ -113,7 +118,10 @@ public class FairwareWorkbenchResource {
       content = @Content(
           schema = @Schema(implementation = AlignMetadataResponse.class),
           examples = {
-              @ExampleObject()
+              @ExampleObject(value = "{\"totalCount\":3,\"fieldAlignments\":[{\"similarityScore\":0.91," +
+                  "\"metadataFieldPath\":\"study_id\",\"templateFieldPath\":\"Study ID\"},{\"similarityScore\":0.85," +
+                  "\"metadataFieldPath\":\"title of study\",\"templateFieldPath\":\"Study title\"}," +
+                  "{\"similarityScore\":1,\"metadataFieldPath\":\"organism\",\"templateFieldPath\":\"Organism\"}]}")
           }
       ))
   @ApiResponse(responseCode = "400", description = "Bad request")
@@ -142,11 +150,18 @@ public class FairwareWorkbenchResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "Metadata record and CEDAR template identifier", required = true,
+  @RequestBody(description = "Template identifier, metadata record, and field alignments", required = true,
       content = @Content(
-          schema = @Schema(implementation = FieldAlignment.class),
+          schema = @Schema(implementation = EvaluateMetadataRequest.class),
           examples = {
-              @ExampleObject(value = "")
+              @ExampleObject(value = "{\"templateId\":\"https://repo.metadatacenter" +
+                  ".orgx/templates/262cac6c-4245-4ce3-90d2-122a488c36cd\",\"metadataRecord\":{\"study_id\":\"12811\"," +
+                  "\"title of study\":\"\",\"contact e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo " +
+                  "sapiens\",\"age\":76,\"sex\":\"male\",\"tissue\":\"liver\",\"platform\":\"Illumina\"}," +
+                  "\"fieldAlignments\":[{\"similarityScore\":0.91,\"metadataFieldPath\":\"study_id\"," +
+                  "\"templateFieldPath\":\"Study ID\"},{\"similarityScore\":0.85,\"metadataFieldPath\":\"title of " +
+                  "study\",\"templateFieldPath\":\"Study title\"},{\"similarityScore\":1," +
+                  "\"metadataFieldPath\":\"organism\",\"templateFieldPath\":\"Organism\"}]}")
           }
       ))
   @ApiResponse(
@@ -155,7 +170,16 @@ public class FairwareWorkbenchResource {
       content = @Content(
           schema = @Schema(implementation = EvaluateMetadataResponse.class),
           examples = {
-              @ExampleObject()
+              @ExampleObject(value = "{\"templateId\":\"https://repo.metadatacenter" +
+                  ".orgx/templates/262cac6c-4245-4ce3-90d2-122a488c36cd\",\"metadataRecord\":{\"study_id\":\"12811\"," +
+                  "\"title of study\":\"\",\"contact e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\"," +
+                  "\"age\":76,\"sex\":\"male\",\"tissue\":\"liver\",\"platform\":\"Illumina\"}," +
+                  "\"fieldAlignments\":[{\"similarityScore\":0.91,\"metadataFieldPath\":\"study_id\"," +
+                  "\"templateFieldPath\":\"Study ID\"},{\"similarityScore\":0.85,\"metadataFieldPath\":\"title of " +
+                  "study\",\"templateFieldPath\":\"Study title\"},{\"similarityScore\":1," +
+                  "\"metadataFieldPath\":\"organism\",\"templateFieldPath\":\"Organism\"}]," +
+                  "\"items\":[{\"metadataFieldPath\":\"title of study\",\"issue\":\"MISSING_REQUIRED_VALUE\"}]," +
+                  "\"generatedOn\":\"2021-10-06 15:13:16\"}")
           }
       ))
   @ApiResponse(responseCode = "400", description = "Bad request")

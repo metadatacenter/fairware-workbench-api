@@ -88,7 +88,8 @@ public class MetadataService implements IMetadataService {
   @Override
   public List<EvaluationReportItem> evaluateMetadata(String templateId, Map<String, Object> metadataRecord,
                                                      List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
-    // 1. Extract template nodes from the template (limited to fields) and store them into a Map for access in O(1)
+
+    // 1. Extract nodes from the template (limited to fields) and store them into a HashMap to access them in O(1)
     Map<String, Object> template = cedarService.findTemplate(templateId);
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
@@ -96,6 +97,7 @@ public class MetadataService implements IMetadataService {
     for (TemplateNodeInfo tf : templateFields) {
       tfMap.put(GeneralUtil.generateFullPathDotNotation(tf), tf);
     }
+
     // 2. Extract metadata fields from the metadata record and store them into a Map too.
     List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
@@ -104,24 +106,23 @@ public class MetadataService implements IMetadataService {
     }
 
     // 3. Use the alignments to apply the template constraints against each metadata field
-
     List<EvaluationReportItem> reportItems = new ArrayList<>();
 
     for (FieldAlignment al : fieldAlignments) {
 
       MetadataFieldInfo mf = mfMap.get(al.getMetadataFieldPath());
       if (mf == null) {
-        logger.warn("Field referenced in the alignmnet not found in the metadata record: " + al.getMetadataFieldPath());
+        logger.error("Field referenced in the alignment not found in the metadata record: " + al.getMetadataFieldPath());
         continue;
       }
 
       TemplateNodeInfo tf = tfMap.get(al.getTemplateFieldPath());
       if (tf == null) {
-        logger.warn("Field referenced in the alignment not found in the template: " + al.getTemplateFieldPath());
+        logger.error("Field referenced in the alignment not found in the template: " + al.getTemplateFieldPath());
         continue;
       }
 
-      // Check Required value
+      // Check Required value constraints
       if (tf.isValueRequired() && (mf.getValue() == null || mf.getValue().trim().isEmpty())) {
         reportItems.add(new EvaluationReportItem(al.getMetadataFieldPath(), EvaluationReportItem.Issue.MISSING_REQUIRED_VALUE));
       }
