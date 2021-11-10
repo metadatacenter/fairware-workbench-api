@@ -6,16 +6,16 @@ import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
+import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
+import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
+import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MetadataService implements IMetadataService {
@@ -23,10 +23,12 @@ public class MetadataService implements IMetadataService {
   private static final Logger logger = LoggerFactory.getLogger(IMetadataService.class);
 
   private final CedarService cedarService;
+  private final BioportalService bioportalService;
   private final CoreConfig coreConfig;
 
-  public MetadataService(CedarService cedarService, CoreConfig coreConfig) {
+  public MetadataService(CedarService cedarService, BioportalService bioportalService, CoreConfig coreConfig) {
     this.cedarService = cedarService;
+    this.bioportalService = bioportalService;
     this.coreConfig = coreConfig;
   }
 
@@ -127,6 +129,9 @@ public class MetadataService implements IMetadataService {
       }
 
     }
+
+    // sample call
+    //BpPagedResults<BpClass> results = bioportalService.search("melanoma", Optional.empty(), Optional.empty());
 
     return reportItems;
   }

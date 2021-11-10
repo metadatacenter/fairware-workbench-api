@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Optional;
 
 public class BioportalService {
 
@@ -33,21 +34,26 @@ public class BioportalService {
   /**
    * Search for ontology classes
    */
-  public BpPagedResults<BpClass> search(String q, int page, int pageSize) throws IOException, HttpException {
+  public BpPagedResults<BpClass> search(String q, Optional<Integer> page, Optional<Integer> pageSize) throws IOException, HttpException {
 
     q = GeneralUtil.encodeIfNeeded(q);
-    String url = bioportalConfig.getSearchUrl() + "?q=" + q;
+    StringBuilder urlSb = new StringBuilder(bioportalConfig.getSearchUrl()).append("?q=" + q);
 
     // Include additional information
-    url += "&include=prefLabel,definition";
+    urlSb.append("&include=prefLabel,definition");
 
     // Add pagination parameters
-    url += "&page=" + page + "&pagesize=" + pageSize;
+    if (page.isPresent()) {
+      urlSb.append("&page=" + page);
+    }
+    if (pageSize.isPresent()) {
+      urlSb.append("&pagesize=" + pageSize);
+    }
 
-    logger.info("Bioportal search url: " + url);
+    logger.info("Bioportal search url: " + urlSb);
 
     // Send request to the BioPortal API
-    Request request = Request.Get(url).addHeader("Authorization", getBioPortalAuthHeader(bioportalConfig.getApiKey())).
+    Request request = Request.Get(urlSb.toString()).addHeader("Authorization", getBioPortalAuthHeader(bioportalConfig.getApiKey())).
         connectTimeout(bioportalConfig.getConnectTimeout()).socketTimeout(bioportalConfig.getSocketTimeout());
     HttpResponse response = request.execute().returnResponse();
 

@@ -8,6 +8,7 @@ import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
+import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.resources.CommonApiDocumentationResource;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
@@ -65,8 +66,9 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     environment.jersey().register(commonApiDocumentationResource);
 
     CedarService cedarService = new CedarService(configuration.getCedarConfig());
+    BioportalService bioportalService = new BioportalService(configuration.getBioportalConfig());
     TemplateService templateService = new TemplateService(cedarService);
-    MetadataService metadataService = new MetadataService(cedarService, configuration.getCoreConfig());
+    MetadataService metadataService = new MetadataService(cedarService, bioportalService, configuration.getCoreConfig());
     final FairwareWorkbenchResource fairwareWorkbenchResource =
         new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);
