@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.config.cedar;
+package org.metadatacenter.fairware.config;
 
 public class CoreConfig {
 

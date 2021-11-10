@@ -1,10 +1,9 @@
 package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
-import org.metadatacenter.fairware.FairwareWorkbenchApiApplication;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
-import org.metadatacenter.fairware.config.cedar.CoreConfig;
+import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;

@@ -3,6 +3,9 @@ package org.metadatacenter.fairware.core.util;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.List;
 
 public class GeneralUtil {
@@ -32,6 +35,18 @@ public class GeneralUtil {
 
   public static String generateFullPathDotNotation(MetadataFieldInfo metadataFieldInfo) {
     return (generateFullPathDotNotation(metadataFieldInfo.getPath(), metadataFieldInfo.getName()));
+  }
+
+  public static String encodeIfNeeded(String uri) throws UnsupportedEncodingException {
+    String decodedUri = URLDecoder.decode(uri, "UTF-8");
+    // It is necessary to encode it
+    if (uri.compareTo(decodedUri) == 0) {
+      return URLEncoder.encode(uri, "UTF-8");
+    }
+    // If it was already encoded
+    else {
+      return uri;
+    }
   }
 
 }

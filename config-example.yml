@@ -47,5 +47,12 @@ swagger:
 cedar:
   apiKey: '<your CEDAR api key>'
   resourceServer:
-    templatesUrl: 'https://resource.metadatacenter.orgx/templates/'
-    recommendTemplatesUrl: 'https://resource.metadatacenter.orgx/templates/recommend/'
+    templatesUrl: 'https://resource.metadatacenter.org/templates/'
+    recommendTemplatesUrl: 'https://resource.metadatacenter.org/templates/recommend/'
+
+bioportal:
+  apiKey: '<your BioPortal api key>'
+  searchUrl: 'https://data.bioontology.org/search/'
+  connectTimeout: 3000
+  socketTimeout: 30000
+  pageSize: 50
