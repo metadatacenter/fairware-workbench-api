@@ -34,6 +34,10 @@ public class BioportalService {
   /**
    * Search for ontology classes
    */
+  public BpPagedResults<BpClass> search(String q) throws IOException, HttpException {
+    return search(q, Optional.empty(), Optional.empty());
+  }
+
   public BpPagedResults<BpClass> search(String q, Optional<Integer> page, Optional<Integer> pageSize) throws IOException, HttpException {
 
     q = GeneralUtil.encodeIfNeeded(q);
