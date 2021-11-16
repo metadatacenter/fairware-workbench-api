@@ -5,6 +5,7 @@ public class CoreConfig {
   private double similarityThreshold;
   private double nameSimilarityWeight;
   private double pathSimilarityWeight;
+  private int termSuggestionsListSize;
 
   public CoreConfig() {
   }
@@ -20,4 +21,6 @@ public class CoreConfig {
   public double getPathSimilarityWeight() {
     return pathSimilarityWeight;
   }
+
+  public int getTermSuggestionsListSize() { return termSuggestionsListSize; }
 }

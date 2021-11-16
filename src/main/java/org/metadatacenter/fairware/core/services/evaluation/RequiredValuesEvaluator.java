@@ -15,6 +15,8 @@ import java.util.Map;
 
 public class RequiredValuesEvaluator implements IMetadataEvaluator {
 
+  final MetadataIssue issue = new MetadataIssue(IssueType.MISSING_REQUIRED_VALUE);
+
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> mfMap,
                                                      Map<String, TemplateNodeInfo> tfMap,
@@ -29,7 +31,6 @@ public class RequiredValuesEvaluator implements IMetadataEvaluator {
         TemplateNodeInfo tf = tfMap.get(al.getTemplateFieldPath());
         // Check required value constraint
         if (tf.isValueRequired() && (mf.getValue() == null || mf.getValue().trim().isEmpty())) {
-          MetadataIssue issue = new MetadataIssue(IssueType.MISSING_REQUIRED_VALUE);
           RepairAction repairAction = new EnterFieldValueAction();
           reportItems.add(new EvaluationReportItem(al.getMetadataFieldPath(), issue, repairAction));
         }

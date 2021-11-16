@@ -4,6 +4,7 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
+import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
@@ -25,11 +26,13 @@ public class MetadataService implements IMetadataService {
   private final CedarService cedarService;
   private final BioportalService bioportalService;
   private final CoreConfig coreConfig;
+  private final BioportalConfig bioportalConfig;
 
-  public MetadataService(CedarService cedarService, BioportalService bioportalService, CoreConfig coreConfig) {
+  public MetadataService(CedarService cedarService, BioportalService bioportalService, CoreConfig coreConfig, BioportalConfig bioportalConfig) {
     this.cedarService = cedarService;
     this.bioportalService = bioportalService;
     this.coreConfig = coreConfig;
+    this.bioportalConfig = bioportalConfig;
   }
 
   /**
@@ -112,8 +115,8 @@ public class MetadataService implements IMetadataService {
     RequiredValuesEvaluator requiredValuesEv = new RequiredValuesEvaluator();
     reportItems.addAll(requiredValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
     // Check missing template fields (find ontology terms for the extra metadata fields)
-    ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService);
-    //reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
+    ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService, coreConfig, bioportalConfig);
+    reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
     // Check ...
 
     return reportItems;

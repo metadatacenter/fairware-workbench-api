@@ -35,10 +35,10 @@ public class BioportalService {
    * Search for ontology classes
    */
   public BpPagedResults<BpClass> search(String q) throws IOException, HttpException {
-    return search(q, Optional.empty(), Optional.empty());
+    return search(q, 0, bioportalConfig.getPageSize());
   }
 
-  public BpPagedResults<BpClass> search(String q, Optional<Integer> page, Optional<Integer> pageSize) throws IOException, HttpException {
+  public BpPagedResults<BpClass> search(String q, int page, int pageSize) throws IOException, HttpException {
 
     q = GeneralUtil.encodeIfNeeded(q);
     StringBuilder urlSb = new StringBuilder(bioportalConfig.getSearchUrl()).append("?q=" + q);
@@ -47,12 +47,11 @@ public class BioportalService {
     urlSb.append("&include=prefLabel,definition");
 
     // Add pagination parameters
-    if (page.isPresent()) {
-      urlSb.append("&page=" + page);
-    }
-    if (pageSize.isPresent()) {
-      urlSb.append("&pagesize=" + pageSize);
-    }
+    urlSb.append("&page=" + page);
+    urlSb.append("&pagesize=" + pageSize);
+
+    /** Add displayContext and DisplayLinks **/
+    urlSb.append("&display_context=true&display_links=true");
 
     logger.info("Bioportal search url: " + urlSb);
 

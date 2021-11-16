@@ -2,11 +2,15 @@ package org.metadatacenter.fairware.api.response.action;
 
 public abstract class RepairAction {
 
-  private String description;
+  private String message;
 
   protected RepairAction() {}
 
-  protected RepairAction(String description) {
-    this.description = description;
+  protected RepairAction(String message) {
+    this.message = message;
+  }
+
+  public String getMessage() {
+    return message;
   }
 }
