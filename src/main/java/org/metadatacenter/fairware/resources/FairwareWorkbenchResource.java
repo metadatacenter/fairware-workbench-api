@@ -11,6 +11,7 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
+import org.metadatacenter.fairware.api.request.SearchMetadataRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
@@ -18,6 +19,8 @@ import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
+import org.metadatacenter.fairware.core.services.citation.CitationService;
+import org.metadatacenter.fairware.core.services.citation.DataCiteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +41,13 @@ public class FairwareWorkbenchResource {
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchResource.class);
   private final TemplateService templateService;
   private final MetadataService metadataService;
+  private final CitationService citationService;
 
-  public FairwareWorkbenchResource(TemplateService templateService, MetadataService metadataService) {
+  public FairwareWorkbenchResource(TemplateService templateService,
+                                   MetadataService metadataService, CitationService citationService) {
     this.templateService = templateService;
     this.metadataService = metadataService;
+    this.citationService = citationService;
   }
 
   @POST
@@ -54,12 +60,13 @@ public class FairwareWorkbenchResource {
   @RequestBody(description = "Metadata record", required = true,
       content = @Content(
           schema = @Schema(implementation = RecommendTemplatesRequest.class),
-      examples = {
-          @ExampleObject(value = "{\"metadataRecord\":{\"study_id\":\"12811\",\"study title\":\"My Study\",\"contact " +
-              "e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\",\"age\":76,\"sex\":\"male\"," +
-              "\"tissue\":\"liver\",\"platform\":\"Illumina\"}}")
-      }
-  ))
+          examples = {
+              @ExampleObject(value = "{\"metadataRecord\":{\"study_id\":\"12811\",\"study title\":\"My Study\"," +
+                  "\"contact " +
+                  "e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\",\"age\":76,\"sex\":\"male\"," +
+                  "\"tissue\":\"liver\",\"platform\":\"Illumina\"}}")
+          }
+      ))
   @ApiResponse(
       responseCode = "200",
       description = "OK",
@@ -145,7 +152,8 @@ public class FairwareWorkbenchResource {
 
   @POST
   @Operation(
-      summary = "Evaluate an input metadata record based on a given CEDAR template and a list of metadata-template alignments.")
+      summary = "Evaluate an input metadata record based on a given CEDAR template and a list of metadata-template " +
+          "alignments.")
   @Path("/metadata/evaluate")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
@@ -186,11 +194,10 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "422", description = "Unprocessable entity")
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
   public Response evaluateMetadata(@NotNull @Valid EvaluateMetadataRequest request) {
-
     try {
-
       List<EvaluationReportItem> reportItems =
-          metadataService.evaluateMetadata(request.getTemplateId(), request.getMetadataRecord(), request.getFieldAlignments());
+          metadataService.evaluateMetadata(request.getTemplateId(), request.getMetadataRecord(),
+              request.getFieldAlignments());
       EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getTemplateId(),
           LocalDateTime.now(), request.getMetadataRecord(), reportItems);
       return Response.ok(report).build();
@@ -198,6 +205,45 @@ public class FairwareWorkbenchResource {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (IOException | HttpException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+    }
+  }
+
+  @POST
+  @Operation(
+      summary = "Searches for publicly-available, doi-associated metadata.")
+  @Path("/metadata/search")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Tag(name = "Metadata")
+  @RequestBody(description = "List of DOIs", required = true,
+      content = @Content(
+          schema = @Schema(implementation = List.class),
+          examples = {
+              @ExampleObject(value = "[\"10.15468/9vuieb\"]")
+          }
+      ))
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content = @Content(
+          schema = @Schema(implementation = EvaluateMetadataResponse.class),
+          examples = {
+              @ExampleObject(value = "")
+          }
+      ))
+  @ApiResponse(responseCode = "400", description = "Bad request")
+  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  public Response searchMetadata(@NotNull @Valid List<String> dois) {
+    try {
+      // Basic validation
+      citationService.searchMetadata(dois);
+      return Response.ok().build();
+    } catch (BadRequestException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (IOException /*| HttpException*/ e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }

@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
+import org.metadatacenter.fairware.api.response.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -120,6 +122,16 @@ public class MetadataService implements IMetadataService {
     // Check ...
 
     return reportItems;
+  }
+
+  /**
+   * Retrieves the metadata associated to a list of Digital Object Identifiers (DOIs)
+   * @param dois
+   * @return
+   */
+  @Override
+  public SearchMetadataResponse searchMetadata(List<URI> dois) {
+    return null;
   }
 
 

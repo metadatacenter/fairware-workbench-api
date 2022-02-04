@@ -56,3 +56,7 @@ bioportal:
   connectTimeout: 3000
   socketTimeout: 30000
   pageSize: 50
+
+citationServices:
+  datacite:
+    doisUrl: 'https://api.datacite.org/dois/'

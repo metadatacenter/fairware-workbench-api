@@ -6,6 +6,7 @@ import io.dropwizard.Configuration;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.config.CoreConfig;
+import org.metadatacenter.fairware.config.citationServices.CitationServicesConfig;
 
 public class FairwareWorkbenchApiConfiguration extends Configuration {
 
@@ -17,6 +18,8 @@ public class FairwareWorkbenchApiConfiguration extends Configuration {
   private CedarConfig cedarConfig;
   @JsonProperty("bioportal")
   private BioportalConfig bioportalConfig;
+  @JsonProperty("citationServices")
+  private CitationServicesConfig metadataServicesConfig;
 
 
   public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
@@ -33,4 +36,5 @@ public class FairwareWorkbenchApiConfiguration extends Configuration {
 
   public BioportalConfig getBioportalConfig() { return bioportalConfig; }
 
+  public CitationServicesConfig getMetadataServicesConfig() { return metadataServicesConfig; }
 }
