@@ -16,6 +16,7 @@ import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
@@ -41,13 +42,11 @@ public class FairwareWorkbenchResource {
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchResource.class);
   private final TemplateService templateService;
   private final MetadataService metadataService;
-  private final CitationService citationService;
 
   public FairwareWorkbenchResource(TemplateService templateService,
-                                   MetadataService metadataService, CitationService citationService) {
+                                   MetadataService metadataService) {
     this.templateService = templateService;
     this.metadataService = metadataService;
-    this.citationService = citationService;
   }
 
   @POST
@@ -237,13 +236,12 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
   public Response searchMetadata(@NotNull @Valid List<String> dois) {
     try {
-      // Basic validation
-      citationService.searchMetadata(dois);
-      return Response.ok().build();
+      SearchMetadataResponse results = metadataService.searchMetadata(dois);
+      return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
-    } catch (IOException /*| HttpException*/ e) {
+    } catch (IOException | HttpException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }

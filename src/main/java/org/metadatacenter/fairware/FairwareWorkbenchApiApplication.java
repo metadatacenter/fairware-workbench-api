@@ -70,10 +70,10 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     CedarService cedarService = new CedarService(configuration.getCedarConfig());
     BioportalService bioportalService = new BioportalService(configuration.getBioportalConfig());
     TemplateService templateService = new TemplateService(cedarService);
-    MetadataService metadataService = new MetadataService(cedarService, bioportalService, configuration.getCoreConfig(), configuration.getBioportalConfig());
     CitationService citationService = new CitationService(new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
+    MetadataService metadataService = new MetadataService(cedarService, bioportalService, citationService, configuration.getCoreConfig(), configuration.getBioportalConfig());
     final FairwareWorkbenchResource fairwareWorkbenchResource =
-        new FairwareWorkbenchResource(templateService, metadataService, citationService);
+        new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);
   }
 }

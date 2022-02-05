@@ -2,7 +2,8 @@ package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
-import org.metadatacenter.fairware.api.response.SearchMetadataResponse;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
@@ -10,6 +11,7 @@ import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
+import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.util.*;
@@ -17,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,12 +28,15 @@ public class MetadataService implements IMetadataService {
 
   private final CedarService cedarService;
   private final BioportalService bioportalService;
+  private final CitationService citationService;
   private final CoreConfig coreConfig;
   private final BioportalConfig bioportalConfig;
 
-  public MetadataService(CedarService cedarService, BioportalService bioportalService, CoreConfig coreConfig, BioportalConfig bioportalConfig) {
+  public MetadataService(CedarService cedarService, BioportalService bioportalService, CitationService citationService,
+                         CoreConfig coreConfig, BioportalConfig bioportalConfig) {
     this.cedarService = cedarService;
     this.bioportalService = bioportalService;
+    this.citationService = citationService;
     this.coreConfig = coreConfig;
     this.bioportalConfig = bioportalConfig;
   }
@@ -130,8 +134,9 @@ public class MetadataService implements IMetadataService {
    * @return
    */
   @Override
-  public SearchMetadataResponse searchMetadata(List<URI> dois) {
-    return null;
+  public SearchMetadataResponse searchMetadata(List<String> dois) throws IOException, HttpException {
+    List<SearchMetadataItem> records = citationService.searchMetadata(dois);
+    return new SearchMetadataResponse(records.size(), records);
   }
 
 
