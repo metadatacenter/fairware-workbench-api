@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.services.citation;
 
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
+import org.metadatacenter.fairware.core.util.DoiUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +24,11 @@ public class CitationService {
   public List<SearchMetadataItem> searchMetadata(List<String> dois) throws IOException, HttpException {
     List<SearchMetadataItem> results = new ArrayList<>();
     for (String doi : dois) {
-      results.add(dataCiteService.retrieveDoiMetadata(doi));
+      String normalizedDoi = DoiUtil.normalizeDoi(doi);
+      results.add(dataCiteService.retrieveDoiMetadata(normalizedDoi));
     }
     return results;
   }
+
+
 }

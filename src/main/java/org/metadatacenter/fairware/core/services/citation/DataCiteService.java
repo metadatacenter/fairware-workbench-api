@@ -34,6 +34,7 @@ public class DataCiteService {
     Request request = Request.Get(url);
     HttpResponse response = request.execute().returnResponse();
 
+    logger.info("Response code: " + response.getStatusLine().getStatusCode());
     if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
       JsonNode result = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
       final JsonNode data = JsonUtil.getJsonNodeValue(result, "data");
