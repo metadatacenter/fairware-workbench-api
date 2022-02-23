@@ -4,32 +4,25 @@ import java.util.Map;
 
 public class SearchMetadataItem {
 
-  private String searchDoi;
-  private String foundDoi;
+  private String uri;
   private String source;
   private String title;
-  private String schemaVersion;
+  private String schemaId;
   private Map<String, Object> metadata;
 
   public SearchMetadataItem() {
   }
 
-  public SearchMetadataItem(String searchDoi, String foundDoi, String source, String title, String schemaVersion,
-                            Map<String, Object> metadata) {
-    this.searchDoi = searchDoi;
-    this.foundDoi = foundDoi;
+  public SearchMetadataItem(String uri, String source, String title, String schemaId, Map<String, Object> metadata) {
+    this.uri = uri;
     this.source = source;
     this.title = title;
-    this.schemaVersion = schemaVersion;
+    this.schemaId = schemaId;
     this.metadata = metadata;
   }
 
-  public String getSearchDoi() {
-    return searchDoi;
-  }
-
-  public String getFoundDoi() {
-    return foundDoi;
+  public String getUri() {
+    return uri;
   }
 
   public String getSource() {
@@ -40,8 +33,8 @@ public class SearchMetadataItem {
     return title;
   }
 
-  public String getSchemaVersion() {
-    return schemaVersion;
+  public String getSchemaId() {
+    return schemaId;
   }
 
   public Map<String, Object> getMetadata() {

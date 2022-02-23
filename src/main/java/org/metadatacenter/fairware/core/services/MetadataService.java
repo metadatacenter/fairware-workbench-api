@@ -130,14 +130,27 @@ public class MetadataService implements IMetadataService {
 
   /**
    * Retrieves the metadata associated to a list of Digital Object Identifiers (DOIs)
-   * @param dois
+   * @param uris
    * @return
    */
   @Override
-  public SearchMetadataResponse searchMetadata(List<String> dois) throws IOException, HttpException {
-    List<SearchMetadataItem> records = citationService.searchMetadata(dois);
+  public SearchMetadataResponse searchMetadata(List<String> uris) throws IOException, HttpException {
+    List<SearchMetadataItem> records = new ArrayList<>();
+    for (String uri : uris) {
+      if (CedarUtil.isCedarTemplateInstanceId(uri)) {
+        Map<String, Object> templateInstance = cedarService.findTemplateInstance(uri);
+        if (templateInstance != null) {
+          records.add(cedarService.toMetadataItem(templateInstance));
+        }
+        else {
+          records.add(new SearchMetadataItem(uri, null, null, null, null));
+        }
+      }
+      else {
+        records.add(citationService.searchMetadata(uri));
+      }
+    }
     return new SearchMetadataResponse(records.size(), records);
   }
-
 
 }

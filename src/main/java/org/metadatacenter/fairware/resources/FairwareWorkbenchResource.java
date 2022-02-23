@@ -234,9 +234,9 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "400", description = "Bad request")
   @ApiResponse(responseCode = "422", description = "Unprocessable entity")
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
-  public Response searchMetadata(@NotNull @Valid List<String> dois) {
+  public Response searchMetadata(@NotNull @Valid List<String> uris) {
     try {
-      SearchMetadataResponse results = metadataService.searchMetadata(dois);
+      SearchMetadataResponse results = metadataService.searchMetadata(uris);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());

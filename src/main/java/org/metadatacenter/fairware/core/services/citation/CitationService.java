@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CitationService {
 
@@ -21,13 +19,17 @@ public class CitationService {
     this.dataCiteService = dataCiteService;
   }
 
-  public List<SearchMetadataItem> searchMetadata(List<String> dois) throws IOException, HttpException {
-    List<SearchMetadataItem> results = new ArrayList<>();
-    for (String doi : dois) {
-      String normalizedDoi = DoiUtil.normalizeDoi(doi);
-      results.add(dataCiteService.retrieveDoiMetadata(normalizedDoi));
-    }
-    return results;
+//  public List<SearchMetadataItem> searchMetadata(List<String> dois) throws IOException, HttpException {
+//    List<SearchMetadataItem> results = new ArrayList<>();
+//    for (String doi : dois) {
+//      String normalizedDoi = DoiUtil.normalizeDoi(doi);
+//      results.add(dataCiteService.retrieveDoiMetadata(normalizedDoi));
+//    }
+//    return results;
+//  }
+
+  public SearchMetadataItem searchMetadata(String doi) throws IOException, HttpException {
+    return dataCiteService.retrieveDoiMetadata(DoiUtil.normalizeDoi(doi));
   }
 
 

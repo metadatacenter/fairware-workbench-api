@@ -49,10 +49,10 @@ public class DataCiteService {
       }
       Map<String, Object> metadataMap =
           objectMapper.convertValue(attributes, new TypeReference<Map<String, Object>>() {});
-      return new SearchMetadataItem(doi, doiFound, "DataCite", title, schemaVersion, metadataMap);
+      return new SearchMetadataItem(doiFound, "DataCite", title, schemaVersion, metadataMap);
     }
     else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-      return new SearchMetadataItem(doi, null, null, null, null, null);
+      return new SearchMetadataItem(doi, null, null, null, null);
     }
     else {
       throw new HttpException("DataCite API error: " + response.getStatusLine());

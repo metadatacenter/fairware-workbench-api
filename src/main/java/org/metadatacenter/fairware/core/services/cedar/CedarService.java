@@ -1,15 +1,21 @@
 package org.metadatacenter.fairware.core.services.cedar;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
+import org.apache.http.util.EntityUtils;
 import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
+import org.metadatacenter.fairware.constants.CedarConstants;
+import org.metadatacenter.fairware.constants.CedarModelConstants;
+import org.metadatacenter.fairware.core.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +39,14 @@ public class CedarService {
   /**
    * Find CEDAR template by id
    *
-   * @param templateId  the template identifier
+   * @param id  the template identifier
    * @return  a CEDAR template
    * @throws IOException
    * @throws HttpException
    */
-  public Map<String, Object> findTemplate(String templateId) throws IOException, HttpException {
-    String url = cedarConfig.getResourceServer().getTemplatesUrl() +
-        URLEncoder.encode(templateId, StandardCharsets.UTF_8.toString());
+  public Map<String, Object> findTemplate(String id) throws IOException, HttpException {
+    String url = cedarConfig.getBaseUrl() + CedarConstants.CEDAR_PATH_TEMPLATES +
+        URLEncoder.encode(id, StandardCharsets.UTF_8.toString());
     Request request = Request.Get(url).addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
     HttpResponse response = request.execute().returnResponse();
 
@@ -50,9 +56,46 @@ public class CedarService {
           new TypeReference<HashMap<String,Object>>(){});
     }
     else {
-      throw new HttpException("Couldn't find CEDAR template (templateId = " + templateId + "). Cause: "
+      throw new HttpException("Couldn't find CEDAR template (templateId = " + id + "). Cause: "
           + response.getStatusLine());
     }
+  }
+
+  /**
+   * Find CEDAR template instance by id
+   *
+   * @param id  the template instance identifier
+   * @return  a CEDAR instance
+   * @throws IOException
+   * @throws HttpException
+   */
+  public Map<String, Object> findTemplateInstance(String id) throws IOException, HttpException {
+    String url = cedarConfig.getBaseUrl() + CedarConstants.CEDAR_PATH_TEMPLATE_INSTANCES +
+        URLEncoder.encode(id, StandardCharsets.UTF_8.toString());
+    Request request = Request.Get(url).addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
+    HttpResponse response = request.execute().returnResponse();
+
+    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+      return objectMapper.readValue(
+          response.getEntity().getContent(),
+          new TypeReference<HashMap<String,Object>>(){});
+    }
+    else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+      logger.info("Template instance not found (id = " + id + ")");
+      return null;
+    }
+    else { // Error
+      throw new HttpException("Error retrieving template instance (id = " + id + "). Cause: "
+          + response.getStatusLine());
+    }
+  }
+
+  public SearchMetadataItem toMetadataItem(Map<String, Object> templateInstance) {
+    String uri = templateInstance.get(CedarModelConstants.JSON_LD_ID).toString();
+    String source = CedarConstants.CEDAR_SYSTEM_NAME;
+    String name = templateInstance.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    String schemaId = templateInstance.get(CedarModelConstants.IS_BASED_ON).toString();
+    return new SearchMetadataItem(uri, source, name, schemaId, templateInstance);
   }
 
   /**
@@ -67,10 +110,10 @@ public class CedarService {
   public RecommendTemplatesResponse recommendTemplates(Map<String, Object> metadataRecord)
       throws IOException, HttpException {
 
-    RecommendTemplatesRequest cedarRequest = new RecommendTemplatesRequest(metadataRecord);
-
-    Request request = Request.Post(cedarConfig.getResourceServer().getRecommendTemplatesUrl())
-        .bodyString(objectMapper.writeValueAsString(cedarRequest), ContentType.APPLICATION_JSON)
+    String url = cedarConfig.getBaseUrl() + CedarConstants.CEDAR_PATH_RECOMMEND_TEMPLATES;
+    RecommendTemplatesRequest payload = new RecommendTemplatesRequest(metadataRecord);
+    Request request = Request.Post(url)
+        .bodyString(objectMapper.writeValueAsString(payload), ContentType.APPLICATION_JSON)
         .addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
     HttpResponse response = request.execute().returnResponse();
 
