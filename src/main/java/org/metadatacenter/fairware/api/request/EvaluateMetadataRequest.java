@@ -8,13 +8,10 @@ import java.util.Map;
 
 public class EvaluateMetadataRequest {
 
-  @NotEmpty // ensure that name isn't null or blank
+  @NotEmpty // not null, not blank
   private String templateId;
-
-  @NotEmpty
   private Map<String, Object> metadataRecord;
-
-  @NotEmpty
+  private String metadataRecordId;
   private List<FieldAlignment> fieldAlignments;
 
   public EvaluateMetadataRequest() { }
@@ -25,6 +22,10 @@ public class EvaluateMetadataRequest {
 
   public Map<String, Object> getMetadataRecord() {
     return metadataRecord;
+  }
+
+  public String getMetadataRecordId() {
+    return metadataRecordId;
   }
 
   public List<FieldAlignment> getFieldAlignments() {

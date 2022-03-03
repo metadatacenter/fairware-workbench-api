@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,7 +60,7 @@ public class MetadataService implements IMetadataService {
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
     // Extract metadata fields from the metadata record
-    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
 
     // Find alignments between metadata fields and template fields
     int maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
@@ -99,7 +100,7 @@ public class MetadataService implements IMetadataService {
   public List<EvaluationReportItem> evaluateMetadata(String templateId, Map<String, Object> metadataRecord,
                                                      List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
 
-    // 1. Extract nodes from the template (limited to fields) and store them into a HashMap (tfMap)
+    // Extract nodes from the template (limited to fields) and store them into a HashMap (tfMap)
     Map<String, Object> template = cedarService.findTemplate(templateId);
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
@@ -108,21 +109,23 @@ public class MetadataService implements IMetadataService {
       tfMap.put(GeneralUtil.generateFullPathDotNotation(tf), tf);
     }
 
-    // 2. Extract metadata fields from the metadata record and store them into a Map too (mfMap)
-    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
+    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
     Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
     for (MetadataFieldInfo mf : metadataFields) {
       mfMap.put(GeneralUtil.generateFullPathDotNotation(mf), mf);
     }
 
-    // 3. Use the alignments to apply the template constraints against each metadata field
+    // Use the alignments to apply the template constraints against each metadata field
     List<EvaluationReportItem> reportItems = new ArrayList<>();
-    // Check required values
+    // Use an automatically-generated alignment if one has not been provided
+    if (fieldAlignments.size() == 0) { fieldAlignments.addAll(alignMetadata(templateId, metadataRecord)); }
+    // 1. Check required values
     RequiredValuesEvaluator requiredValuesEv = new RequiredValuesEvaluator();
     reportItems.addAll(requiredValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
-    // Check missing template fields (find ontology terms for the extra metadata fields)
-    ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService, coreConfig, bioportalConfig);
-    reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
+    // 2. Check missing template fields (find ontology terms for the extra metadata fields)
+    // ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService, coreConfig, bioportalConfig);
+    // reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
     // Check ...
 
     return reportItems;

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
@@ -32,8 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -194,9 +194,33 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
   public Response evaluateMetadata(@NotNull @Valid EvaluateMetadataRequest request) {
     try {
+      // Input validation
+      if (StringUtils.isEmpty(request.getMetadataRecordId()) && request.getMetadataRecord() == null) {
+        logger.error("You must provide a metadataRecordId or a metadataRecord");
+        return Response.status(Response.Status.BAD_REQUEST).build();
+      }
+      // If the metadataRecordId is provided, find the metadata record
+      Map<String, Object> metadataRecord = null;
+      if (!StringUtils.isEmpty(request.getMetadataRecordId())) {
+        SearchMetadataResponse searchResults =
+            metadataService.searchMetadata(Arrays.asList(request.getMetadataRecordId()));
+        if (searchResults.getItems().size() == 0) {
+          logger.error("Couldn't find metadata record: metadataRecordId=" + request.getMetadataRecordId());
+          return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        metadataRecord = searchResults.getItems().get(0).getMetadata();
+      }
+      else {
+        metadataRecord = request.getMetadataRecord();
+      }
+      // Read field alignments from the request, if provided
+      List<FieldAlignment> fieldAlignments = new ArrayList<>();
+      if (request.getFieldAlignments() != null && request.getFieldAlignments().size() > 0) {
+        fieldAlignments = request.getFieldAlignments();
+      }
+
       List<EvaluationReportItem> reportItems =
-          metadataService.evaluateMetadata(request.getTemplateId(), request.getMetadataRecord(),
-              request.getFieldAlignments());
+          metadataService.evaluateMetadata(request.getTemplateId(), metadataRecord, fieldAlignments);
       EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getTemplateId(),
           LocalDateTime.now(), request.getMetadataRecord(), reportItems);
       return Response.ok(report).build();

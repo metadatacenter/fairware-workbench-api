@@ -3,12 +3,13 @@ package org.metadatacenter.fairware.core.util;
 import org.junit.jupiter.api.*;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class MetadataContentExtractorTest {
 
   @Test
-  void testExtractMetadataFieldsInfoFlatStrings() {
+  void testExtractMetadataFieldsInfoFlatStrings() throws UnsupportedEncodingException {
     final Map<String, Object> metadataRecord = new HashMap<>();
     metadataRecord.put("f1", "v1");
     metadataRecord.put("f2", "v2");
@@ -23,7 +24,7 @@ public class MetadataContentExtractorTest {
   }
 
   @Test
-  void testExtractMetadataFieldsInfoFlatNumeric() {
+  void testExtractMetadataFieldsInfoFlatNumeric() throws UnsupportedEncodingException {
     final Map<String, Object> metadataRecord = new HashMap<>();
     metadataRecord.put("f1", 1);
     metadataRecord.put("f2", 2);
@@ -38,7 +39,7 @@ public class MetadataContentExtractorTest {
   }
 
   @Test
-  void testExtractMetadataFieldsInfoFlatArrays() {
+  void testExtractMetadataFieldsInfoFlatArrays() throws UnsupportedEncodingException {
     final Map<String, Object> metadataRecord = new HashMap<>();
     metadataRecord.put("f1", Arrays.asList("v1", "v2"));
     metadataRecord.put("f2", Arrays.asList(1, 2));
@@ -56,7 +57,7 @@ public class MetadataContentExtractorTest {
   }
 
   @Test
-  void testExtractMetadataFieldsInfoArrayOfObjects() {
+  void testExtractMetadataFieldsInfoArrayOfObjects() throws UnsupportedEncodingException {
 
     final Map<String, Object> arrayObject1 = new HashMap<>();
     arrayObject1.put("f1", "v11");
@@ -85,7 +86,7 @@ public class MetadataContentExtractorTest {
   }
 
   @Test
-  void testExtractMetadataFieldsInfoNestedFields() {
+  void testExtractMetadataFieldsInfoNestedFields() throws UnsupportedEncodingException {
     final Map<String, Object> nestedMap = new HashMap<>();
     nestedMap.put("f2", "v3");
     nestedMap.put("f3", 4);

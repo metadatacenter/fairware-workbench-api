@@ -8,6 +8,7 @@ public class CedarConstants {
 
   public final static String CEDAR_URI_REGEX = "https\\:\\/\\/[a-zA-Z\\.]+metadatacenter\\.org[x]*\\.*";
   public final static String CEDAR_TEMPLATE_INSTANCE_URI_REGEX = CEDAR_URI_REGEX + "\\/template-instances\\/.*";
+  public final static String CEDAR_TEMPLATE_URI_REGEX = CEDAR_URI_REGEX + "\\/templates\\/.*";
 
   // Endpoint paths
   public final static String CEDAR_PATH_TEMPLATES = "templates/";
