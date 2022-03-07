@@ -9,19 +9,16 @@ import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
-import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
-import org.metadatacenter.fairware.core.services.IMetadataService;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
-import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.InfoField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.*;
 
 /**
@@ -48,18 +45,18 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
   }
 
   @Override
-  public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> mfMap,
+  public List<EvaluationReportItem> evaluateMetadata(Map<String, InfoField> mfMap,
                                                      Map<String, TemplateNodeInfo> tfMap,
                                                      List<FieldAlignment> fieldAlignments)
       throws HttpException, IOException {
 
-    List<MetadataFieldInfo> nonMatchedFields = getNonMatchedMetadataFields(fieldAlignments, mfMap);
+    List<InfoField> nonMatchedFields = getNonMatchedMetadataFields(fieldAlignments, mfMap);
     List<EvaluationReportItem> reportItems = new ArrayList<>();
 
     // Use BioPortal to find top matching ontology terms
-    for (MetadataFieldInfo mf : nonMatchedFields) {
+    for (InfoField mf : nonMatchedFields) {
 
-      BpPagedResults<BpClass> results = bioportalService.search(mf.getName());
+      BpPagedResults<BpClass> results = bioportalService.search(mf.getFieldName());
       ReplaceFieldNameWithOntologyTermAction repairAction = null;
       if (results.getCollection().size() > 0) {
         List<SuggestedOntologyTerm> suggestedTerms = new ArrayList<>();
@@ -85,16 +82,16 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
    * @param mfMap
    * @return
    */
-  private List<MetadataFieldInfo> getNonMatchedMetadataFields(List<FieldAlignment> fieldAlignments, Map<String,
-      MetadataFieldInfo> mfMap) {
+  private List<InfoField> getNonMatchedMetadataFields(List<FieldAlignment> fieldAlignments,
+                                                              Map<String, InfoField> mfMap) {
     // Create set with the paths of all the metadata fields that have been aligned to the template
     Set<String> pathsSet = new HashSet<>();
     for (FieldAlignment fa : fieldAlignments) {
       pathsSet.add(fa.getMetadataFieldPath());
     }
     // Keep the fields that have not been aligned to the template
-    List<MetadataFieldInfo> result = new ArrayList<>();
-    for (Map.Entry<String, MetadataFieldInfo> mf : mfMap.entrySet()) {
+    List<InfoField> result = new ArrayList<>();
+    for (Map.Entry<String, InfoField> mf : mfMap.entrySet()) {
       if (!pathsSet.contains(mf.getKey())) {
         result.add(mf.getValue());
       }

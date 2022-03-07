@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.InfoField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,26 +20,26 @@ public class FieldsAlignmentUtil {
    * @param pathSimilarityWeight weight in the interval [0,1] assigned to the field path similarity
    * @return Similarity value in the range [0,1]
    */
-  public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateNodeInfo templateField,
+  public static double calculateSimilarity(InfoField metadataField, TemplateNodeInfo templateField,
                                            double nameSimilarityWeight, double pathSimilarityWeight) {
 
     if (metadataField == null || templateField == null) {
       throw new IllegalArgumentException("Null argument");
     }
-    if (metadataField.getName() == null || templateField.getName() == null) {
+    if (metadataField.getFieldName() == null || templateField.getName() == null) {
       throw new IllegalArgumentException("The field name cannot be null");
     }
 
     /* 1. Name similarity */
-    double nameSimilarity = calculateNameSimilarity(metadataField.getName(), templateField.getName());
+    double nameSimilarity = calculateNameSimilarity(metadataField.getFieldName(), templateField.getName());
     if (templateField.getPrefLabel() != null && templateField.getPrefLabel().length() > 0) {
-      nameSimilarity = Math.max(nameSimilarity, calculateNameSimilarity(metadataField.getName(), templateField.getPrefLabel()));
+      nameSimilarity = Math.max(nameSimilarity, calculateNameSimilarity(metadataField.getFieldName(), templateField.getPrefLabel()));
     }
 
     double pathSimilarity = 0;
     /* 2. Path similarity */
     if (nameSimilarity > 0) {
-      pathSimilarity = calculatePathSimilarity(metadataField.getPath(), templateField.getPath());
+      pathSimilarity = calculatePathSimilarity(metadataField.getFieldPath(), templateField.getPath());
     }
 
     /* 3. Aggregate name and path similarities */
@@ -89,7 +90,7 @@ public class FieldsAlignmentUtil {
    *                           template field with index j in the similarity matrix
    * @return a list of alignments between metadata and template fields, represented using the FieldAlignment class
    */
-  public static List<FieldAlignment> generateFieldAlignments(List<MetadataFieldInfo> metadataFields,
+  public static List<FieldAlignment> generateFieldAlignments(List<InfoField> metadataFields,
                                                              List<TemplateNodeInfo> templateFields,
                                                              double[][] similarityMatrix, int[] selectedAlignments) {
     List<FieldAlignment> alignments = new ArrayList<>();

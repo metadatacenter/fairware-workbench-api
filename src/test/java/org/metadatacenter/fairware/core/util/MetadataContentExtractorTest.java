@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.util;
 
 import org.junit.jupiter.api.*;
 import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.InfoField;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;
@@ -14,11 +15,11 @@ public class MetadataContentExtractorTest {
     metadataRecord.put("f1", "v1");
     metadataRecord.put("f2", "v2");
 
-    List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    List<InfoField> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(2, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>());
+    InfoField f1Info = new InfoField("f1", null, new ArrayList<>(), "v1", null);
+    InfoField f2Info = new InfoField("f2", null, new ArrayList<>(), "v2", null);
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
   }
@@ -29,11 +30,11 @@ public class MetadataContentExtractorTest {
     metadataRecord.put("f1", 1);
     metadataRecord.put("f2", 2);
 
-    List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    List<InfoField> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(2, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>());
+    InfoField f1Info = new InfoField("f1", null, new ArrayList<>(), 1, null);
+    InfoField f2Info = new InfoField("f2", null, new ArrayList<>(), 2, null);
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
   }
@@ -45,12 +46,12 @@ public class MetadataContentExtractorTest {
     metadataRecord.put("f2", Arrays.asList(1, 2));
     metadataRecord.put("f3", Arrays.asList(0.1, 0.2));
 
-    List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    List<InfoField> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(3, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>());
-    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", new ArrayList<>());
+    InfoField f1Info = new InfoField("f1", null, new ArrayList<>(), Arrays.asList("v1", "v2"), null);
+    InfoField f2Info = new InfoField("f2", null, new ArrayList<>(), Arrays.asList(1, 2), null);
+    InfoField f3Info = new InfoField("f3", null, new ArrayList<>(), Arrays.asList(0.1, 0.2), null);
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
     Assertions.assertTrue(fieldsInfo.contains(f3Info));
@@ -58,7 +59,12 @@ public class MetadataContentExtractorTest {
 
   @Test
   void testExtractMetadataFieldsInfoArrayOfObjects() throws UnsupportedEncodingException {
-
+    /*
+    {
+      "f0": "v0",
+      "arrayOfObjects": [{"f1": "v11", "f2": "v12"}, {"f1": "v21", "f2": "v22"}]
+    }
+    */
     final Map<String, Object> arrayObject1 = new HashMap<>();
     arrayObject1.put("f1", "v11");
     arrayObject1.put("f2", "v12");
@@ -74,12 +80,12 @@ public class MetadataContentExtractorTest {
     metadataRecord.put("arrayOfObjects", arrayOfObjects);
 
 
-    List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    List<InfoField> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(3, fieldsInfo.size());
 
-    MetadataFieldInfo f0Info = new MetadataFieldInfo("f0", new ArrayList<>());
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>(Collections.singletonList("arrayOfObjects")));
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>(Collections.singletonList("arrayOfObjects")));
+    InfoField f0Info = new InfoField("f0", null, new ArrayList<>(), "v0", null);
+    InfoField f1Info = new InfoField("f1", null, Arrays.asList(new String[]{"arrayOfObjects"}), arrayObject1, null);
+    InfoField f2Info = new InfoField("f2", null, Arrays.asList(new String[]{"arrayOfObjects"}), arrayObject2, null);
     Assertions.assertTrue(fieldsInfo.contains(f0Info));
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
@@ -96,7 +102,7 @@ public class MetadataContentExtractorTest {
     metadataRecord.put("f1", Arrays.asList("v1", "v2"));
     metadataRecord.put("nestedFields", nestedMap);
 
-    List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    List<InfoField> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(5, fieldsInfo.size());
 
     MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());

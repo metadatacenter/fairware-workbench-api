@@ -15,6 +15,7 @@ import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.util.*;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.InfoField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class MetadataService implements IMetadataService {
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
     // Extract metadata fields from the metadata record
-    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    List<InfoField> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
 
     // Find alignments between metadata fields and template fields
     int maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
@@ -110,16 +111,18 @@ public class MetadataService implements IMetadataService {
     }
 
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
-    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
-    Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
-    for (MetadataFieldInfo mf : metadataFields) {
+    List<InfoField> metadataFieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    Map<String, InfoField> mfMap = new HashMap<>();
+    for (InfoField mf : metadataFieldsInfo) {
       mfMap.put(GeneralUtil.generateFullPathDotNotation(mf), mf);
     }
 
     // Use the alignments to apply the template constraints against each metadata field
     List<EvaluationReportItem> reportItems = new ArrayList<>();
     // Use an automatically-generated alignment if one has not been provided
-    if (fieldAlignments.size() == 0) { fieldAlignments.addAll(alignMetadata(templateId, metadataRecord)); }
+    if (fieldAlignments.size() == 0) {
+      fieldAlignments.addAll(alignMetadata(templateId, metadataRecord));
+    }
     // 1. Check required values
     RequiredValuesEvaluator requiredValuesEv = new RequiredValuesEvaluator();
     reportItems.addAll(requiredValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));

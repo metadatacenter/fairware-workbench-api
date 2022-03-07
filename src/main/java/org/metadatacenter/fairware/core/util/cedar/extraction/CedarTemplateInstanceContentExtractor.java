@@ -23,8 +23,8 @@ public class CedarTemplateInstanceContentExtractor {
   private static final Logger log = LoggerFactory.getLogger(CedarTemplateInstanceContentExtractor.class);
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  public static List<InfoField> generateInfoFieldsFromInstance(Map<String, Object> templateInstance, Map<String,
-      Object> template) throws UnsupportedEncodingException {
+  public static List<InfoField> generateInfoFieldsFromInstance(Map<String, Object> templateInstance,
+                                                               Map<String, Object> template) throws UnsupportedEncodingException {
     return generateInfoFieldsFromInstance(mapper.convertValue(templateInstance, JsonNode.class),
         mapper.convertValue(template, JsonNode.class));
   }
@@ -36,10 +36,9 @@ public class CedarTemplateInstanceContentExtractor {
   public static List<InfoField> generateInfoFieldsFromInstance(JsonNode templateInstance, JsonNode template) throws UnsupportedEncodingException {
 
     List<InfoField> infoFields = new ArrayList<>();
-    List<TemplateNode> templateNodes = CedarTemplateContentExtractor.getTemplateNodes(template,
-        CedarResourceType.TEMPLATE);
+    List<TemplateNode> templateNodes = CedarTemplateContentExtractor.getTemplateNodes(template, CedarResourceType.TEMPLATE);
 
-    HashMap<String, TemplateNode> nodesMap = nodesMap = new HashMap<>();
+    HashMap<String, TemplateNode> nodesMap = new HashMap<>();
     for (TemplateNode node : templateNodes) {
       nodesMap.put(node.generatePathDotNotation(), node);
     }
@@ -64,8 +63,7 @@ public class CedarTemplateInstanceContentExtractor {
         if (fieldValueUri != null) {
           fieldValueUri = URLEncoder.encode(fieldValueUri, StandardCharsets.UTF_8.toString());
         }
-        infoField = new InfoField(fieldName, fieldPrefLabel, fieldValue.generatePathBracketNotation(),
-            fieldValue.getFieldValue(), fieldValueUri);
+        infoField = new InfoField(fieldName, fieldPrefLabel, fieldValue.getFieldPath(), fieldValue.getFieldValue(), fieldValueUri);
       } catch (UnsupportedEncodingException e) {
         throw e;
       }
@@ -76,42 +74,6 @@ public class CedarTemplateInstanceContentExtractor {
     return infoFields;
 
   }
-
-  /**
-   * Generates a list of InfoField objects from a template or an element.
-   *
-   * @param folderServerNode
-   * @param requestContext
-   * @return
-   */
-//  private List<InfoField> generateInfoFieldsFromSchema(FileSystemResource folderServerNode,
-//                                                       CedarRequestContext requestContext) throws
-//                                                       CedarProcessingException {
-//
-//    if (folderServerNode.getType().equals(CedarResourceType.TEMPLATE) ||
-//        folderServerNode.getType().equals(CedarResourceType.ELEMENT) ||
-//        folderServerNode.getType().equals(CedarResourceType.FIELD)) {
-//
-//      List<InfoField> infoFields = new ArrayList<>();
-//      // Retrieve the template/element/field and parse it to extract its nodes
-//      JsonNode schema = extractionUtils.getArtifactById(folderServerNode.getId(), folderServerNode.getType(),
-//      requestContext);
-//      List<TemplateNode> schemaNodes = templateContentExtractor.getTemplateNodes(schema, folderServerNode.getType());
-//
-//      for (TemplateNode node : schemaNodes) {
-//        if (node.getType().equals(CedarResourceType.FIELD)) {
-//          List<String> fieldValues = node.getValueSetURIs();
-//          infoFields.add(new InfoField(node.getName(), node.getPrefLabel(), node.generatePathBracketNotation(),
-//          null, null));
-//        }
-//      }
-//      return infoFields;
-//
-//    } else {
-//      throw new CedarProcessingException("The artifact must be a Template, an Element, or a Field, but it is a "
-//          + folderServerNode.getType().name());
-//    }
-//  }
 
   /**
    * Extracts field and field values from a template instance. Note that some information, such as the field name,

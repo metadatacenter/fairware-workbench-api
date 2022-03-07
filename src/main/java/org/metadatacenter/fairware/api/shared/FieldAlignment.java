@@ -1,8 +1,5 @@
 package org.metadatacenter.fairware.api.shared;
 
-import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
-
 public class FieldAlignment {
 
   private double similarityScore;
