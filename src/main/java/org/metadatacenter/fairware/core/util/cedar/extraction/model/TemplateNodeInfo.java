@@ -1,17 +1,20 @@
 package org.metadatacenter.fairware.core.util.cedar.extraction.model;
-import org.metadatacenter.fairware.core.util.cedar.CedarResourceType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.metadatacenter.fairware.core.domain.CedarArtifactType;
 
 import java.util.List;
 
 /**
- * This class stores information about JSON nodes in a CEDAR template. A template node can contain:
+ * This class stores information about JSON nodes in a CEDAR template. A template node may contain:
+ *
  * 1) A template element, or
  * 2) A template field, or
  * 3) An array of template elements, or
  * 4) An array of template fields
  *
  */
-public class TemplateNode {
+public class TemplateNodeInfo {
 
   /**
    * Artifact id. It corresponds to the '@id' JSON field.
@@ -34,33 +37,34 @@ public class TemplateNode {
   private List<String> path;
 
   /**
-   * List of URIs of value sets from the _valueConstraints.valueSets object in template fields
-   */
-  private List<String> valueSetURIs;
-
-  /**
    * Artifact type, that is, 'FIELD' or 'ELEMENT'.
    */
-  private CedarResourceType type; // Node type (e.g. field)
-  
+  @JsonIgnore
+  private CedarArtifactType type; // Node type (e.g. field)
+
   /**
    * Specifies if the JSON node contains just one artifact or an array of artifacts.
    */
+  @JsonIgnore
   private boolean isArray;
 
-  public TemplateNode(String id, String name, String prefLabel, List<String> path,
-                      CedarResourceType type, boolean isArray, List<String> valueSetURIs) {
+  @JsonIgnore
+  private boolean valueRequired;
 
-    if (type.equals(CedarResourceType.ELEMENT) || type.equals(CedarResourceType.FIELD)) {
+  public TemplateNodeInfo() {}
+
+  public TemplateNodeInfo(String id, String name, String prefLabel, List<String> path,
+                          CedarArtifactType type, boolean isArray, Boolean valueRequired) {
+
+    if (type.equals(CedarArtifactType.ELEMENT) || type.equals(CedarArtifactType.FIELD)) {
       this.id = id;
       this.name = name;
       this.prefLabel = prefLabel;
       this.path = path;
       this.type = type;
       this.isArray = isArray;
-      this.valueSetURIs = valueSetURIs;
-    }
-    else {
+      this.valueRequired = valueRequired;
+    } else {
       throw new IllegalArgumentException("Invalid node type: " + type.name());
     }
   }
@@ -81,40 +85,42 @@ public class TemplateNode {
     return path;
   }
 
-  public List<String> getValueSetURIs() {
-    return valueSetURIs;
-  }
-
-  public CedarResourceType getType() {
+  public CedarArtifactType getType() {
     return type;
   }
 
+  @JsonIgnore
   public boolean isArray() {
     return isArray;
   }
 
-  public String generatePathDotNotation() {
-    return String.join(".", path);
+  public boolean isValueRequired() {
+    return valueRequired;
+  }
+
+  /**
+   * Generates the full path using dot notation. Dots are first removed from the field keys to avoid confusion
+   * @return The full node path in dot notation (includes the node name)
+   */
+  public String generateFullPathDotNotation() {
+    StringBuilder pathSb = new StringBuilder();
+    for (int i=0; i<this.path.size(); i++) {
+      pathSb.append(this.path.get(i).replaceAll(".", "").trim()).append(".");
+    }
+    return pathSb.append(this.name).toString();
   }
 
   public String generatePathBracketNotation() {
     return "['" + String.join("']['", path) + "']";
   }
 
+  @JsonIgnore
   public boolean isTemplateFieldNode() {
-    if (type.equals(CedarResourceType.FIELD)) {
-      return true;
-    } else {
-      return false;
-    }
+    return type.equals(CedarArtifactType.FIELD);
   }
 
+  @JsonIgnore
   public boolean isTemplateElementNode() {
-    if (type.equals(CedarResourceType.ELEMENT)) {
-      return true;
-    } else {
-      return false;
-    }
+    return type.equals(CedarArtifactType.ELEMENT);
   }
-
 }

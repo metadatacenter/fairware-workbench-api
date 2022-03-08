@@ -79,6 +79,18 @@ public class FieldValue {
   }
 
   /**
+   * Generates the full path using dot notation. Dots are first removed from the field keys to avoid confusion
+   * @return The full node path in dot notation (includes the node name)
+   */
+  public String generateFullPathDotNotation() {
+    StringBuilder pathSb = new StringBuilder();
+    for (int i=0; i<this.fieldPath.size(); i++) {
+      pathSb.append(this.fieldPath.get(i).replaceAll(".", "").trim()).append(".");
+    }
+    return pathSb.append(this.fieldKey).toString();
+  }
+
+  /**
    * Generates the field path in brackets notation. Example: ['level1']['level2']['level3']
    * @return
    */

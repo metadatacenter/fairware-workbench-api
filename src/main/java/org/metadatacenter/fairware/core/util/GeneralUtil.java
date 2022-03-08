@@ -1,8 +1,7 @@
 package org.metadatacenter.fairware.core.util;
 
-import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.InfoField;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -34,8 +33,8 @@ public class GeneralUtil {
     return (generateFullPathDotNotation(templateNodeInfo.getPath(), templateNodeInfo.getName()));
   }
 
-  public static String generateFullPathDotNotation(InfoField metadataFieldInfo) {
-    return (generateFullPathDotNotation(metadataFieldInfo.getFieldPath(), metadataFieldInfo.getFieldName()));
+  public static String generateFullPathDotNotation(MetadataFieldInfo metadataFieldInfo) {
+    return (generateFullPathDotNotation(metadataFieldInfo.getPath(), metadataFieldInfo.getName()));
   }
 
   public static String encodeIfNeeded(String uri) throws UnsupportedEncodingException {

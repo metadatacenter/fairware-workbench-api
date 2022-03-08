@@ -7,20 +7,18 @@ import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
-import org.metadatacenter.fairware.core.domain.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.domain.TemplateNodeInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
-import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.util.*;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.InfoField;
+import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateContentExtractor;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,7 +59,7 @@ public class MetadataService implements IMetadataService {
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
     // Extract metadata fields from the metadata record
-    List<InfoField> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
 
     // Find alignments between metadata fields and template fields
     int maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
@@ -111,9 +109,9 @@ public class MetadataService implements IMetadataService {
     }
 
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
-    List<InfoField> metadataFieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
-    Map<String, InfoField> mfMap = new HashMap<>();
-    for (InfoField mf : metadataFieldsInfo) {
+    List<MetadataFieldInfo> metadataFieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
+    for (MetadataFieldInfo mf : metadataFieldsInfo) {
       mfMap.put(GeneralUtil.generateFullPathDotNotation(mf), mf);
     }
 
