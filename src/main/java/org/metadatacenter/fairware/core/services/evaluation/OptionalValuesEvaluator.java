@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class OptionalValuesEvaluator implements IMetadataEvaluator {
 
-  final MetadataIssue issue = new MetadataIssue(IssueType.MISSING_REQUIRED_VALUE);
+  final MetadataIssue issue = new MetadataIssue(IssueType.MISSING_OPTIONAL_VALUE);
 
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> mfMap,
