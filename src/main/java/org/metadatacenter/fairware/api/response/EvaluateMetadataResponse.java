@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class EvaluateMetadataResponse {
 
+  private String metadataRecordId;
   private String templateId;
   private Map<String, Object> metadataRecord;
   private List<EvaluationReportItem> items;
@@ -17,13 +18,16 @@ public class EvaluateMetadataResponse {
 
   public EvaluateMetadataResponse() {}
 
-  public EvaluateMetadataResponse(String templateId, LocalDateTime generatedOn, Map<String, Object> metadataRecord,
+  public EvaluateMetadataResponse(String metadataRecordId, String templateId, LocalDateTime generatedOn, Map<String, Object> metadataRecord,
                                   List<EvaluationReportItem> items) {
+    this.metadataRecordId = metadataRecordId;
     this.templateId = templateId;
     this.generatedOn = generatedOn;
     this.metadataRecord = metadataRecord;
     this.items = items;
   }
+
+  public String getMetadataRecordId() { return metadataRecordId; }
 
   public String getTemplateId() {
     return templateId;

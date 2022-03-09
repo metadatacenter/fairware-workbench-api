@@ -200,7 +200,7 @@ public class FairwareWorkbenchResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
       }
       // If the metadataRecordId is provided, find the metadata record
-      Map<String, Object> metadataRecord = null;
+      Map<String, Object> metadataRecord;
       if (!StringUtils.isEmpty(request.getMetadataRecordId())) {
         SearchMetadataResponse searchResults =
             metadataService.searchMetadata(Arrays.asList(request.getMetadataRecordId()));
@@ -221,7 +221,7 @@ public class FairwareWorkbenchResource {
 
       List<EvaluationReportItem> reportItems =
           metadataService.evaluateMetadata(request.getTemplateId(), metadataRecord, fieldAlignments);
-      EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getTemplateId(),
+      EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getMetadataRecordId(), request.getTemplateId(),
           LocalDateTime.now(), request.getMetadataRecord(), reportItems);
       return Response.ok(report).build();
     } catch (BadRequestException e) {

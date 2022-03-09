@@ -7,6 +7,7 @@ import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
+import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
@@ -121,9 +122,14 @@ public class MetadataService implements IMetadataService {
     if (fieldAlignments.size() == 0) {
       fieldAlignments.addAll(alignMetadata(templateId, metadataRecord));
     }
-    // 1. Check required values
+    // Check missing required values
     RequiredValuesEvaluator requiredValuesEv = new RequiredValuesEvaluator();
     reportItems.addAll(requiredValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
+
+    // Check missing optional values
+    OptionalValuesEvaluator optionalValuesEv = new OptionalValuesEvaluator();
+    reportItems.addAll(optionalValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
+
     // 2. Check missing template fields (find ontology terms for the extra metadata fields)
     // ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService, coreConfig, bioportalConfig);
     // reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
