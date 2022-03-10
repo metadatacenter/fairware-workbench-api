@@ -17,6 +17,7 @@ import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.issue.IssueLevel;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.services.MetadataService;
@@ -32,6 +33,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -221,8 +223,19 @@ public class FairwareWorkbenchResource {
 
       List<EvaluationReportItem> reportItems =
           metadataService.evaluateMetadata(request.getTemplateId(), metadataRecord, fieldAlignments);
-      EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getMetadataRecordId(), request.getTemplateId(),
-          LocalDateTime.now(), request.getMetadataRecord(), reportItems);
+      // Count errors and warnings
+      int warningsCount = 0;
+      int errorsCount = 0;
+      for (EvaluationReportItem item : reportItems) {
+        if (item.getIssue().getIssueLevel().equals(IssueLevel.WARNING)) { warningsCount++; }
+        else if (item.getIssue().getIssueLevel().equals(IssueLevel.ERROR)) { errorsCount++; }
+        else throw new InvalidParameterException("Invalid issue type");
+      }
+
+      EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getMetadataRecordId(),
+          request.getTemplateId(), request.getMetadataRecord(), reportItems.size(), warningsCount, errorsCount,
+          reportItems, LocalDateTime.now());
+         
       return Response.ok(report).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());

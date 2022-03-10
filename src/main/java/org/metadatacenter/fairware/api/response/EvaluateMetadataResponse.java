@@ -12,19 +12,26 @@ public class EvaluateMetadataResponse {
   private String metadataRecordId;
   private String templateId;
   private Map<String, Object> metadataRecord;
+  private int totalIssuesCount;
+  private int warningsCount;
+  private int errorsCount;
   private List<EvaluationReportItem> items;
   @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss") // TODO: specify timezone
   private LocalDateTime generatedOn;
 
   public EvaluateMetadataResponse() {}
 
-  public EvaluateMetadataResponse(String metadataRecordId, String templateId, LocalDateTime generatedOn, Map<String, Object> metadataRecord,
-                                  List<EvaluationReportItem> items) {
+  public EvaluateMetadataResponse(String metadataRecordId, String templateId, Map<String, Object> metadataRecord,
+                                  int totalIssuesCount, int warningsCount, int errorsCount,
+                                  List<EvaluationReportItem> items, LocalDateTime generatedOn) {
     this.metadataRecordId = metadataRecordId;
     this.templateId = templateId;
-    this.generatedOn = generatedOn;
     this.metadataRecord = metadataRecord;
+    this.totalIssuesCount = totalIssuesCount;
+    this.warningsCount = warningsCount;
+    this.errorsCount = errorsCount;
     this.items = items;
+    this.generatedOn = generatedOn;
   }
 
   public String getMetadataRecordId() { return metadataRecordId; }
@@ -39,6 +46,18 @@ public class EvaluateMetadataResponse {
 
   public Map<String, Object> getMetadataRecord() {
     return metadataRecord;
+  }
+
+  public int getTotalIssuesCount() {
+    return totalIssuesCount;
+  }
+
+  public int getWarningsCount() {
+    return warningsCount;
+  }
+
+  public int getErrorsCount() {
+    return errorsCount;
   }
 
   public List<EvaluationReportItem> getItems() {
