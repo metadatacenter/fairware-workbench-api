@@ -2,13 +2,11 @@ package org.metadatacenter.fairware.api.request;
 
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Map;
 
 public class EvaluateMetadataRequest {
 
-  @NotEmpty // not null, not blank
   private String templateId;
   private Map<String, Object> metadataRecord;
   private String metadataRecordId;

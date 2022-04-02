@@ -7,6 +7,9 @@ public class MetadataIssue {
   private IssueType issueType;
   private IssueLevel issueLevel;
 
+  public MetadataIssue() {
+  }
+
   public MetadataIssue(IssueType issueType) {
     this.issueType = issueType;
     this.issueLevel = calculateIssueLevel(issueType);

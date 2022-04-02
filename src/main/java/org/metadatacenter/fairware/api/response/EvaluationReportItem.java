@@ -9,6 +9,9 @@ public class EvaluationReportItem {
   private MetadataIssue issue;
   private RepairAction repairAction;
 
+  public EvaluationReportItem() {
+  }
+
   public EvaluationReportItem(String metadataFieldPath, MetadataIssue issue, RepairAction repairAction) {
     this.metadataFieldPath = metadataFieldPath;
     this.issue = issue;

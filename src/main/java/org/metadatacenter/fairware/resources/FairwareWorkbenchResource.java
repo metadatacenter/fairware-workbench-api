@@ -9,21 +9,21 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
-import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
-import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
-import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
-import org.metadatacenter.fairware.api.request.SearchMetadataRequest;
+import org.metadatacenter.fairware.api.request.*;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
 import org.metadatacenter.fairware.api.response.issue.IssueLevel;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
+import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,47 +196,29 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
   public Response evaluateMetadata(@NotNull @Valid EvaluateMetadataRequest request) {
     try {
-      // Input validation
-      if (StringUtils.isEmpty(request.getMetadataRecordId()) && request.getMetadataRecord() == null) {
-        logger.error("You must provide a metadataRecordId or a metadataRecord");
+
+      Map<String, Object> metadataRecord = resolveMetadataRecord(request);
+      if (metadataRecord == null) {
+        logger.error("Metadata record not provided or not found");
         return Response.status(Response.Status.BAD_REQUEST).build();
       }
-      // If the metadataRecordId is provided, find the metadata record
-      Map<String, Object> metadataRecord;
-      if (!StringUtils.isEmpty(request.getMetadataRecordId())) {
-        SearchMetadataResponse searchResults =
-            metadataService.searchMetadata(Arrays.asList(request.getMetadataRecordId()));
-        if (searchResults.getItems().size() == 0) {
-          logger.error("Couldn't find metadata record: metadataRecordId=" + request.getMetadataRecordId());
-          return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        metadataRecord = searchResults.getItems().get(0).getMetadata();
+
+      String templateId = resolveTemplateId(request, metadataRecord);
+      if (templateId == null) {
+        logger.error("templateId not provide or not found");
+        return Response.status(Response.Status.BAD_REQUEST).build();
       }
-      else {
-        metadataRecord = request.getMetadataRecord();
-      }
+
       // Read field alignments from the request, if provided
       List<FieldAlignment> fieldAlignments = new ArrayList<>();
       if (request.getFieldAlignments() != null && request.getFieldAlignments().size() > 0) {
         fieldAlignments = request.getFieldAlignments();
       }
 
-      List<EvaluationReportItem> reportItems =
-          metadataService.evaluateMetadata(request.getTemplateId(), metadataRecord, fieldAlignments);
-      // Count errors and warnings
-      int warningsCount = 0;
-      int errorsCount = 0;
-      for (EvaluationReportItem item : reportItems) {
-        if (item.getIssue().getIssueLevel().equals(IssueLevel.WARNING)) { warningsCount++; }
-        else if (item.getIssue().getIssueLevel().equals(IssueLevel.ERROR)) { errorsCount++; }
-        else throw new InvalidParameterException("Invalid issue type");
-      }
+      EvaluateMetadataResponse response =
+          metadataService.evaluateMetadata(request.getMetadataRecordId(), templateId, metadataRecord, fieldAlignments);
 
-      EvaluateMetadataResponse report = new EvaluateMetadataResponse(request.getMetadataRecordId(),
-          request.getTemplateId(), request.getMetadataRecord(), reportItems.size(), warningsCount, errorsCount,
-          reportItems, LocalDateTime.now());
-         
-      return Response.ok(report).build();
+      return Response.ok(response).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -284,5 +266,119 @@ public class FairwareWorkbenchResource {
     }
   }
 
+  @POST
+  @Operation(
+      summary = "")
+  @Path("/metadata/report")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Tag(name = "Metadata")
+  @RequestBody(description = "", required = true,
+      content = @Content(
+          schema = @Schema(implementation = EvaluateMetadataRequest.class),
+          examples = {
+              @ExampleObject(value = "")
+          }
+      ))
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content = @Content(
+          schema = @Schema(implementation = EvaluateMetadataResponse.class),
+          examples = {
+              @ExampleObject(value = "")
+          }
+      ))
+  @ApiResponse(responseCode = "400", description = "Bad request")
+  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  public Response evaluationReport(@NotNull @Valid EvaluationReportRequest request) {
+    try {
+
+      // Evaluate record by record
+      List<EvaluateMetadataResponse> evaluationResponses = new ArrayList<>();
+      for (EvaluateMetadataRequest r : request.getEvaluateMetadataRequests()) {
+        Map<String, Object> metadataRecord = resolveMetadataRecord(r);
+        if (metadataRecord == null) {
+          logger.error("Metadata record not provided or not found");
+          return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        String templateId = resolveTemplateId(r, metadataRecord);
+        if (templateId == null) {
+          logger.error("templateId not provide or not found");
+          return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        // Read field alignments from the request, if provided
+        List<FieldAlignment> fieldAlignments = new ArrayList<>();
+        if (r.getFieldAlignments() != null && r.getFieldAlignments().size() > 0) {
+          fieldAlignments = r.getFieldAlignments();
+        }
+        EvaluateMetadataResponse response =
+            metadataService.evaluateMetadata(r.getMetadataRecordId(), templateId, metadataRecord, fieldAlignments);
+        evaluationResponses.add(response);
+      }
+
+      // Use the evaluation results to generate the evaluation report
+      EvaluationReportResponse report =
+          metadataService.generateEvaluationReport(evaluationResponses);
+
+      return Response.ok(report).build();
+    } catch (BadRequestException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (HttpException | IOException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+    }
+  }
+
+  /* Helper functions */
+  public Map<String, Object> resolveMetadataRecord(EvaluateMetadataRequest request) throws HttpException, IOException {
+    if (request.getMetadataRecordId() == null || StringUtils.isEmpty(request.getMetadataRecordId())) {
+      return null;
+    }
+    Map<String, Object> metadataRecord;
+    if (!StringUtils.isEmpty(request.getMetadataRecordId())) {
+      SearchMetadataResponse searchResults =
+          metadataService.searchMetadata(Arrays.asList(request.getMetadataRecordId()));
+      if (searchResults.getItems().size() == 0) {
+        return null;
+      }
+      metadataRecord = searchResults.getItems().get(0).getMetadata();
+    }
+    else {
+      metadataRecord = request.getMetadataRecord();
+    }
+    return metadataRecord;
+  }
+
+  /**
+   * If the templateId is not part of the request, try to:
+   * 1) Extract it from the metadata record (it will only work if it's a CEDAR metadata record)
+   * 2) Use CEDAR's template recommendation service to find an appropriate template
+   * @param request
+   * @param metadataRecord
+   * @return
+   * @throws HttpException
+   * @throws IOException
+   */
+  public String resolveTemplateId(EvaluateMetadataRequest request, Map<String, Object> metadataRecord) throws HttpException, IOException {
+    // templateId from request
+    if (request.getTemplateId() != null && !StringUtils.isEmpty(request.getTemplateId())) {
+      return request.getTemplateId();
+    }
+    // templateId from metadata record
+    String templateIdFromRecord = CedarUtil.getTemplateId(metadataRecord);
+    if (templateIdFromRecord != null) {
+      return templateIdFromRecord;
+    }
+    // templateId suggested by CEDAR's template recommendation service
+    RecommendTemplatesResponse recommendTemplatesResponse = templateService.recommendCedarTemplates(metadataRecord);
+    if (recommendTemplatesResponse.getRecommendations().size() > 0) {
+      return recommendTemplatesResponse.getRecommendations().get(0).getTemplateExtract().getCedarId(); // return top-ranked template
+    }
+    // couldn't find a template id, return null
+    return null;
+  }
 
 }

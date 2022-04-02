@@ -1,7 +1,15 @@
 package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
+import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
+import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
+import org.metadatacenter.fairware.api.response.evaluationReport.CompletenessReport;
+import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
+import org.metadatacenter.fairware.api.response.evaluationReport.RecordReport;
+import org.metadatacenter.fairware.api.response.evaluationReport.RecordsCompletenessReport;
+import org.metadatacenter.fairware.api.response.issue.IssueLevel;
+import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
@@ -20,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -87,6 +97,25 @@ public class MetadataService implements IMetadataService {
     return FieldsAlignmentUtil.generateFieldAlignments(metadataFields, templateFields,
         similarityMatrix, optimalAlignment);
 
+  }
+
+  @Override
+  public EvaluateMetadataResponse evaluateMetadata(String metadataRecordId, String templateId,
+                                                   Map<String, Object> metadataRecord, List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
+    List<EvaluationReportItem> reportItems =
+        evaluateMetadata(templateId, metadataRecord, fieldAlignments);
+    // Count errors and warnings
+    int warningsCount = 0;
+    int errorsCount = 0;
+    for (EvaluationReportItem item : reportItems) {
+      if (item.getIssue().getIssueLevel().equals(IssueLevel.WARNING)) { warningsCount++; }
+      else if (item.getIssue().getIssueLevel().equals(IssueLevel.ERROR)) { errorsCount++; }
+      else throw new InvalidParameterException("Invalid issue type");
+    }
+
+    return new EvaluateMetadataResponse(metadataRecordId,
+        templateId, metadataRecord, reportItems.size(), warningsCount, errorsCount,
+        reportItems, LocalDateTime.now());
   }
 
   /**
@@ -161,6 +190,62 @@ public class MetadataService implements IMetadataService {
       }
     }
     return new SearchMetadataResponse(records.size(), records);
+  }
+
+  @Override
+  public EvaluationReportResponse generateEvaluationReport(List<EvaluateMetadataResponse> evaluationResults) {
+
+    // Records completeness report
+    RecordsCompletenessReport recordsCompletenessReport = new RecordsCompletenessReport();
+    List<RecordReport> recordReports = new ArrayList<>();
+    int completeRecordsCount = 0;
+    int recordsWithMissingRequiredCount = 0;
+    int recordsWithMissingOptionalCount = 0;
+    for (EvaluateMetadataResponse recordEvaluationResult : evaluationResults) {
+      int missingRequiredCount = 0;
+      int missingOptionalCount = 0;
+      for (EvaluationReportItem fieldEvaluationResult : recordEvaluationResult.getItems()) {
+        if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_REQUIRED_VALUE)) {
+          missingRequiredCount++;
+        }
+        else if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_OPTIONAL_VALUE)) {
+          missingOptionalCount++;
+        }
+      }
+      RecordReport recordReport = new RecordReport();
+      recordReport.setMetadataRecordId(recordEvaluationResult.getMetadataRecordId());
+      recordReport.setMissingRequiredValues(missingRequiredCount);
+      recordReport.setMissingOptionalValues(missingOptionalCount);
+      recordReports.add(recordReport);
+      if (missingRequiredCount == 0 && missingOptionalCount == 0) {
+        completeRecordsCount++;
+      }
+      else if (missingRequiredCount > 0) {
+        recordsWithMissingRequiredCount++;
+      }
+      else {
+        recordsWithMissingOptionalCount++;
+      }
+    }
+    recordsCompletenessReport.setCompleteRecordsCount(completeRecordsCount);
+    recordsCompletenessReport.setRecordsWithMissingRequiredValuesCount(recordsWithMissingRequiredCount);
+    recordsCompletenessReport.setRecordsWithMissingOptionalValuesCount(recordsWithMissingOptionalCount);
+    // Sort recordReports by number of missing values
+    Collections.sort(recordReports, (a, b) -> (b.getMissingRequiredValues() + b.getMissingOptionalValues()) -
+            (a.getMissingRequiredValues() + a.getMissingOptionalValues()));
+    recordsCompletenessReport.setItems(recordReports);
+
+    // Fields completeness report
+    // TODO...
+
+    // Generate completeness report
+    CompletenessReport completenessReport = new CompletenessReport();
+    completenessReport.setRecordsReport(recordsCompletenessReport);
+
+    // Generate evaluation report
+    EvaluationReportResponse reportResponse = new EvaluationReportResponse();
+    reportResponse.setCompletenessReport(completenessReport);
+    return reportResponse;
   }
 
 }

@@ -3,6 +3,7 @@ package org.metadatacenter.fairware.core.util;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.constants.CedarModelConstants;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class CedarUtil {
@@ -15,5 +16,12 @@ public class CedarUtil {
    */
   public static boolean isCedarTemplateInstanceId(String uri) {
     return Pattern.matches(CedarConstants.CEDAR_TEMPLATE_INSTANCE_URI_REGEX, uri);
+  }
+
+  public static String getTemplateId(Map<String, Object> templateInstance) {
+    if (!templateInstance.containsKey(CedarModelConstants.IS_BASED_ON)) {
+      return null;
+    }
+    return templateInstance.get(CedarModelConstants.IS_BASED_ON).toString();
   }
 }
