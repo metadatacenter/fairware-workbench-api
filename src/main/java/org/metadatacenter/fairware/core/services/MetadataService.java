@@ -4,10 +4,7 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
-import org.metadatacenter.fairware.api.response.evaluationReport.CompletenessReport;
-import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
-import org.metadatacenter.fairware.api.response.evaluationReport.RecordReport;
-import org.metadatacenter.fairware.api.response.evaluationReport.RecordsCompletenessReport;
+import org.metadatacenter.fairware.api.response.evaluationReport.*;
 import org.metadatacenter.fairware.api.response.issue.IssueLevel;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
@@ -113,8 +110,17 @@ public class MetadataService implements IMetadataService {
       else throw new InvalidParameterException("Invalid issue type");
     }
 
+    // The following lines are doing work that is already done by "evaluateMetadata". They could be optimized
+    Map<String, Object> template = cedarService.findTemplate(templateId);
+    List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
+        .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
+    List<String> metadataFieldsPaths = new ArrayList<>();
+    for (TemplateNodeInfo tf : templateFields) {
+      metadataFieldsPaths.add(GeneralUtil.generateFullPathDotNotation(tf));
+    }
+
     return new EvaluateMetadataResponse(metadataRecordId,
-        templateId, metadataRecord, reportItems.size(), warningsCount, errorsCount,
+        templateId, metadataRecord, metadataFieldsPaths, reportItems.size(), warningsCount, errorsCount,
         reportItems, LocalDateTime.now());
   }
 
@@ -236,11 +242,66 @@ public class MetadataService implements IMetadataService {
     recordsCompletenessReport.setItems(recordReports);
 
     // Fields completeness report
-    // TODO...
+    FieldsCompletenessReport fieldsCompletenessReport = new FieldsCompletenessReport();
+    //Map<String, Integer> fieldCountMap = new HashMap<>(); // Field count per template
+    Map<String, FieldReport> fieldReportMap = new HashMap<>();
+    for (EvaluateMetadataResponse recordEvaluationResult : evaluationResults) {
+      String templateId = recordEvaluationResult.getTemplateId();
+      // Add to the map all the fields, and assume that they don't have any missing values
+      for (String fieldPath : recordEvaluationResult.getMetadataFieldPaths()) {
+        String key = templateId + fieldPath;
+        if (!fieldReportMap.containsKey(key)) {
+          fieldReportMap.put(key, new FieldReport());
+          fieldReportMap.get(key).setMetadataFieldPath(fieldPath);
+          fieldReportMap.get(key).setTemplateId(templateId);
+          fieldReportMap.get(key).setCompleteCount(0);
+        }
+        fieldReportMap.get(key).setCompleteCount(fieldReportMap.get(key).getCompleteCount()+1);
+      }
+      // Add to the map the info about the fields with missing values
+      for (EvaluationReportItem fieldEvaluationResult : recordEvaluationResult.getItems()) {
+        String fieldPath = fieldEvaluationResult.getMetadataFieldPath();
+        String key = templateId + fieldPath;
+        if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_REQUIRED_VALUE)) {
+          int missingCount = fieldReportMap.get(key).getMissingRequiredValuesCount();
+          fieldReportMap.get(key).setMissingRequiredValuesCount(missingCount+1);
+          int completeCount = fieldReportMap.get(key).getCompleteCount();
+          fieldReportMap.get(key).setCompleteCount(completeCount-1);
+        }
+        else if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_OPTIONAL_VALUE)) {
+          int missingCount = fieldReportMap.get(key).getMissingOptionalValuesCount();
+          fieldReportMap.get(key).setMissingOptionalValuesCount(missingCount+1);
+          int completeCount = fieldReportMap.get(key).getCompleteCount();
+          fieldReportMap.get(key).setCompleteCount(completeCount-1);
+        }
+      }
+    }
+
+    int completeFieldsCount = 0;
+    int fieldsWithMissingRequiredCount = 0;
+    int fieldsWithMissingOptionalCount = 0;
+    List<FieldReport> fieldReports = new ArrayList<>(fieldReportMap.values());
+    for (FieldReport fr : fieldReports) {
+      if (fr.getMissingRequiredValuesCount() > 0) {
+        fieldsWithMissingRequiredCount++;
+      }
+      else if (fr.getMissingOptionalValuesCount() > 0) {
+        fieldsWithMissingOptionalCount++;
+      }
+      else {
+        completeFieldsCount++;
+      }
+    }
+
+    fieldsCompletenessReport.setCompleteFieldsCount(completeFieldsCount);
+    fieldsCompletenessReport.setFieldsWithMissingRequiredValuesCount(fieldsWithMissingRequiredCount);
+    fieldsCompletenessReport.setFieldsWithmissingOptionalValuesCount(fieldsWithMissingOptionalCount);
+    fieldsCompletenessReport.setItems(fieldReports);
 
     // Generate completeness report
     CompletenessReport completenessReport = new CompletenessReport();
     completenessReport.setRecordsReport(recordsCompletenessReport);
+    completenessReport.setFieldsReport(fieldsCompletenessReport);
 
     // Generate evaluation report
     EvaluationReportResponse reportResponse = new EvaluationReportResponse();

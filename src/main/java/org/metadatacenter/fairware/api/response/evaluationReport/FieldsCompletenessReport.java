@@ -4,21 +4,12 @@ import java.util.List;
 
 public class FieldsCompletenessReport {
 
-  private int metadataFieldPath;
   private int completeFieldsCount;
   private int fieldsWithMissingRequiredValuesCount;
   private int fieldsWithmissingOptionalValuesCount;
   private List<FieldReport> items;
 
   public FieldsCompletenessReport() {
-  }
-
-  public int getMetadataFieldPath() {
-    return metadataFieldPath;
-  }
-
-  public void setMetadataFieldPath(int metadataFieldPath) {
-    this.metadataFieldPath = metadataFieldPath;
   }
 
   public int getCompleteFieldsCount() {

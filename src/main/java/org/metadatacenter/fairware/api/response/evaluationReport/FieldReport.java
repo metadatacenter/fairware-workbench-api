@@ -3,6 +3,7 @@ package org.metadatacenter.fairware.api.response.evaluationReport;
 public class FieldReport {
 
   private String metadataFieldPath;
+  private String templateId;
   private int completeCount;
   private int missingRequiredValuesCount;
   private int missingOptionalValuesCount;
@@ -15,6 +16,14 @@ public class FieldReport {
 
   public void setMetadataFieldPath(String metadataFieldPath) {
     this.metadataFieldPath = metadataFieldPath;
+  }
+
+  public String getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(String templateId) {
+    this.templateId = templateId;
   }
 
   public int getCompleteCount() {
