@@ -6,7 +6,7 @@ public class FieldsCompletenessReport {
 
   private int completeFieldsCount;
   private int fieldsWithMissingRequiredValuesCount;
-  private int fieldsWithmissingOptionalValuesCount;
+  private int fieldsWithMissingOptionalValuesCount;
   private List<FieldReport> items;
 
   public FieldsCompletenessReport() {
@@ -28,12 +28,12 @@ public class FieldsCompletenessReport {
     this.fieldsWithMissingRequiredValuesCount = fieldsWithMissingRequiredValuesCount;
   }
 
-  public int getFieldsWithmissingOptionalValuesCount() {
-    return fieldsWithmissingOptionalValuesCount;
+  public int getFieldsWithMissingOptionalValuesCount() {
+    return fieldsWithMissingOptionalValuesCount;
   }
 
-  public void setFieldsWithmissingOptionalValuesCount(int fieldsWithmissingOptionalValuesCount) {
-    this.fieldsWithmissingOptionalValuesCount = fieldsWithmissingOptionalValuesCount;
+  public void setFieldsWithMissingOptionalValuesCount(int fieldsWithMissingOptionalValuesCount) {
+    this.fieldsWithMissingOptionalValuesCount = fieldsWithMissingOptionalValuesCount;
   }
 
   public List<FieldReport> getItems() {

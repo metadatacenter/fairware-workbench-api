@@ -233,6 +233,7 @@ public class MetadataService implements IMetadataService {
         recordsWithMissingOptionalCount++;
       }
     }
+    recordsCompletenessReport.setRecordsCount(recordReports.size());
     recordsCompletenessReport.setCompleteRecordsCount(completeRecordsCount);
     recordsCompletenessReport.setRecordsWithMissingRequiredValuesCount(recordsWithMissingRequiredCount);
     recordsCompletenessReport.setRecordsWithMissingOptionalValuesCount(recordsWithMissingOptionalCount);
@@ -295,7 +296,7 @@ public class MetadataService implements IMetadataService {
 
     fieldsCompletenessReport.setCompleteFieldsCount(completeFieldsCount);
     fieldsCompletenessReport.setFieldsWithMissingRequiredValuesCount(fieldsWithMissingRequiredCount);
-    fieldsCompletenessReport.setFieldsWithmissingOptionalValuesCount(fieldsWithMissingOptionalCount);
+    fieldsCompletenessReport.setFieldsWithMissingOptionalValuesCount(fieldsWithMissingOptionalCount);
     fieldsCompletenessReport.setItems(fieldReports);
 
     // Generate completeness report
