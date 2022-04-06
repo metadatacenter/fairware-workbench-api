@@ -218,10 +218,13 @@ public class MetadataService implements IMetadataService {
           missingOptionalCount++;
         }
       }
+      int fieldsCount = recordEvaluationResult.getMetadataFieldPaths().size();
       RecordReport recordReport = new RecordReport();
       recordReport.setMetadataRecordId(recordEvaluationResult.getMetadataRecordId());
-      recordReport.setMissingRequiredValues(missingRequiredCount);
-      recordReport.setMissingOptionalValues(missingOptionalCount);
+      recordReport.setFieldsCount(fieldsCount);
+      recordReport.setCompleteCount(fieldsCount - missingRequiredCount - missingOptionalCount);
+      recordReport.setMissingRequiredValuesCount(missingRequiredCount);
+      recordReport.setMissingOptionalValuesCount(missingOptionalCount);
       recordReports.add(recordReport);
       if (missingRequiredCount == 0 && missingOptionalCount == 0) {
         completeRecordsCount++;
@@ -238,13 +241,12 @@ public class MetadataService implements IMetadataService {
     recordsCompletenessReport.setRecordsWithMissingRequiredValuesCount(recordsWithMissingRequiredCount);
     recordsCompletenessReport.setRecordsWithMissingOptionalValuesCount(recordsWithMissingOptionalCount);
     // Sort recordReports by number of missing values
-    Collections.sort(recordReports, (a, b) -> (b.getMissingRequiredValues() + b.getMissingOptionalValues()) -
-            (a.getMissingRequiredValues() + a.getMissingOptionalValues()));
+    Collections.sort(recordReports, (a, b) -> (b.getMissingRequiredValuesCount() + b.getMissingOptionalValuesCount()) -
+            (a.getMissingRequiredValuesCount() + a.getMissingOptionalValuesCount()));
     recordsCompletenessReport.setItems(recordReports);
 
     // Fields completeness report
     FieldsCompletenessReport fieldsCompletenessReport = new FieldsCompletenessReport();
-    //Map<String, Integer> fieldCountMap = new HashMap<>(); // Field count per template
     Map<String, FieldReport> fieldReportMap = new HashMap<>();
     for (EvaluateMetadataResponse recordEvaluationResult : evaluationResults) {
       String templateId = recordEvaluationResult.getTemplateId();
@@ -257,6 +259,8 @@ public class MetadataService implements IMetadataService {
           fieldReportMap.get(key).setTemplateId(templateId);
           fieldReportMap.get(key).setCompleteCount(0);
         }
+        fieldReportMap.get(key).setFieldsCount(fieldReportMap.get(key).getFieldsCount()+1);
+        // Initially assume that they don't have any missing values
         fieldReportMap.get(key).setCompleteCount(fieldReportMap.get(key).getCompleteCount()+1);
       }
       // Add to the map the info about the fields with missing values

@@ -3,8 +3,10 @@ package org.metadatacenter.fairware.api.response.evaluationReport;
 public class RecordReport {
 
   private String metadataRecordId;
-  private int missingRequiredValues;
-  private int missingOptionalValues;
+  private int fieldsCount;
+  private int completeCount;
+  private int missingRequiredValuesCount;
+  private int missingOptionalValuesCount;
 
   public RecordReport() {}
 
@@ -16,19 +18,35 @@ public class RecordReport {
     this.metadataRecordId = metadataRecordId;
   }
 
-  public int getMissingRequiredValues() {
-    return missingRequiredValues;
+  public int getFieldsCount() {
+    return fieldsCount;
   }
 
-  public void setMissingRequiredValues(int missingRequiredValues) {
-    this.missingRequiredValues = missingRequiredValues;
+  public void setFieldsCount(int fieldsCount) {
+    this.fieldsCount = fieldsCount;
   }
 
-  public int getMissingOptionalValues() {
-    return missingOptionalValues;
+  public int getCompleteCount() {
+    return completeCount;
   }
 
-  public void setMissingOptionalValues(int missingOptionalValues) {
-    this.missingOptionalValues = missingOptionalValues;
+  public void setCompleteCount(int completeCount) {
+    this.completeCount = completeCount;
+  }
+
+  public int getMissingRequiredValuesCount() {
+    return missingRequiredValuesCount;
+  }
+
+  public void setMissingRequiredValuesCount(int missingRequiredValuesCount) {
+    this.missingRequiredValuesCount = missingRequiredValuesCount;
+  }
+
+  public int getMissingOptionalValuesCount() {
+    return missingOptionalValuesCount;
+  }
+
+  public void setMissingOptionalValuesCount(int missingOptionalValuesCount) {
+    this.missingOptionalValuesCount = missingOptionalValuesCount;
   }
 }

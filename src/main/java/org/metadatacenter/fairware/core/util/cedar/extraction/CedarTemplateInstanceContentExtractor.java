@@ -144,8 +144,7 @@ public class CedarTemplateInstanceContentExtractor {
         }
 
         currentPath.remove(currentPath.size()-1);
-
-
+        
       } else {
         // Node not found in the map of template nodes. It is not a relevant node (e.g. @context) so we ignore it.
       }

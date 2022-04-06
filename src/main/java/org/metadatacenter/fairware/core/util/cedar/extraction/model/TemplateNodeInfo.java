@@ -105,7 +105,7 @@ public class TemplateNodeInfo {
   public String generateFullPathDotNotation() {
     StringBuilder pathSb = new StringBuilder();
     for (int i=0; i<this.path.size(); i++) {
-      pathSb.append(this.path.get(i).replaceAll(".", "").trim()).append(".");
+      pathSb.append(this.path.get(i).replace(".", "").trim()).append(".");
     }
     return pathSb.append(this.name).toString();
   }

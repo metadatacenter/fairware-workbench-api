@@ -4,6 +4,7 @@ public class FieldReport {
 
   private String metadataFieldPath;
   private String templateId;
+  private int fieldsCount;
   private int completeCount;
   private int missingRequiredValuesCount;
   private int missingOptionalValuesCount;
@@ -24,6 +25,14 @@ public class FieldReport {
 
   public void setTemplateId(String templateId) {
     this.templateId = templateId;
+  }
+
+  public int getFieldsCount() {
+    return fieldsCount;
+  }
+
+  public void setFieldsCount(int fieldsCount) {
+    this.fieldsCount = fieldsCount;
   }
 
   public int getCompleteCount() {
