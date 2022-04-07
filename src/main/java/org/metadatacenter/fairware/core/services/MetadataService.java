@@ -250,8 +250,13 @@ public class MetadataService implements IMetadataService {
     recordsCompletenessReport.setRecordsWithMissingRequiredValuesCount(recordsWithMissingRequiredCount);
     recordsCompletenessReport.setRecordsWithMissingOptionalValuesCount(recordsWithMissingOptionalCount);
     // Sort recordReports by number of missing values
-    Collections.sort(recordReports, (a, b) -> (b.getMissingRequiredValuesCount() + b.getMissingOptionalValuesCount()) -
-            (a.getMissingRequiredValuesCount() + a.getMissingOptionalValuesCount()));
+    Collections.sort(recordReports, (r1, r2) -> {
+      if (r1.getMissingRequiredValuesCount() == r2.getMissingRequiredValuesCount()) {
+        return r2.getMissingOptionalValuesCount() - r1.getMissingOptionalValuesCount();
+      } else {
+        return r2.getMissingRequiredValuesCount() - r1.getMissingRequiredValuesCount();
+      }
+    });
     recordsCompletenessReport.setItems(recordReports);
 
     // Fields completeness report
@@ -307,6 +312,15 @@ public class MetadataService implements IMetadataService {
         completeFieldsCount++;
       }
     }
+
+    // Sort fieldReports by number of missing values
+    Collections.sort(fieldReports, (r1, r2) -> {
+      if (r1.getMissingRequiredValuesCount() == r2.getMissingRequiredValuesCount()) {
+        return r2.getMissingOptionalValuesCount() - r1.getMissingOptionalValuesCount();
+      } else {
+        return r2.getMissingRequiredValuesCount() - r1.getMissingRequiredValuesCount();
+      }
+    });
 
     fieldsCompletenessReport.setCompleteFieldsCount(completeFieldsCount);
     fieldsCompletenessReport.setFieldsWithMissingRequiredValuesCount(fieldsWithMissingRequiredCount);
