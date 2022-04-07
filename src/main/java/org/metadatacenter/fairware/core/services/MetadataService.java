@@ -1,7 +1,6 @@
 package org.metadatacenter.fairware.core.services;
 
 import org.apache.http.HttpException;
-import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.evaluationReport.*;
@@ -12,6 +11,7 @@ import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
+import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
@@ -119,8 +119,14 @@ public class MetadataService implements IMetadataService {
       metadataFieldsPaths.add(GeneralUtil.generateFullPathDotNotation(tf));
     }
 
-    return new EvaluateMetadataResponse(metadataRecordId,
-        templateId, metadataRecord, metadataFieldsPaths, reportItems.size(), warningsCount, errorsCount,
+    String metadataRecordName = null;
+    if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {
+      metadataRecordName = metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    }
+    String templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+
+    return new EvaluateMetadataResponse(metadataRecordId, metadataRecordName,
+        templateId, templateName, metadataRecord, metadataFieldsPaths, reportItems.size(), warningsCount, errorsCount,
         reportItems, LocalDateTime.now());
   }
 
@@ -188,7 +194,7 @@ public class MetadataService implements IMetadataService {
           records.add(cedarService.toMetadataItem(templateInstance));
         }
         else {
-          records.add(new SearchMetadataItem(uri, null, null, null, null));
+          records.add(new SearchMetadataItem(uri, null, null, null, null, null));
         }
       }
       else {
@@ -221,6 +227,9 @@ public class MetadataService implements IMetadataService {
       int fieldsCount = recordEvaluationResult.getMetadataFieldPaths().size();
       RecordReport recordReport = new RecordReport();
       recordReport.setMetadataRecordId(recordEvaluationResult.getMetadataRecordId());
+      recordReport.setMetadataRecordName(recordEvaluationResult.getMetadataRecordName());
+      recordReport.setTemplateId(recordEvaluationResult.getTemplateId());
+      recordReport.setTemplateName(recordEvaluationResult.getTemplateName());
       recordReport.setFieldsCount(fieldsCount);
       recordReport.setCompleteCount(fieldsCount - missingRequiredCount - missingOptionalCount);
       recordReport.setMissingRequiredValuesCount(missingRequiredCount);
@@ -257,6 +266,7 @@ public class MetadataService implements IMetadataService {
           fieldReportMap.put(key, new FieldReport());
           fieldReportMap.get(key).setMetadataFieldPath(fieldPath);
           fieldReportMap.get(key).setTemplateId(templateId);
+          fieldReportMap.get(key).setTemplateName(recordEvaluationResult.getTemplateName());
           fieldReportMap.get(key).setCompleteCount(0);
         }
         fieldReportMap.get(key).setFieldsCount(fieldReportMap.get(key).getFieldsCount()+1);

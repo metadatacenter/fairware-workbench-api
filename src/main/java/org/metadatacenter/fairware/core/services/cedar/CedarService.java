@@ -90,12 +90,13 @@ public class CedarService {
     }
   }
 
-  public SearchMetadataItem toMetadataItem(Map<String, Object> templateInstance) {
+  public SearchMetadataItem toMetadataItem(Map<String, Object> templateInstance) throws HttpException, IOException {
     String uri = templateInstance.get(CedarModelConstants.JSON_LD_ID).toString();
     String source = CedarConstants.CEDAR_SYSTEM_NAME;
     String name = templateInstance.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
     String schemaId = templateInstance.get(CedarModelConstants.IS_BASED_ON).toString();
-    return new SearchMetadataItem(uri, source, name, schemaId, templateInstance);
+    String schemaName = findTemplate(schemaId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    return new SearchMetadataItem(uri, source, name, schemaId, schemaName, templateInstance);
   }
 
   /**

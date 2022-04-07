@@ -85,7 +85,10 @@ public class FieldValue {
   public String generateFullPathDotNotation() {
     StringBuilder pathSb = new StringBuilder();
     for (int i=0; i<this.fieldPath.size(); i++) {
-      pathSb.append(this.fieldPath.get(i).replaceAll(".", "").trim()).append(".");
+      String current = this.fieldPath.get(i);
+      current.replaceAll(".", "");
+      pathSb.append(current.trim());
+      pathSb.append(".");
     }
     return pathSb.append(this.fieldKey).toString();
   }

@@ -102,7 +102,7 @@ public class CedarTemplateContentExtractor {
           }
           // Element
           else if (isTemplateElementNode(jsonFieldNode)) {
-            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath, CedarArtifactType.ELEMENT, isArray, false));
+            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1), CedarArtifactType.ELEMENT, isArray, false));
             getTemplateNodes(jsonFieldNode, jsonFieldPath, results);
           }
         }

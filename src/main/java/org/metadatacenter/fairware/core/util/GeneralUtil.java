@@ -1,7 +1,10 @@
 package org.metadatacenter.fairware.core.util;
 
+import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -9,6 +12,8 @@ import java.net.URLEncoder;
 import java.util.List;
 
 public class GeneralUtil {
+
+  private static final Logger log = LoggerFactory.getLogger(GeneralUtil.class);
 
   /**
    * Generates the full path or a field or a node using dot notation. Dots are first removed from the field keys to avoid confusion

@@ -54,8 +54,8 @@ public class CedarTemplateInstanceContentExtractor {
         fieldName = templateNode.getName();
         fieldPrefLabel = templateNode.getPrefLabel();
       } else {
-        throw new IllegalArgumentException("Field path not found in nodesMap: " +
-            fieldValue.generatePathDotNotation());
+        log.error("Field path not found in nodesMap: " + fieldFullPath);
+        throw new IllegalArgumentException("Field path not found in nodesMap: " + fieldFullPath);
       }
       // Add to the list if it's not already there
       MetadataFieldInfo infoField = null;
@@ -112,7 +112,7 @@ public class CedarTemplateInstanceContentExtractor {
         if (!templateNode.isArray()) {
           // Template Element
           if (templateNode.isTemplateElementNode()) {
-            getFieldValues(currentNodeMap.getValue(), templateNodesMap, currentPath, results);
+            getFieldValues(currentNodeMap.getValue(), templateNodesMap, new ArrayList(currentPath), results);
           }
           // Template Field
           else if (templateNode.isTemplateFieldNode()) {
@@ -128,14 +128,14 @@ public class CedarTemplateInstanceContentExtractor {
           // Array of template elements
           if (templateNode.isTemplateElementNode()) {
             for (JsonNode node : currentNodeMap.getValue()) {
-              getFieldValues(node, templateNodesMap, currentPath, results);
+              getFieldValues(node, templateNodesMap, new ArrayList(currentPath), results);
             }
           }
           // Array of template fields
           else if (templateNode.isTemplateFieldNode()) {
             for (JsonNode node : currentNodeMap.getValue()) {
               // Extract value and save it to the results
-              results.add(generateFieldValue(node, currentPath));
+              results.add(generateFieldValue(node, new ArrayList(currentPath)));
             }
           } else {
             throw new IllegalArgumentException("Unrecognized node type. The template node must be either a " +
@@ -144,7 +144,7 @@ public class CedarTemplateInstanceContentExtractor {
         }
 
         currentPath.remove(currentPath.size()-1);
-        
+
       } else {
         // Node not found in the map of template nodes. It is not a relevant node (e.g. @context) so we ignore it.
       }
@@ -152,9 +152,9 @@ public class CedarTemplateInstanceContentExtractor {
     return results;
   }
 
-  public static String getPathDotNotation(List<String> path) {
-    return String.join(".", path);
-  }
+//  public static String getPathDotNotation(List<String> path) {
+//    return String.join(".", path);
+//  }
 
   private static FieldValue generateFieldValue(JsonNode fieldNode, List<String> fieldPath) {
     FieldValue fieldValue = new FieldValue();

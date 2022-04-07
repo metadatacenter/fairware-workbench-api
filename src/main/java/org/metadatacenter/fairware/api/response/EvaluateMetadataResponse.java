@@ -10,7 +10,9 @@ import java.util.Map;
 public class EvaluateMetadataResponse {
 
   private String metadataRecordId;
+  private String metadataRecordName;
   private String templateId;
+  private String templateName;
   private Map<String, Object> metadataRecord;
   private List<String> metadataFieldPaths;
   private int totalIssuesCount;
@@ -22,11 +24,14 @@ public class EvaluateMetadataResponse {
 
   public EvaluateMetadataResponse() {}
 
-  public EvaluateMetadataResponse(String metadataRecordId, String templateId, Map<String, Object> metadataRecord,
+  public EvaluateMetadataResponse(String metadataRecordId, String metadataRecordName, String templateId,
+                                  String templateName, Map<String, Object> metadataRecord,
                                   List<String> metadataFieldPaths, int totalIssuesCount, int warningsCount,
                                   int errorsCount, List<EvaluationReportItem> items, LocalDateTime generatedOn) {
     this.metadataRecordId = metadataRecordId;
+    this.metadataRecordName = metadataRecordName;
     this.templateId = templateId;
+    this.templateName = templateName;
     this.metadataRecord = metadataRecord;
     this.metadataFieldPaths = metadataFieldPaths;
     this.totalIssuesCount = totalIssuesCount;
@@ -40,8 +45,16 @@ public class EvaluateMetadataResponse {
     return metadataRecordId;
   }
 
+  public String getMetadataRecordName() {
+    return metadataRecordName;
+  }
+
   public String getTemplateId() {
     return templateId;
+  }
+
+  public String getTemplateName() {
+    return templateName;
   }
 
   public Map<String, Object> getMetadataRecord() {

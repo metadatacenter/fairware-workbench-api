@@ -3,6 +3,9 @@ package org.metadatacenter.fairware.api.response.evaluationReport;
 public class RecordReport {
 
   private String metadataRecordId;
+  private String metadataRecordName;
+  private String templateId;
+  private String templateName;
   private int fieldsCount;
   private int completeCount;
   private int missingRequiredValuesCount;
@@ -16,6 +19,30 @@ public class RecordReport {
 
   public void setMetadataRecordId(String metadataRecordId) {
     this.metadataRecordId = metadataRecordId;
+  }
+
+  public String getMetadataRecordName() {
+    return metadataRecordName;
+  }
+
+  public void setMetadataRecordName(String metadataRecordName) {
+    this.metadataRecordName = metadataRecordName;
+  }
+
+  public String getTemplateId() {
+    return templateId;
+  }
+
+  public void setTemplateId(String templateId) {
+    this.templateId = templateId;
+  }
+
+  public String getTemplateName() {
+    return templateName;
+  }
+
+  public void setTemplateName(String templateName) {
+    this.templateName = templateName;
   }
 
   public int getFieldsCount() {
