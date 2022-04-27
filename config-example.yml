@@ -39,6 +39,7 @@ core:
   similarityThreshold: 0.7
   nameSimilarityWeight: 0.9
   pathSimilarityWeight: 0.1
+  termSuggestionsListSize: 5
 
 # the only required property is resourcePackage (more info at https://github.com/smoketurner/dropwizard-swagger)
 swagger:
@@ -46,16 +47,14 @@ swagger:
 
 cedar:
   apiKey: '<your CEDAR api key>'
-  resourceServer:
-    templatesUrl: 'https://resource.metadatacenter.org/templates/'
-    recommendTemplatesUrl: 'https://resource.metadatacenter.org/templates/recommend/'
+  baseUrl: 'https://resource.metadatacenter.org/'
 
 bioportal:
   apiKey: '<your BioPortal api key>'
   searchUrl: 'https://data.bioontology.org/search/'
   connectTimeout: 3000
   socketTimeout: 30000
-  pageSize: 50
+  pageSize: 20
 
 citationServices:
   datacite:
