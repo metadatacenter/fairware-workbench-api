@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.util.cedar.extraction;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
@@ -14,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Utilities to extract information from CEDAR Template Instances
@@ -27,6 +29,15 @@ public class CedarTemplateInstanceContentExtractor {
                                                                 Map<String, Object> template) throws UnsupportedEncodingException {
     return generateInfoFieldsFromInstance(mapper.convertValue(templateInstance, JsonNode.class),
         mapper.convertValue(template, JsonNode.class));
+  }
+
+  public boolean isCedarTemplateInstance(Map<String, Object> metadataRecord) {
+    if (metadataRecord.containsKey(CedarModelConstants.IS_BASED_ON)) {
+      return Pattern.matches(CedarConstants.CEDAR_TEMPLATE_URI_REGEX,
+          (String) metadataRecord.get(CedarModelConstants.IS_BASED_ON));
+    } else {
+      return false;
+    }
   }
 
   /**
