@@ -5,16 +5,26 @@ import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
+import javax.annotation.Nonnull;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Utilities to extract information from CEDAR Template Instances
  */
 public class MetadataContentExtractor {
+
+  @Nonnull
+  private final CedarTemplateInstanceContentExtractor cedarTemplateInstanceContentExtractor;
+
+  public MetadataContentExtractor(@Nonnull CedarTemplateInstanceContentExtractor cedarTemplateInstanceContentExtractor) {
+    this.cedarTemplateInstanceContentExtractor = checkNotNull(cedarTemplateInstanceContentExtractor);
+  }
 
   public List<MetadataFieldInfo> extractMetadataFieldsInfo(Map<String, Object> metadataRecord) throws UnsupportedEncodingException {
     return extractMetadataFieldsInfo(metadataRecord, null);
@@ -23,7 +33,7 @@ public class MetadataContentExtractor {
   public List<MetadataFieldInfo> extractMetadataFieldsInfo(Map<String, Object> metadataRecord,
                                                            Map<String, Object> template) throws UnsupportedEncodingException {
     if (isCedarTemplateInstance(metadataRecord)) {
-      return CedarTemplateInstanceContentExtractor.generateInfoFieldsFromInstance(metadataRecord, template);
+      return cedarTemplateInstanceContentExtractor.generateInfoFieldsFromInstance(metadataRecord, template);
     }
     else {
       return extractMetadataFieldsInfo(metadataRecord, new ArrayList<>(), new ArrayList<>());

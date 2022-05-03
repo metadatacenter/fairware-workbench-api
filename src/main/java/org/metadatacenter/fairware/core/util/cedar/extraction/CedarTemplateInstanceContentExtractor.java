@@ -23,8 +23,8 @@ public class CedarTemplateInstanceContentExtractor {
   private static final Logger log = LoggerFactory.getLogger(CedarTemplateInstanceContentExtractor.class);
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  public static List<MetadataFieldInfo> generateInfoFieldsFromInstance(Map<String, Object> templateInstance,
-                                                                       Map<String, Object> template) throws UnsupportedEncodingException {
+  public List<MetadataFieldInfo> generateInfoFieldsFromInstance(Map<String, Object> templateInstance,
+                                                                Map<String, Object> template) throws UnsupportedEncodingException {
     return generateInfoFieldsFromInstance(mapper.convertValue(templateInstance, JsonNode.class),
         mapper.convertValue(template, JsonNode.class));
   }
@@ -33,7 +33,7 @@ public class CedarTemplateInstanceContentExtractor {
    * Generates a list of InfoField objects from a template instance. These InfoFields objects contain information
    * about the template fields and the values entered for the template instance
    */
-  public static List<MetadataFieldInfo> generateInfoFieldsFromInstance(JsonNode templateInstance, JsonNode template) throws UnsupportedEncodingException {
+  public List<MetadataFieldInfo> generateInfoFieldsFromInstance(JsonNode templateInstance, JsonNode template) throws UnsupportedEncodingException {
 
     List<MetadataFieldInfo> infoFields = new ArrayList<>();
     List<TemplateNodeInfo> templateNodes = CedarTemplateContentExtractor.getTemplateNodes(template);
@@ -87,7 +87,7 @@ public class CedarTemplateInstanceContentExtractor {
    * @param results          Used internally
    * @return
    */
-  public static List<FieldValue> getFieldValues(JsonNode currentNode, HashMap<String, TemplateNodeInfo> templateNodesMap,
+  public List<FieldValue> getFieldValues(JsonNode currentNode, HashMap<String, TemplateNodeInfo> templateNodesMap,
                                                 List<String> currentPath, List<FieldValue> results) {
 
     Iterator<Map.Entry<String, JsonNode>> jsonNodesIterator = currentNode.fields();
@@ -156,7 +156,7 @@ public class CedarTemplateInstanceContentExtractor {
 //    return String.join(".", path);
 //  }
 
-  private static FieldValue generateFieldValue(JsonNode fieldNode, List<String> fieldPath) {
+  private FieldValue generateFieldValue(JsonNode fieldNode, List<String> fieldPath) {
     FieldValue fieldValue = new FieldValue();
     fieldValue.setFieldKey(fieldPath.get(fieldPath.size() - 1));
     fieldValue.setFieldPath(fieldPath);

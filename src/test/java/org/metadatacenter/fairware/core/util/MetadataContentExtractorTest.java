@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.util;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -13,7 +14,8 @@ import java.util.*;
 @ExtendWith(MockitoExtension.class)
 public class MetadataContentExtractorTest {
 
-  private MetadataContentExtractor metadataContentExtractor = new MetadataContentExtractor();
+  private CedarTemplateInstanceContentExtractor cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
+  private MetadataContentExtractor metadataContentExtractor = new MetadataContentExtractor(cedarTemplateInstanceContentExtractor);
 
   @Test
   void testExtractMetadataFieldsInfoFlatStrings() throws UnsupportedEncodingException {
