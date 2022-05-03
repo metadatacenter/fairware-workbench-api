@@ -12,6 +12,7 @@ import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
 import org.metadatacenter.fairware.resources.CommonApiDocumentationResource;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
 import org.slf4j.Logger;
@@ -71,7 +72,9 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     BioportalService bioportalService = new BioportalService(configuration.getBioportalConfig());
     TemplateService templateService = new TemplateService(cedarService);
     CitationService citationService = new CitationService(new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
-    MetadataService metadataService = new MetadataService(cedarService, bioportalService, citationService, configuration.getCoreConfig(), configuration.getBioportalConfig());
+    MetadataContentExtractor metadataContentExtractor = new MetadataContentExtractor();
+    MetadataService metadataService = new MetadataService(cedarService, bioportalService, citationService,
+        configuration.getCoreConfig(), configuration.getBioportalConfig(), metadataContentExtractor);
     final FairwareWorkbenchResource fairwareWorkbenchResource =
         new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);

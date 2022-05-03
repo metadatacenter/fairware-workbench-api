@@ -39,14 +39,16 @@ public class MetadataService implements IMetadataService {
   private final CitationService citationService;
   private final CoreConfig coreConfig;
   private final BioportalConfig bioportalConfig;
+  private final MetadataContentExtractor metadataContentExtractor;
 
   public MetadataService(CedarService cedarService, BioportalService bioportalService, CitationService citationService,
-                         CoreConfig coreConfig, BioportalConfig bioportalConfig) {
+                         CoreConfig coreConfig, BioportalConfig bioportalConfig, MetadataContentExtractor metadataContentExtractor) {
     this.cedarService = cedarService;
     this.bioportalService = bioportalService;
     this.citationService = citationService;
     this.coreConfig = coreConfig;
     this.bioportalConfig = bioportalConfig;
+    this.metadataContentExtractor = metadataContentExtractor;
   }
 
   /**
@@ -67,7 +69,7 @@ public class MetadataService implements IMetadataService {
     List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream().filter(TemplateNodeInfo::isTemplateFieldNode).collect(Collectors.toList());
     // Extract metadata fields from the metadata record
-    List<MetadataFieldInfo> metadataFields = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    List<MetadataFieldInfo> metadataFields = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
 
     // Find alignments between metadata fields and template fields
     int maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
@@ -151,7 +153,7 @@ public class MetadataService implements IMetadataService {
     }
 
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
-    List<MetadataFieldInfo> metadataFieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    List<MetadataFieldInfo> metadataFieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
     Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
     for (MetadataFieldInfo mf : metadataFieldsInfo) {
       mfMap.put(GeneralUtil.generateFullPathDotNotation(mf), mf);
