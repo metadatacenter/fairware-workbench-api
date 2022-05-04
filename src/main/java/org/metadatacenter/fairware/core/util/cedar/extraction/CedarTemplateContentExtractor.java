@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.util.cedar.extraction;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.metadatacenter.fairware.core.domain.CedarArtifactType;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.slf4j.Logger;
@@ -97,12 +98,19 @@ public class CedarTemplateContentExtractor {
 
           // Field
           if (isTemplateFieldNode(jsonFieldNode)) {
-            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1),
-                CedarArtifactType.FIELD, isArray, hasRequiredValue(jsonFieldNode)));
+            results.add(TemplateNodeInfo.create(id, name, prefLabel,
+                ImmutableList.copyOf(jsonFieldPath.subList(0, jsonFieldPath.size()-1)),
+                CedarArtifactType.FIELD,
+                isArray,
+                hasRequiredValue(jsonFieldNode)));
           }
           // Element
           else if (isTemplateElementNode(jsonFieldNode)) {
-            results.add(new TemplateNodeInfo(id, name, prefLabel, jsonFieldPath.subList(0, jsonFieldPath.size()-1), CedarArtifactType.ELEMENT, isArray, false));
+            results.add(TemplateNodeInfo.create(id, name, prefLabel,
+                ImmutableList.copyOf(jsonFieldPath.subList(0, jsonFieldPath.size()-1)),
+                CedarArtifactType.ELEMENT,
+                isArray,
+                false));
             getTemplateNodes(jsonFieldNode, jsonFieldPath, results);
           }
         }
