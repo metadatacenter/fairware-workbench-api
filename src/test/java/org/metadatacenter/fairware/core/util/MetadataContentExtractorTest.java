@@ -1,5 +1,6 @@
 package org.metadatacenter.fairware.core.util;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
@@ -26,8 +27,8 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(2, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", null, new ArrayList<>(), "v1", null);
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", null, new ArrayList<>(), "v2", null);
+    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of(), "v1", null);
+    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of(), "v2", null);
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
   }
@@ -41,8 +42,8 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(2, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", null, new ArrayList<>(), 1, null);
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", null, new ArrayList<>(), 2, null);
+    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of(), 1, null);
+    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of(), 2, null);
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
   }
@@ -57,9 +58,9 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(3, fieldsInfo.size());
 
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", null, new ArrayList<>(), Arrays.asList("v1", "v2"), null);
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", null, new ArrayList<>(), Arrays.asList(1, 2), null);
-    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", null, new ArrayList<>(), Arrays.asList(0.1, 0.2), null);
+    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of(), Arrays.asList("v1", "v2"), null);
+    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of(), Arrays.asList(1, 2), null);
+    MetadataFieldInfo f3Info = MetadataFieldInfo.create("f3", null, ImmutableList.of(), Arrays.asList(0.1, 0.2), null);
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
     Assertions.assertTrue(fieldsInfo.contains(f3Info));
@@ -92,9 +93,9 @@ public class MetadataContentExtractorTest {
     List<MetadataFieldInfo> fieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
     Assertions.assertEquals(3, fieldsInfo.size());
 
-    MetadataFieldInfo f0Info = new MetadataFieldInfo("f0", null, new ArrayList<>(), "v0", null);
-    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", null, Arrays.asList(new String[]{"arrayOfObjects"}), arrayObject1, null);
-    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", null, Arrays.asList(new String[]{"arrayOfObjects"}), arrayObject2, null);
+    MetadataFieldInfo f0Info = MetadataFieldInfo.create("f0", null, ImmutableList.of(), "v0", null);
+    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of("arrayOfObjects"), arrayObject1, null);
+    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of("arrayOfObjects"), arrayObject2, null);
     Assertions.assertTrue(fieldsInfo.contains(f0Info));
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));

@@ -1,5 +1,7 @@
 package org.metadatacenter.fairware.core.util.cedar.extraction.model;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 /**
@@ -26,12 +28,12 @@ public class FieldValue {
   /**
    * List of json keys from the root of the JSON document. It includes the key of the current node.
    */
-  private List<String> fieldPath;
+  private ImmutableList<String> fieldPath;
 
   public FieldValue() {
   }
 
-  public FieldValue(String fieldKey, String fieldValue, String fieldValueUri, List<String> fieldPath) {
+  public FieldValue(String fieldKey, String fieldValue, String fieldValueUri, ImmutableList<String> fieldPath) {
     this.fieldKey = fieldKey;
     this.fieldValue = fieldValue;
     this.fieldValueUri = fieldValueUri;
@@ -62,11 +64,11 @@ public class FieldValue {
     this.fieldValueUri = fieldValueUri;
   }
 
-  public List<String> getFieldPath() {
+  public ImmutableList<String> getFieldPath() {
     return fieldPath;
   }
 
-  public void setFieldPath(List<String> fieldPath) {
+  public void setFieldPath(ImmutableList<String> fieldPath) {
     this.fieldPath = fieldPath;
   }
 

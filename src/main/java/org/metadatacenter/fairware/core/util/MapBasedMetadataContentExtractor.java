@@ -1,10 +1,10 @@
 package org.metadatacenter.fairware.core.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,38 +16,41 @@ public class MapBasedMetadataContentExtractor {
 
   public List<MetadataFieldInfo> generateInfoFieldsFromMetadata(Map<String, Object> metadata) {
     List<String> pathCollector = Lists.newArrayList();
-    List<MetadataFieldInfo> resultCollector = Lists.newArrayList();
-    generateInfoFieldsFromMetadata(metadata, pathCollector, resultCollector);
-    return Lists.newArrayList(resultCollector);
+    return generateInfoFieldsFromMetadata(metadata, pathCollector);
   }
 
-  private void generateInfoFieldsFromMetadata(@Nonnull Map<String, Object> metadataObject,
-                                              @Nonnull List<String> pathCollector,
-                                              @Nonnull List<MetadataFieldInfo> resultCollector) {
+  private List<MetadataFieldInfo> generateInfoFieldsFromMetadata(@Nonnull Map<String, Object> metadataObject,
+                                                                 @Nonnull List<String> currentPath) {
+    List<MetadataFieldInfo> result = Lists.newArrayList();
     for (Map.Entry<String, Object> entry : metadataObject.entrySet()) {
-      if (entry.getValue() == null) {
-        resultCollector.add(new MetadataFieldInfo(entry.getKey(), null, new ArrayList<>(pathCollector), null, null));
+      String metadataField = entry.getKey();
+      Object metadataValue = entry.getValue();
+      if (metadataValue == null) {
+        result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), null, null));
       }
-      else if (entry.getValue() instanceof String || entry.getValue() instanceof Number) { // String or Numeric
-        resultCollector.add(new MetadataFieldInfo(entry.getKey(), null, new ArrayList<>(pathCollector), entry.getValue(),null));
+      else if (metadataValue instanceof String || metadataValue instanceof Number) { // String or Numeric
+        result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), metadataValue,null));
       }
-      else if (entry.getValue() instanceof Map<?, ?>) { // Another object
-        pathCollector.add(entry.getKey());
-        generateInfoFieldsFromMetadata((Map<String, Object>) entry.getValue(), pathCollector, resultCollector);
-        pathCollector.remove(entry.getKey());
+      else if (metadataValue instanceof Map) { // Another object
+        List<String> innerPath = Lists.newArrayList(currentPath);
+        innerPath.add(metadataField);
+        List<MetadataFieldInfo> innerResult = generateInfoFieldsFromMetadata((Map) metadataValue, innerPath);
+        result.addAll(innerResult);
       }
-      else if (entry.getValue() instanceof List<?>) { // Array
-        Object firstValue = ((List<?>) entry.getValue()).get(0);
-        if (firstValue instanceof String || firstValue instanceof Number) { // non-primitive types, e.g., String[]
-          resultCollector.add(new MetadataFieldInfo(entry.getKey(), null, new ArrayList<>(pathCollector), entry.getValue(), null));
+      else if (metadataValue instanceof List) { // Array of homogenous values
+        Object firstValue = ((List) metadataValue).get(0);
+        if (firstValue instanceof String || firstValue instanceof Number) { // Array of primitive values
+          result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), metadataValue, null));
         }
-        else if (firstValue instanceof Map<?, ?>) { // Another object
-          pathCollector.add(entry.getKey());
-          generateInfoFieldsFromMetadata((Map<String, Object>) firstValue, pathCollector, resultCollector);
-          pathCollector.remove(entry.getKey());
+        else if (firstValue instanceof Map) { // Array of objects
+          List<String> innerPath = Lists.newArrayList(currentPath);
+          innerPath.add(metadataField);
+          List<MetadataFieldInfo> innerResult = generateInfoFieldsFromMetadata((Map) firstValue, innerPath);
+          result.addAll(innerResult);
         }
         // else, do nothing. Any other relevant cases?
       }
     }
+    return result;
   }
 }

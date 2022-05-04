@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.util.cedar.extraction;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
@@ -75,7 +76,7 @@ public class CedarTemplateInstanceContentExtractor {
         if (fieldValueUri != null) {
           fieldValueUri = URLEncoder.encode(fieldValueUri, StandardCharsets.UTF_8.toString());
         }
-        infoField = new MetadataFieldInfo(fieldName, fieldPrefLabel, fieldValue.getFieldPath(), fieldValue.getFieldValue(), fieldValueUri);
+        infoField = MetadataFieldInfo.create(fieldName, fieldPrefLabel, fieldValue.getFieldPath(), fieldValue.getFieldValue(), fieldValueUri);
       } catch (UnsupportedEncodingException e) {
         throw e;
       }
@@ -123,12 +124,12 @@ public class CedarTemplateInstanceContentExtractor {
         if (!templateNode.isArray()) {
           // Template Element
           if (templateNode.isTemplateElementNode()) {
-            getFieldValues(currentNodeMap.getValue(), templateNodesMap, new ArrayList(currentPath), results);
+            getFieldValues(currentNodeMap.getValue(), templateNodesMap, ImmutableList.copyOf(currentPath), results);
           }
           // Template Field
           else if (templateNode.isTemplateFieldNode()) {
             // Extract value and save it to the results
-            results.add(generateFieldValue(currentNodeMap.getValue(), currentPath));
+            results.add(generateFieldValue(currentNodeMap.getValue(), ImmutableList.copyOf(currentPath)));
           } else {
             throw new IllegalArgumentException("Unrecognized node type. The template node must be either a " +
                 "Template Field or a Template Element. Node type: " + templateNode.getName());
@@ -139,14 +140,14 @@ public class CedarTemplateInstanceContentExtractor {
           // Array of template elements
           if (templateNode.isTemplateElementNode()) {
             for (JsonNode node : currentNodeMap.getValue()) {
-              getFieldValues(node, templateNodesMap, new ArrayList(currentPath), results);
+              getFieldValues(node, templateNodesMap, ImmutableList.copyOf(currentPath), results);
             }
           }
           // Array of template fields
           else if (templateNode.isTemplateFieldNode()) {
             for (JsonNode node : currentNodeMap.getValue()) {
               // Extract value and save it to the results
-              results.add(generateFieldValue(node, new ArrayList(currentPath)));
+              results.add(generateFieldValue(node, ImmutableList.copyOf(currentPath)));
             }
           } else {
             throw new IllegalArgumentException("Unrecognized node type. The template node must be either a " +
@@ -167,7 +168,7 @@ public class CedarTemplateInstanceContentExtractor {
 //    return String.join(".", path);
 //  }
 
-  private FieldValue generateFieldValue(JsonNode fieldNode, List<String> fieldPath) {
+  private FieldValue generateFieldValue(JsonNode fieldNode, ImmutableList<String> fieldPath) {
     FieldValue fieldValue = new FieldValue();
     fieldValue.setFieldKey(fieldPath.get(fieldPath.size() - 1));
     fieldValue.setFieldPath(fieldPath);

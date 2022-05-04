@@ -1,61 +1,35 @@
 package org.metadatacenter.fairware.core.util.cedar.extraction.model;
 
-import java.util.List;
-import java.util.Objects;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
-public class MetadataFieldInfo {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-  private String name;
-  private String prefLabel;
-  private List<String> path;
-  private Object value;
-  private String valueUri;
+@AutoValue
+public abstract class MetadataFieldInfo {
 
-  public MetadataFieldInfo() {}
-
-  public MetadataFieldInfo(String name, String prefLabel, List<String> path, Object value, String valueUri) {
-    this.name = name;
-    this.prefLabel = prefLabel;
-    this.path = path;
-    this.value = value;
-    this.valueUri = valueUri;
+  @Nonnull
+  public static MetadataFieldInfo create(@Nonnull String name,
+                           @Nullable String prefLabel,
+                           @Nonnull ImmutableList<String> path,
+                           @Nullable Object value,
+                           @Nullable String valueUri) {
+    return new AutoValue_MetadataFieldInfo(name, prefLabel, path, value, valueUri);
   }
 
-  public String getName() {
-    return name;
-  }
+  @Nonnull
+  public abstract String getName();
 
-  public String getPrefLabel() {
-    return prefLabel;
-  }
+  @Nullable
+  public abstract String getPrefLabel();
 
-  public List<String> getPath() {
-    return path;
-  }
+  @Nonnull
+  public abstract ImmutableList<String> getPath();
 
-  public Object getValue() {
-    return value;
-  }
+  @Nullable
+  public abstract Object getValue();
 
-  public String getValueUri() {
-    return valueUri;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    MetadataFieldInfo that = (MetadataFieldInfo) o;
-    return Objects.equals(name, that.name) && Objects.equals(prefLabel, that.prefLabel) && Objects.equals(path,
-        that.path) && Objects.equals(value, that.value) && Objects.equals(valueUri, that.valueUri);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(name, prefLabel, path, value, valueUri);
-  }
+  @Nullable
+  public abstract String getValueUri();
 }
