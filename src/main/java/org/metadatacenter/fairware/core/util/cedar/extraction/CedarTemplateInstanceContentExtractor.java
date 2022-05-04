@@ -169,24 +169,27 @@ public class CedarTemplateInstanceContentExtractor {
 //  }
 
   private FieldValue generateFieldValue(JsonNode fieldNode, ImmutableList<String> fieldPath) {
-    FieldValue fieldValue = new FieldValue();
-    fieldValue.setFieldKey(fieldPath.get(fieldPath.size() - 1));
-    fieldValue.setFieldPath(fieldPath);
+    String fieldName = fieldPath.get(fieldPath.size() - 1);
 
     // Regular value
-    if (fieldNode.hasNonNull(CedarModelConstants.JSON_LD_VALUE) && !fieldNode.get(CedarModelConstants.JSON_LD_VALUE).asText().isEmpty()) {
-      fieldValue.setFieldValue(fieldNode.get(CedarModelConstants.JSON_LD_VALUE).asText());
+    if (fieldNode.hasNonNull(CedarModelConstants.JSON_LD_VALUE)
+        && !fieldNode.get(CedarModelConstants.JSON_LD_VALUE).asText().isEmpty()) {
+      String fieldValue = fieldNode.get(CedarModelConstants.JSON_LD_VALUE).asText();
+      return FieldValue.create(fieldName, fieldValue, null, fieldPath);
     }
     // Ontology term
     else {
-      if (fieldNode.hasNonNull(CedarModelConstants.RDFS_LABEL) && !fieldNode.get(CedarModelConstants.RDFS_LABEL).asText().isEmpty()) {
-        fieldValue.setFieldValue(fieldNode.get(CedarModelConstants.RDFS_LABEL).asText());
+      if (fieldNode.hasNonNull(CedarModelConstants.RDFS_LABEL)
+          && !fieldNode.get(CedarModelConstants.RDFS_LABEL).asText().isEmpty()) {
+        String fieldValue = fieldNode.get(CedarModelConstants.RDFS_LABEL).asText();
+        return FieldValue.create(fieldName, fieldValue, null, fieldPath);
       }
-      if (fieldNode.hasNonNull(CedarModelConstants.JSON_LD_ID) && !fieldNode.get(CedarModelConstants.JSON_LD_ID).asText().isEmpty()) {
-        fieldValue.setFieldValueUri(fieldNode.get(CedarModelConstants.JSON_LD_ID).asText());
+      if (fieldNode.hasNonNull(CedarModelConstants.JSON_LD_ID)
+          && !fieldNode.get(CedarModelConstants.JSON_LD_ID).asText().isEmpty()) {
+        String fieldValueUri = fieldNode.get(CedarModelConstants.JSON_LD_ID).asText();
+        return FieldValue.create(fieldName, null, fieldValueUri, fieldPath);
       }
     }
-    return fieldValue;
+    throw new IllegalArgumentException("Invalid CEDAR node: " + fieldNode.asText());
   }
-
 }
