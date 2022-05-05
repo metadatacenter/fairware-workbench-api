@@ -1,8 +1,10 @@
 package org.metadatacenter.fairware.core.services.cedar;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -18,11 +20,16 @@ import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.String.format;
 
 public class CedarService {
 
@@ -30,61 +37,82 @@ public class CedarService {
   private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new GuavaModule());
   private final CedarConfig cedarConfig;
 
-  public CedarService(CedarConfig cedarConfig) {
-    this.cedarConfig = cedarConfig;
+  public CedarService(@Nonnull CedarConfig cedarConfig) {
+    this.cedarConfig = checkNotNull(cedarConfig);
   }
 
   /**
-   * Find CEDAR template by id
+   * Find CEDAR template by its identifier.
    *
    * @param id the template identifier
    * @return a CEDAR template
-   * @throws IOException
-   * @throws HttpException
    */
-  public Map<String, Object> findTemplate(String id) throws IOException, HttpException {
-    String url = cedarConfig.getBaseUrl() + CedarConstants.CEDAR_PATH_TEMPLATES +
-        URLEncoder.encode(id, StandardCharsets.UTF_8.toString());
-    Request request = Request.Get(url).addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
+  public ImmutableMap<String, Object> findTemplate(String id) throws IOException, HttpException {
+    String url = getTemplateUrl(id);
+    Request request = prepareGetRequest(url);
     HttpResponse response = request.execute().returnResponse();
-
-    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-      return objectMapper.readValue(
-          response.getEntity().getContent(),
-          new TypeReference<HashMap<String, Object>>() {
-          });
-    } else {
-      throw new HttpException("Couldn't find CEDAR template (templateId = " + id + "). Cause: "
-          + response.getStatusLine());
+    switch (response.getStatusLine().getStatusCode()) {
+      case HttpStatus.SC_OK:
+        return objectMapper.readValue(
+            response.getEntity().getContent(),
+            new TypeReference<ImmutableMap<String, Object>>(){});
+      case HttpStatus.SC_NOT_FOUND:
+        throw new HttpException(format(
+            "Couldn't find CEDAR template (ID = %s). Cause: %s",
+            id, response.getStatusLine()));
+      default:
+        throw new HttpException(format(
+            "Error retrieving template (ID = %s). Cause: %s",
+            id, response.getStatusLine()));
     }
   }
 
+  private String getTemplateUrl(String id) throws UnsupportedEncodingException {
+    return new StringBuilder()
+        .append(cedarConfig.getBaseUrl())
+        .append(CedarConstants.CEDAR_PATH_TEMPLATES)
+        .append(URLEncoder.encode(id, Charsets.UTF_8.toString()))
+        .toString();
+  }
+
+  private Request prepareGetRequest(String url) {
+    return Request.Get(url)
+        .addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
+  }
+
   /**
-   * Find CEDAR template instance by id
+   * Find CEDAR template instance by its identifier.
    *
    * @param id the template instance identifier
    * @return a CEDAR instance
-   * @throws IOException
-   * @throws HttpException
    */
   public ImmutableMap<String, Object> findTemplateInstance(String id) throws IOException, HttpException {
-    String url = cedarConfig.getBaseUrl() + CedarConstants.CEDAR_PATH_TEMPLATE_INSTANCES +
-        URLEncoder.encode(id, StandardCharsets.UTF_8.toString());
-    Request request = Request.Get(url).addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
+    String url = getTemplateInstanceUrl(id);
+    Request request = prepareGetRequest(url);
     HttpResponse response = request.execute().returnResponse();
-
-    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-      return objectMapper.readValue(
-          response.getEntity().getContent(),
-          new TypeReference<ImmutableMap<String, Object>>() {
-          });
-    } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NOT_FOUND) {
-      logger.info("Template instance not found (id = " + id + ")");
-      return null;
-    } else { // Error
-      throw new HttpException("Error retrieving template instance (id = " + id + "). Cause: "
-          + response.getStatusLine());
+    switch (response.getStatusLine().getStatusCode()) {
+      case HttpStatus.SC_OK:
+        return objectMapper.readValue(
+            response.getEntity().getContent(),
+            new TypeReference<ImmutableMap<String, Object>>(){});
+      case HttpStatus.SC_NOT_FOUND:
+        throw new HttpException(format(
+            "Couldn't find CEDAR template instance (ID = %s). Cause: %s",
+            id, response.getStatusLine()));
+      default:
+        throw new HttpException(format(
+            "Error retrieving template instance (ID = %s). Cause: %s",
+            id, response.getStatusLine()));
     }
+  }
+
+  @Nonnull
+  private String getTemplateInstanceUrl(String id) throws UnsupportedEncodingException {
+    return new StringBuilder()
+        .append(cedarConfig.getBaseUrl())
+        .append(CedarConstants.CEDAR_PATH_TEMPLATE_INSTANCES)
+        .append(URLEncoder.encode(id, StandardCharsets.UTF_8.toString()))
+        .toString();
   }
 
   public SearchMetadataItem toMetadataItem(ImmutableMap<String, Object> templateInstance) throws HttpException, IOException {
@@ -102,24 +130,32 @@ public class CedarService {
    *
    * @param metadataRecord the input metadata record
    * @return a ranked list of recommended CEDAR templates
-   * @throws IOException
-   * @throws HttpException
    */
-  public RecommendTemplatesResponse recommendTemplates(Map<String, Object> metadataRecord)
-      throws IOException, HttpException {
+  public RecommendTemplatesResponse recommendTemplates(Map<String, Object> metadataRecord) throws IOException, HttpException {
+    String url = getRecommendTemplateUrl();
+    Request request = preparePostRequest(url, metadataRecord);
+    HttpResponse response = request.execute().returnResponse();
+    switch (response.getStatusLine().getStatusCode()) {
+      case HttpStatus.SC_OK:
+        InputStream content = response.getEntity().getContent();
+        return objectMapper.readValue(content, RecommendTemplatesResponse.class);
+      default:
+        throw new HttpException(format(
+            "Error connecting to CEDAR. Cause: %s",
+            response.getStatusLine()));
+    }
+  }
 
-    String url = cedarConfig.getBaseUrl() + CedarConstants.CEDAR_PATH_RECOMMEND_TEMPLATES;
-    RecommendTemplatesRequest payload = new RecommendTemplatesRequest(metadataRecord);
-    Request request = Request.Post(url)
+  private String getRecommendTemplateUrl() {
+    return new StringBuilder()
+        .append(cedarConfig.getBaseUrl())
+        .append(CedarConstants.CEDAR_PATH_RECOMMEND_TEMPLATES)
+        .toString();
+  }
+
+  private Request preparePostRequest(String url, Map<String, Object> payload) throws JsonProcessingException {
+    return Request.Post(url)
         .bodyString(objectMapper.writeValueAsString(payload), ContentType.APPLICATION_JSON)
         .addHeader("Authorization", "apiKey " + cedarConfig.getApiKey());
-    HttpResponse response = request.execute().returnResponse();
-
-    if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-      return objectMapper.
-          readValue(response.getEntity().getContent(), RecommendTemplatesResponse.class);
-    } else {
-      throw new HttpException("Error connecting to CEDAR: " + response.getStatusLine());
-    }
   }
 }
