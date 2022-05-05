@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware.core.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
@@ -91,41 +92,44 @@ public class MetadataContentExtractorTest {
 
 
     List<MetadataFieldInfo> fieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
-    Assertions.assertEquals(3, fieldsInfo.size());
+    Assertions.assertEquals(5, fieldsInfo.size());
 
     MetadataFieldInfo f0Info = MetadataFieldInfo.create("f0", null, ImmutableList.of(), "v0", null);
-    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of("arrayOfObjects"), arrayObject1, null);
-    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of("arrayOfObjects"), arrayObject2, null);
+    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of("arrayOfObjects"), "v11", null);
+    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of("arrayOfObjects"), "v12", null);
+    MetadataFieldInfo f3Info = MetadataFieldInfo.create("f1", null, ImmutableList.of("arrayOfObjects"), "v21", null);
+    MetadataFieldInfo f4Info = MetadataFieldInfo.create("f2", null, ImmutableList.of("arrayOfObjects"), "v22", null);
     Assertions.assertTrue(fieldsInfo.contains(f0Info));
     Assertions.assertTrue(fieldsInfo.contains(f1Info));
     Assertions.assertTrue(fieldsInfo.contains(f2Info));
+    Assertions.assertTrue(fieldsInfo.contains(f3Info));
+    Assertions.assertTrue(fieldsInfo.contains(f4Info));
   }
 
-  // TODO: fix
-//  @Test
-//  void testExtractMetadataFieldsInfoNestedFields() throws UnsupportedEncodingException {
-//    final Map<String, Object> nestedMap = new HashMap<>();
-//    nestedMap.put("f2", "v3");
-//    nestedMap.put("f3", 4);
-//    nestedMap.put("f4", 0.5);
-//    nestedMap.put("f5", Arrays.asList(3,4));
-//    final Map<String, Object> metadataRecord = new HashMap<>();
-//    metadataRecord.put("f1", Arrays.asList("v1", "v2"));
-//    metadataRecord.put("nestedFields", nestedMap);
-//
-//    List<MetadataFieldInfo> fieldsInfo = MetadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
-//    Assertions.assertEquals(5, fieldsInfo.size());
-//
-//    MetadataFieldInfo f1Info = new MetadataFieldInfo("f1", new ArrayList<>());
-//    MetadataFieldInfo f2Info = new MetadataFieldInfo("f2", new ArrayList<>(Collections.singletonList("nestedFields")));
-//    MetadataFieldInfo f3Info = new MetadataFieldInfo("f3", new ArrayList<>(Collections.singletonList("nestedFields")));
-//    MetadataFieldInfo f4Info = new MetadataFieldInfo("f4", new ArrayList<>(Collections.singletonList("nestedFields")));
-//    MetadataFieldInfo f5Info = new MetadataFieldInfo("f5", new ArrayList<>(Collections.singletonList("nestedFields")));
-//    Assertions.assertTrue(fieldsInfo.contains(f1Info));
-//    Assertions.assertTrue(fieldsInfo.contains(f2Info));
-//    Assertions.assertTrue(fieldsInfo.contains(f3Info));
-//    Assertions.assertTrue(fieldsInfo.contains(f4Info));
-//    Assertions.assertTrue(fieldsInfo.contains(f5Info));
-//  }
+  @Test
+  void testExtractMetadataFieldsInfoNestedFields() throws UnsupportedEncodingException {
+    final Map<String, Object> nestedMap = new HashMap<>();
+    nestedMap.put("f2", "v3");
+    nestedMap.put("f3", 4);
+    nestedMap.put("f4", 0.5);
+    nestedMap.put("f5", Lists.newArrayList(3,4));
+    final Map<String, Object> metadataRecord = new HashMap<>();
+    metadataRecord.put("f1", Lists.newArrayList("v1", "v2"));
+    metadataRecord.put("nestedFields", nestedMap);
+
+    List<MetadataFieldInfo> fieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord);
+    Assertions.assertEquals(5, fieldsInfo.size());
+
+    MetadataFieldInfo f1Info = MetadataFieldInfo.create("f1", null, ImmutableList.of(), Lists.newArrayList("v1", "v2"), null);
+    MetadataFieldInfo f2Info = MetadataFieldInfo.create("f2", null, ImmutableList.of("nestedFields"), "v3", null);
+    MetadataFieldInfo f3Info = MetadataFieldInfo.create("f3", null, ImmutableList.of("nestedFields"), 4, null);
+    MetadataFieldInfo f4Info = MetadataFieldInfo.create("f4", null, ImmutableList.of("nestedFields"), 0.5, null);
+    MetadataFieldInfo f5Info = MetadataFieldInfo.create("f5", null, ImmutableList.of("nestedFields"), Lists.newArrayList(3, 4), null);
+    Assertions.assertTrue(fieldsInfo.contains(f1Info));
+    Assertions.assertTrue(fieldsInfo.contains(f2Info));
+    Assertions.assertTrue(fieldsInfo.contains(f3Info));
+    Assertions.assertTrue(fieldsInfo.contains(f4Info));
+    Assertions.assertTrue(fieldsInfo.contains(f5Info));
+  }
 
 }

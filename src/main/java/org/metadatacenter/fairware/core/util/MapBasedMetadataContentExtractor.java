@@ -38,15 +38,18 @@ public class MapBasedMetadataContentExtractor {
         result.addAll(innerResult);
       }
       else if (metadataValue instanceof List) { // Array of homogenous values
-        Object firstValue = ((List) metadataValue).get(0);
+        List<Object> valueList = ((List) metadataValue);
+        Object firstValue = valueList.get(0);
         if (firstValue instanceof String || firstValue instanceof Number) { // Array of primitive values
           result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), metadataValue, null));
         }
         else if (firstValue instanceof Map) { // Array of objects
-          List<String> innerPath = Lists.newArrayList(currentPath);
-          innerPath.add(metadataField);
-          List<MetadataFieldInfo> innerResult = generateInfoFieldsFromMetadata((Map) firstValue, innerPath);
-          result.addAll(innerResult);
+          for (Object o : valueList) {
+            List<String> innerPath = Lists.newArrayList(currentPath);
+            innerPath.add(metadataField);
+            List<MetadataFieldInfo> innerResult = generateInfoFieldsFromMetadata((Map) o, innerPath);
+            result.addAll(innerResult);
+          }
         }
         // else, do nothing. Any other relevant cases?
       }
