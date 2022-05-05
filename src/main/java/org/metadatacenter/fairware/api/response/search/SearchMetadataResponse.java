@@ -1,25 +1,20 @@
 package org.metadatacenter.fairware.api.response.search;
 
-import java.util.List;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
-public class SearchMetadataResponse {
+import javax.annotation.Nonnull;
 
-  private int totalCount;
-  private List<SearchMetadataItem> items;
+@AutoValue
+public abstract class SearchMetadataResponse {
 
-  public SearchMetadataResponse() {
+  public static SearchMetadataResponse create(int totalCount,
+                                              @Nonnull ImmutableList<SearchMetadataItem> items) {
+    return new AutoValue_SearchMetadataResponse(totalCount, items);
   }
 
-  public SearchMetadataResponse(int totalCount, List<SearchMetadataItem> items) {
-    this.totalCount = totalCount;
-    this.items = items;
-  }
+  public abstract int getTotalCount();
 
-  public int getTotalCount() {
-    return totalCount;
-  }
-
-  public List<SearchMetadataItem> getItems() {
-    return items;
-  }
+  @Nonnull
+  public abstract ImmutableList<SearchMetadataItem> getItems();
 }

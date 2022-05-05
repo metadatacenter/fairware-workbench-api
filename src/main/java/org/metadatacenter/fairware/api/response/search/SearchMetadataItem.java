@@ -1,50 +1,39 @@
 package org.metadatacenter.fairware.api.response.search;
 
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableMap;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 
-public class SearchMetadataItem {
+@AutoValue
+public abstract class SearchMetadataItem {
 
-  private String uri;
-  private String source;
-  private String title;
-  private String schemaId;
-  private String schemaName;
-  private Map<String, Object> metadata;
-
-  public SearchMetadataItem() {
+  public static SearchMetadataItem create(@Nonnull String uri,
+                                          @Nonnull String source,
+                                          @Nonnull String title,
+                                          @Nonnull String schemaId,
+                                          @Nonnull String schemaName,
+                                          @Nonnull ImmutableMap<String, Object> metadata) {
+    return new AutoValue_SearchMetadataItem(uri, source, title, schemaId, schemaName, metadata);
   }
 
-  public SearchMetadataItem(String uri, String source, String title, String schemaId, String schemaName, Map<String,
-      Object> metadata) {
-    this.uri = uri;
-    this.source = source;
-    this.title = title;
-    this.schemaId = schemaId;
-    this.schemaName = schemaName;
-    this.metadata = metadata;
-  }
+  @Nonnull
+  public abstract String getUri();
 
-  public String getUri() {
-    return uri;
-  }
+  @Nonnull
+  public abstract String getSource();
 
-  public String getSource() {
-    return source;
-  }
+  @Nonnull
+  public abstract String getTitle();
 
-  public String getTitle() {
-    return title;
-  }
+  @Nonnull
+  public abstract String getSchemaId();
 
-  public String getSchemaId() {
-    return schemaId;
-  }
+  @Nonnull
+  public abstract String getSchemaName();
 
-  public String getSchemaName() {
-    return schemaName;
-  }
-
-  public Map<String, Object> getMetadata() {
-    return metadata;
-  }
+  @Nonnull
+  public abstract Map<String, Object> getMetadata();
 }
