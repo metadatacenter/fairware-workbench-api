@@ -1,5 +1,6 @@
 package org.metadatacenter.fairware.core.services;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
@@ -19,7 +20,7 @@ public class TemplateService implements ITemplateService {
   public RecommendTemplatesResponse recommendCedarTemplates(Map<String, Object> metadataRecord)
       throws IOException, HttpException {
 
-    return cedarService.recommendTemplates(metadataRecord);
+    return cedarService.recommendTemplates(ImmutableMap.copyOf(metadataRecord));
 
   }
 }

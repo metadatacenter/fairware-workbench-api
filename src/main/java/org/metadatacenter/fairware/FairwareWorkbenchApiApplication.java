@@ -1,11 +1,14 @@
 package org.metadatacenter.fairware;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import in.vectorpro.dropwizard.swagger.SwaggerBundle;
 import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
@@ -27,6 +30,7 @@ import java.util.EnumSet;
 public class FairwareWorkbenchApiApplication extends Application<FairwareWorkbenchApiConfiguration> {
 
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchApiApplication.class);
+  private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new GuavaModule());
 
   public static void main(final String[] args) throws Exception {
     logger.info("Starting FAIRware Workbench API");
@@ -70,7 +74,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     final CommonApiDocumentationResource commonApiDocumentationResource = new CommonApiDocumentationResource();
     environment.jersey().register(commonApiDocumentationResource);
 
-    CedarService cedarService = new CedarService(configuration.getCedarConfig());
+    HttpRequestHandler requestHandler = new HttpRequestHandler(objectMapper);
+    CedarService cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler);
     BioportalService bioportalService = new BioportalService(configuration.getBioportalConfig());
     TemplateService templateService = new TemplateService(cedarService);
     CitationService citationService = new CitationService(new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
