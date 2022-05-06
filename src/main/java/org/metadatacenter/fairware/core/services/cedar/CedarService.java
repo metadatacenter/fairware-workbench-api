@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpException;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.fluent.Request;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -50,9 +47,9 @@ public class CedarService {
    */
   @Nonnull
   public ImmutableMap<String, Object> findTemplate(String id) throws IOException, HttpException {
-    String url = getTemplateUrl(id);
-    Request request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
-    HttpResponse response = requestHandler.execute(request);
+    var url = getTemplateUrl(id);
+    var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
+    var response = requestHandler.execute(request);
     switch (response.getStatusLine().getStatusCode()) {
       case HttpStatus.SC_OK:
         return objectMapper.readValue(
@@ -85,14 +82,13 @@ public class CedarService {
    */
   @Nonnull
   public ImmutableMap<String, Object> findTemplateInstance(String id) throws IOException, HttpException {
-    String url = getTemplateInstanceUrl(id);
-    Request request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
-    HttpResponse response = requestHandler.execute(request);
+    var url = getTemplateInstanceUrl(id);
+    var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
+    var response = requestHandler.execute(request);
     switch (response.getStatusLine().getStatusCode()) {
       case HttpStatus.SC_OK:
-        return objectMapper.readValue(
-            response.getEntity().getContent(),
-            ImmutableMap.class);
+        var content = response.getEntity().getContent();
+        return objectMapper.readValue(content, ImmutableMap.class);
       case HttpStatus.SC_NOT_FOUND:
         throw new HttpException(format(
             "Couldn't find CEDAR template instance (ID = %s). Cause: %s",
@@ -115,11 +111,11 @@ public class CedarService {
 
   @Nonnull
   public SearchMetadataItem toMetadataItem(ImmutableMap<String, Object> templateInstance) throws HttpException, IOException {
-    String uri = templateInstance.get(CedarModelConstants.JSON_LD_ID).toString();
-    String source = CedarConstants.CEDAR_SYSTEM_NAME;
-    String name = templateInstance.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    String schemaId = templateInstance.get(CedarModelConstants.IS_BASED_ON).toString();
-    String schemaName = findTemplate(schemaId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    var uri = templateInstance.get(CedarModelConstants.JSON_LD_ID).toString();
+    var source = CedarConstants.CEDAR_SYSTEM_NAME;
+    var name = templateInstance.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    var schemaId = templateInstance.get(CedarModelConstants.IS_BASED_ON).toString();
+    var schemaName = findTemplate(schemaId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
     return SearchMetadataItem.create(uri, source, name, schemaId, schemaName, templateInstance);
   }
 
@@ -132,12 +128,12 @@ public class CedarService {
    */
   @Nonnull
   public RecommendTemplatesResponse recommendTemplates(ImmutableMap<String, Object> metadataRecord) throws IOException, HttpException {
-    String url = getRecommendTemplateUrl();
-    Request request = requestHandler.createPostRequest(url, metadataRecord, "apiKey " + cedarConfig.getApiKey());
-    HttpResponse response = requestHandler.execute(request);
+    var url = getRecommendTemplateUrl();
+    var request = requestHandler.createPostRequest(url, metadataRecord, "apiKey " + cedarConfig.getApiKey());
+    var response = requestHandler.execute(request);
     switch (response.getStatusLine().getStatusCode()) {
       case HttpStatus.SC_OK:
-        InputStream content = response.getEntity().getContent();
+        var content = response.getEntity().getContent();
         return objectMapper.readValue(content, RecommendTemplatesResponse.class);
       case HttpStatus.SC_NOT_FOUND:
         throw new HttpException(format(
