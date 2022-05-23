@@ -9,33 +9,36 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
-import org.metadatacenter.fairware.api.request.*;
+import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
+import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
+import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
+import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
-import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
-import org.metadatacenter.fairware.api.response.issue.IssueLevel;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
-import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
-import org.metadatacenter.fairware.core.services.citation.CitationService;
-import org.metadatacenter.fairware.core.services.citation.DataCiteService;
 import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -345,8 +348,7 @@ public class FairwareWorkbenchResource {
         return null;
       }
       metadataRecord = searchResults.getItems().get(0).getMetadata();
-    }
-    else {
+    } else {
       metadataRecord = request.getMetadataRecord();
     }
     return metadataRecord;
@@ -356,6 +358,7 @@ public class FairwareWorkbenchResource {
    * If the templateId is not part of the request, try to:
    * 1) Extract it from the metadata record (it will only work if it's a CEDAR metadata record)
    * 2) Use CEDAR's template recommendation service to find an appropriate template
+   *
    * @param request
    * @param metadataRecord
    * @return
