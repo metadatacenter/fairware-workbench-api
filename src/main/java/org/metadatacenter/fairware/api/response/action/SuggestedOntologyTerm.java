@@ -1,32 +1,28 @@
 package org.metadatacenter.fairware.api.response.action;
 
-public class SuggestedOntologyTerm {
+import com.google.auto.value.AutoValue;
 
-  private String uri;
-  private String label;
-  private String ontologyAcronym;
-  private String definition;
+import javax.annotation.Nonnull;
 
-  public SuggestedOntologyTerm(String uri, String label, String ontologyAcronym, String definition) {
-    this.uri = uri;
-    this.label = label;
-    this.ontologyAcronym = ontologyAcronym;
-    this.definition = definition;
+@AutoValue
+public abstract class SuggestedOntologyTerm {
+
+  public static SuggestedOntologyTerm create(@Nonnull String uri,
+                                             @Nonnull String label,
+                                             @Nonnull String ontologyAcronym,
+                                             @Nonnull String definition) {
+    return new AutoValue_SuggestedOntologyTerm(uri, label, ontologyAcronym, definition);
   }
 
-  public String getUri() {
-    return uri;
-  }
+  @Nonnull
+  public abstract String getUri();
 
-  public String getLabel() {
-    return label;
-  }
+  @Nonnull
+  public abstract String getLabel();
 
-  public String getOntologyAcronym() {
-    return ontologyAcronym;
-  }
+  @Nonnull
+  public abstract String getOntologyAcronym();
 
-  public String getDefinition() {
-    return definition;
-  }
+  @Nonnull
+  public abstract String getDefinition();
 }
