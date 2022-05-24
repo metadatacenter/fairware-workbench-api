@@ -1,29 +1,23 @@
 package org.metadatacenter.fairware.api.response.issue;
 
+import com.google.auto.value.AutoValue;
+
+import javax.annotation.Nonnull;
 import java.security.InvalidParameterException;
 
-public class MetadataIssue {
+@AutoValue
+public abstract class MetadataIssue {
 
-  private IssueType issueType;
-  private IssueLevel issueLevel;
-
-  public MetadataIssue() {
+  public static MetadataIssue create(@Nonnull IssueType issueType) {
+    return new AutoValue_MetadataIssue(issueType);
   }
 
-  public MetadataIssue(IssueType issueType) {
-    this.issueType = issueType;
-    this.issueLevel = calculateIssueLevel(issueType);
-  }
+  @Nonnull
+  public abstract IssueType getIssueType();
 
-  public IssueType getIssueType() {
-    return issueType;
-  }
-
+  @Nonnull
   public IssueLevel getIssueLevel() {
-    return issueLevel;
-  }
-
-  private IssueLevel calculateIssueLevel(IssueType issueType) {
+    var issueType = getIssueType();
     if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {
       return IssueLevel.ERROR;
     }

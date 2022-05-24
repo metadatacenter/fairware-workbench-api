@@ -2,7 +2,7 @@ package org.metadatacenter.fairware.core.services.evaluation;
 
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
-import org.metadatacenter.fairware.api.response.action.ReplaceFieldNameWithOntologyTermAction;
+import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.action.SuggestedOntologyTerm;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
@@ -29,7 +29,6 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
 
   private static final Logger logger = LoggerFactory.getLogger(ExtraFieldsEvaluator.class);
 
-  final MetadataIssue issue = new MetadataIssue(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE);
   private BioportalService bioportalService;
   private CoreConfig coreConfig;
   private BioportalConfig bioportalConfig;
@@ -57,9 +56,8 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
     for (MetadataFieldInfo mf : nonMatchedFields) {
 
       BpPagedResults<BpClass> results = bioportalService.search(mf.getName());
-      ReplaceFieldNameWithOntologyTermAction repairAction = null;
+      List<SuggestedOntologyTerm> suggestedTerms = new ArrayList<>();
       if (results.getCollection().size() > 0) {
-        List<SuggestedOntologyTerm> suggestedTerms = new ArrayList<>();
         for (BpClass c : results.getCollection()) {
           if (bpClassToSuggestedTerm(c).isPresent()) {
             suggestedTerms.add(bpClassToSuggestedTerm(c).get());
@@ -68,9 +66,12 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
             break; // Exit when reaching default size
           }
         }
-        repairAction = new ReplaceFieldNameWithOntologyTermAction(suggestedTerms.get(0).getLabel(), suggestedTerms);
       }
-      reportItems.add(new EvaluationReportItem(GeneralUtil.generateFullPathDotNotation(mf), issue, repairAction));
+      reportItems.add(
+          EvaluationReportItem.create(
+              GeneralUtil.generateFullPathDotNotation(mf),
+              MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE),
+              RepairAction.ofReplaceFieldNameWithOntologyTerm(suggestedTerms)));
     }
     return reportItems;
   }
@@ -99,23 +100,28 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
     return result;
   }
 
-  private Optional<SuggestedOntologyTerm> bpClassToSuggestedTerm(BpClass c) {
-    if (c.getId() == null) {
-      logger.warn("Couldn't retrieve class id", c);
+  private Optional<SuggestedOntologyTerm> bpClassToSuggestedTerm(BpClass bioportalTerm) {
+    if (bioportalTerm.getId() == null) {
+      logger.warn("Couldn't retrieve class id", bioportalTerm);
       Optional.empty();
     }
-    if (c.getPrefLabel() == null) {
-      logger.warn("Couldn't retrieve preferred label", c);
+    if (bioportalTerm.getPrefLabel() == null) {
+      logger.warn("Couldn't retrieve preferred label", bioportalTerm);
       Optional.empty();
     }
-    if (c.getLinks() == null || c.getLinks().getOntology() == null) {
-      logger.warn("Couldn't retrieve ontology acronym", c);
+    if (bioportalTerm.getLinks() == null || bioportalTerm.getLinks().getOntology() == null) {
+      logger.warn("Couldn't retrieve ontology acronym", bioportalTerm);
       Optional.empty();
     }
     String definition = null;
-    if (c.getDefinition() != null && c.getDefinition().size() > 0) {
-      definition = c.getDefinition().get(0).toString();
+    if (bioportalTerm.getDefinition() != null && bioportalTerm.getDefinition().size() > 0) {
+      definition = bioportalTerm.getDefinition().get(0).toString();
     }
-    return Optional.of(new SuggestedOntologyTerm(c.getId(), c.getPrefLabel(), c.getLinks().getOntology(), definition));
+    return Optional.of(
+        SuggestedOntologyTerm.create(
+            bioportalTerm.getId(),
+            bioportalTerm.getPrefLabel(),
+            bioportalTerm.getLinks().getOntology(),
+            definition));
   }
 }

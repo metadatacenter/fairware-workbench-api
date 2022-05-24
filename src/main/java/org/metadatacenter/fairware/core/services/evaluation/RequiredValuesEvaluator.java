@@ -1,7 +1,7 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
+import com.google.common.collect.Lists;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
-import org.metadatacenter.fairware.api.response.action.EnterFieldValueAction;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
@@ -9,34 +9,34 @@ import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class RequiredValuesEvaluator implements IMetadataEvaluator {
 
-  final MetadataIssue issue = new MetadataIssue(IssueType.MISSING_REQUIRED_VALUE);
-
   @Override
-  public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> mfMap,
-                                                     Map<String, TemplateNodeInfo> tfMap,
+  public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldInfoMap,
+                                                     Map<String, TemplateNodeInfo> templateNodeInfoMap,
                                                      List<FieldAlignment> fieldAlignments) {
-
-    List<EvaluationReportItem> reportItems = new ArrayList<>();
-
-    for (FieldAlignment al : fieldAlignments) {
-
-      if (mfMap.containsKey(al.getMetadataFieldPath()) && tfMap.containsKey(al.getTemplateFieldPath())) {
-        MetadataFieldInfo mf = mfMap.get(al.getMetadataFieldPath());
-        TemplateNodeInfo tf = tfMap.get(al.getTemplateFieldPath());
+    var reportItems = Lists.<EvaluationReportItem>newArrayList();
+    for (var fieldAlignment : fieldAlignments) {
+      if (metadataFieldInfoMap.containsKey(fieldAlignment.getMetadataFieldPath())
+          && templateNodeInfoMap.containsKey(fieldAlignment.getTemplateFieldPath())) {
+        var metadataFieldInfo = metadataFieldInfoMap.get(fieldAlignment.getMetadataFieldPath());
+        var templateNodeInfo = templateNodeInfoMap.get(fieldAlignment.getTemplateFieldPath());
         // Check required value constraint
-        if (tf.isValueRequired() && (mf.getValue() == null
-            || (mf.getValue() instanceof String && mf.getValue().toString().trim().isEmpty()))) {
-          RepairAction repairAction = new EnterFieldValueAction();
-          reportItems.add(new EvaluationReportItem(al.getMetadataFieldPath(), issue, repairAction));
+        if (templateNodeInfo.isValueRequired()) {
+          if (metadataFieldInfo.getValue() == null
+            || (metadataFieldInfo.getValue() instanceof String
+              && metadataFieldInfo.getValue().toString().trim().isEmpty())) {
+            reportItems.add(
+                EvaluationReportItem.create(
+                    fieldAlignment.getMetadataFieldPath(),
+                    MetadataIssue.create(IssueType.MISSING_REQUIRED_VALUE),
+                    RepairAction.ofEnterMissingValue()));
+          }
         }
       }
-
     }
     return reportItems;
   }

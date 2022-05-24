@@ -1,32 +1,26 @@
 package org.metadatacenter.fairware.api.response;
 
+import com.google.auto.value.AutoValue;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 
-public class EvaluationReportItem {
+import javax.annotation.Nonnull;
 
-  private String metadataFieldPath;
-  private MetadataIssue issue;
-  private RepairAction repairAction;
+@AutoValue
+public abstract class EvaluationReportItem {
 
-  public EvaluationReportItem() {
+  public static EvaluationReportItem create(@Nonnull String metadataFieldPath,
+                                            @Nonnull MetadataIssue metadataIssue,
+                                            @Nonnull RepairAction repairAction) {
+    return new AutoValue_EvaluationReportItem(metadataFieldPath, metadataIssue, repairAction);
   }
 
-  public EvaluationReportItem(String metadataFieldPath, MetadataIssue issue, RepairAction repairAction) {
-    this.metadataFieldPath = metadataFieldPath;
-    this.issue = issue;
-    this.repairAction = repairAction;
-  }
+  @Nonnull
+  public abstract String getMetadataFieldPath();
 
-  public String getMetadataFieldPath() {
-    return metadataFieldPath;
-  }
+  @Nonnull
+  public abstract MetadataIssue getMetadataIssue();
 
-  public MetadataIssue getIssue() {
-    return issue;
-  }
-
-  public RepairAction getRepairAction() {
-    return repairAction;
-  }
+  @Nonnull
+  public abstract RepairAction getRepairAction();
 }
