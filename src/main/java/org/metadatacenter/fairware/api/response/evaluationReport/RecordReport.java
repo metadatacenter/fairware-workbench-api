@@ -1,79 +1,44 @@
 package org.metadatacenter.fairware.api.response.evaluationReport;
 
-public class RecordReport {
+import com.google.auto.value.AutoValue;
 
-  private String metadataRecordId;
-  private String metadataRecordName;
-  private String templateId;
-  private String templateName;
-  private int fieldsCount;
-  private int completeCount;
-  private int missingRequiredValuesCount;
-  private int missingOptionalValuesCount;
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
-  public RecordReport() {}
+@AutoValue
+public abstract class RecordReport {
 
-  public String getMetadataRecordId() {
-    return metadataRecordId;
+  @Nonnull
+  public static RecordReport create(@Nonnull Optional<String> metadataRecordId,
+                                    @Nonnull Optional<String> metadataRecordName,
+                                    @Nonnull String templateId,
+                                    @Nonnull String templateName,
+                                    int fieldsCount,
+                                    int missingRequiredValuesCount,
+                                    int missingOptionalValuesCount) {
+    return new AutoValue_RecordReport(metadataRecordId, metadataRecordName, templateId, templateName,
+        fieldsCount, missingRequiredValuesCount, missingOptionalValuesCount);
   }
 
-  public void setMetadataRecordId(String metadataRecordId) {
-    this.metadataRecordId = metadataRecordId;
-  }
+  @Nonnull
+  public abstract Optional<String> getMetadataRecordId();
 
-  public String getMetadataRecordName() {
-    return metadataRecordName;
-  }
+  @Nonnull
+  public abstract Optional<String> getMetadataRecordName();
 
-  public void setMetadataRecordName(String metadataRecordName) {
-    this.metadataRecordName = metadataRecordName;
-  }
+  @Nonnull
+  public abstract String getTemplateId();
 
-  public String getTemplateId() {
-    return templateId;
-  }
+  @Nonnull
+  public abstract String getTemplateName();
 
-  public void setTemplateId(String templateId) {
-    this.templateId = templateId;
-  }
-
-  public String getTemplateName() {
-    return templateName;
-  }
-
-  public void setTemplateName(String templateName) {
-    this.templateName = templateName;
-  }
-
-  public int getFieldsCount() {
-    return fieldsCount;
-  }
-
-  public void setFieldsCount(int fieldsCount) {
-    this.fieldsCount = fieldsCount;
-  }
+  public abstract int getFieldsCount();
 
   public int getCompleteCount() {
-    return completeCount;
+    return getFieldsCount() - getMissingRequiredValuesCount() - getMissingOptionalValuesCount();
   }
 
-  public void setCompleteCount(int completeCount) {
-    this.completeCount = completeCount;
-  }
+  public abstract int getMissingRequiredValuesCount();
 
-  public int getMissingRequiredValuesCount() {
-    return missingRequiredValuesCount;
-  }
-
-  public void setMissingRequiredValuesCount(int missingRequiredValuesCount) {
-    this.missingRequiredValuesCount = missingRequiredValuesCount;
-  }
-
-  public int getMissingOptionalValuesCount() {
-    return missingOptionalValuesCount;
-  }
-
-  public void setMissingOptionalValuesCount(int missingOptionalValuesCount) {
-    this.missingOptionalValuesCount = missingOptionalValuesCount;
-  }
+  public abstract int getMissingOptionalValuesCount();
 }

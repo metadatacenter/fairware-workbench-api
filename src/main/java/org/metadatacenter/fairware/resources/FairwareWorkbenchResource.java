@@ -1,5 +1,7 @@
 package org.metadatacenter.fairware.resources;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -7,24 +9,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
-import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
 import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
-import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
-import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
-import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
@@ -35,23 +33,25 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class FairwareWorkbenchResource {
 
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchResource.class);
+
   private final TemplateService templateService;
   private final MetadataService metadataService;
 
-  public FairwareWorkbenchResource(TemplateService templateService,
-                                   MetadataService metadataService) {
-    this.templateService = templateService;
-    this.metadataService = metadataService;
+  public FairwareWorkbenchResource(@Nonnull TemplateService templateService,
+                                   @Nonnull MetadataService metadataService) {
+    this.templateService = checkNotNull(templateService);
+    this.metadataService = checkNotNull(metadataService);
   }
 
   @POST
@@ -139,11 +139,11 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "422", description = "Unprocessable entity")
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
   public Response alignMetadata(@NotNull @Valid AlignMetadataRequest request) {
-
     try {
-      List<FieldAlignment> fieldAlignments =
-          metadataService.alignMetadata(request.getTemplateId(), request.getMetadataRecord());
-      AlignMetadataResponse results = new AlignMetadataResponse(fieldAlignments.size(), fieldAlignments);
+      var fieldAlignments = metadataService.alignMetadata(
+          request.getTemplateId(),
+          request.getMetadataRecord());
+      AlignMetadataResponse results = AlignMetadataResponse.create(fieldAlignments);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
@@ -199,28 +199,7 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
   public Response evaluateMetadata(@NotNull @Valid EvaluateMetadataRequest request) {
     try {
-
-      Map<String, Object> metadataRecord = resolveMetadataRecord(request);
-      if (metadataRecord == null) {
-        logger.error("Metadata record not provided or not found");
-        return Response.status(Response.Status.BAD_REQUEST).build();
-      }
-
-      String templateId = resolveTemplateId(request, metadataRecord);
-      if (templateId == null) {
-        logger.error("templateId not provide or not found");
-        return Response.status(Response.Status.BAD_REQUEST).build();
-      }
-
-      // Read field alignments from the request, if provided
-      List<FieldAlignment> fieldAlignments = new ArrayList<>();
-      if (request.getFieldAlignments() != null && request.getFieldAlignments().size() > 0) {
-        fieldAlignments = request.getFieldAlignments();
-      }
-
-      EvaluateMetadataResponse response =
-          metadataService.evaluateMetadata(request.getMetadataRecordId(), templateId, metadataRecord, fieldAlignments);
-
+      var response = getEvaluateMetadataResponse(request);
       return Response.ok(response).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
@@ -256,9 +235,9 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "400", description = "Bad request")
   @ApiResponse(responseCode = "422", description = "Unprocessable entity")
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
-  public Response searchMetadata(@NotNull @Valid List<String> uris) {
+  public Response searchMetadata(@NotNull @Valid ImmutableList<String> uris) {
     try {
-      SearchMetadataResponse results = metadataService.searchMetadata(uris);
+      var results = metadataService.searchMetadata(uris);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
@@ -269,119 +248,103 @@ public class FairwareWorkbenchResource {
     }
   }
 
-  @POST
-  @Operation(
-      summary = "")
-  @Path("/metadata/report")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Tag(name = "Metadata")
-  @RequestBody(description = "", required = true,
-      content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataRequest.class),
-          examples = {
-              @ExampleObject(value = "")
-          }
-      ))
-  @ApiResponse(
-      responseCode = "200",
-      description = "OK",
-      content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataResponse.class),
-          examples = {
-              @ExampleObject(value = "")
-          }
-      ))
-  @ApiResponse(responseCode = "400", description = "Bad request")
-  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
-  @ApiResponse(responseCode = "500", description = "Internal Server Error")
-  public Response evaluationReport(@NotNull @Valid EvaluationReportRequest request) {
-    try {
+//  @POST
+//  @Operation(
+//      summary = "")
+//  @Path("/metadata/report")
+//  @Consumes(MediaType.APPLICATION_JSON)
+//  @Produces(MediaType.APPLICATION_JSON)
+//  @Tag(name = "Metadata")
+//  @RequestBody(description = "", required = true,
+//      content = @Content(
+//          schema = @Schema(implementation = EvaluateMetadataRequest.class),
+//          examples = {
+//              @ExampleObject(value = "")
+//          }
+//      ))
+//  @ApiResponse(
+//      responseCode = "200",
+//      description = "OK",
+//      content = @Content(
+//          schema = @Schema(implementation = EvaluateMetadataResponse.class),
+//          examples = {
+//              @ExampleObject(value = "")
+//          }
+//      ))
+//  @ApiResponse(responseCode = "400", description = "Bad request")
+//  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
+//  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+//  public Response evaluationReport(@NotNull @Valid EvaluationReportRequest request) {
+//    try {
+//      // Evaluate record by record
+//      var evaluationResponses = request.getEvaluateMetadataRequests()
+//          .stream()
+//          .map(this::getEvaluateMetadataResponse)
+//          .collect(ImmutableList.toImmutableList());
+//      var report = metadataService.generateEvaluationReport(evaluationResponses);
+//      return Response.ok(report).build();
+//    } catch (BadRequestException e) {
+//      logger.error(e.getMessage());
+//      return Response.status(Response.Status.BAD_REQUEST).build();
+//    } catch (HttpException | IOException e) {
+//      logger.error(e.getMessage());
+//      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+//    }
+//  }
 
-      // Evaluate record by record
-      List<EvaluateMetadataResponse> evaluationResponses = new ArrayList<>();
-      for (EvaluateMetadataRequest r : request.getEvaluateMetadataRequests()) {
-        Map<String, Object> metadataRecord = resolveMetadataRecord(r);
-        if (metadataRecord == null) {
-          logger.error("Metadata record not provided or not found");
-          return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        String templateId = resolveTemplateId(r, metadataRecord);
-        if (templateId == null) {
-          logger.error("templateId not provide or not found");
-          return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        // Read field alignments from the request, if provided
-        List<FieldAlignment> fieldAlignments = new ArrayList<>();
-        if (r.getFieldAlignments() != null && r.getFieldAlignments().size() > 0) {
-          fieldAlignments = r.getFieldAlignments();
-        }
-        EvaluateMetadataResponse response =
-            metadataService.evaluateMetadata(r.getMetadataRecordId(), templateId, metadataRecord, fieldAlignments);
-        evaluationResponses.add(response);
-      }
-
-      // Use the evaluation results to generate the evaluation report
-      EvaluationReportResponse report =
-          metadataService.generateEvaluationReport(evaluationResponses);
-
-      return Response.ok(report).build();
-    } catch (BadRequestException e) {
-      logger.error(e.getMessage());
-      return Response.status(Response.Status.BAD_REQUEST).build();
-    } catch (HttpException | IOException e) {
-      logger.error(e.getMessage());
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+  private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest evaluateMetadataRequest)
+      throws IOException, HttpException, BadRequestException {
+    var metadataRecordId = evaluateMetadataRequest.getMetadataRecordId();
+    var metadataRecord = getMetadataRecordFromId(metadataRecordId);
+    if (!metadataRecord.isPresent()) {
+      metadataRecord = evaluateMetadataRequest.getMetadataRecord();
     }
+    if (!metadataRecord.isPresent()) {
+      throw new BadRequestException("Metadata record is not provided or not found");
+    }
+    var templateId = evaluateMetadataRequest.getTemplateId();
+    if (!templateId.isPresent()) {
+      templateId = getTemplateIdFromMetadataRecord(metadataRecord.get());
+    }
+    if (!templateId.isPresent()) {
+      throw new BadRequestException("Template ID is not provide or not found");
+    }
+    var fieldAlignments = evaluateMetadataRequest.getFieldAlignments();
+    return metadataService.evaluateMetadata(
+        metadataRecordId,
+        metadataRecord.get(),
+        templateId.get(),
+        fieldAlignments);
   }
 
   /* Helper functions */
-  public Map<String, Object> resolveMetadataRecord(EvaluateMetadataRequest request) throws HttpException, IOException {
-    if (request.getMetadataRecordId() == null || StringUtils.isEmpty(request.getMetadataRecordId())) {
-      return null;
-    }
-    Map<String, Object> metadataRecord;
-    if (!StringUtils.isEmpty(request.getMetadataRecordId())) {
-      SearchMetadataResponse searchResults =
-          metadataService.searchMetadata(Arrays.asList(request.getMetadataRecordId()));
-      if (searchResults.getItems().size() == 0) {
-        return null;
+  public Optional<ImmutableMap<String, Object>> getMetadataRecordFromId(Optional<String> metadataRecordId)
+      throws IOException, HttpException {
+    if (metadataRecordId.isPresent()) {
+      var searchResults = metadataService.searchMetadata(
+          ImmutableList.of(metadataRecordId.get()));
+      if (!searchResults.getItems().isEmpty()) {
+        return Optional.of(searchResults.getItems().get(0).getMetadata());
       }
-      metadataRecord = searchResults.getItems().get(0).getMetadata();
-    } else {
-      metadataRecord = request.getMetadataRecord();
     }
-    return metadataRecord;
+    return Optional.empty();
   }
 
-  /**
-   * If the templateId is not part of the request, try to:
-   * 1) Extract it from the metadata record (it will only work if it's a CEDAR metadata record)
-   * 2) Use CEDAR's template recommendation service to find an appropriate template
-   *
-   * @param request
-   * @param metadataRecord
-   * @return
-   * @throws HttpException
-   * @throws IOException
-   */
-  public String resolveTemplateId(EvaluateMetadataRequest request, Map<String, Object> metadataRecord) throws HttpException, IOException {
-    // templateId from request
-    if (request.getTemplateId() != null && !StringUtils.isEmpty(request.getTemplateId())) {
-      return request.getTemplateId();
+  private Optional<String> getTemplateIdFromMetadataRecord(@Nonnull Map<String, Object> metadataRecord)
+      throws IOException, HttpException {
+    // First attempt is by getting it from the metadata object
+    var templateId = CedarUtil.getTemplateId(metadataRecord);
+    if (templateId.isPresent()) {
+      return templateId;
     }
-    // templateId from metadata record
-    String templateIdFromRecord = CedarUtil.getTemplateId(metadataRecord);
-    if (templateIdFromRecord != null) {
-      return templateIdFromRecord;
+    // Second attempt is by getting it from the template recommendation service
+    var recommendTemplatesResponse = templateService.recommendCedarTemplates(metadataRecord);
+    var candidateTemplates = recommendTemplatesResponse.getRecommendations();
+    if (!candidateTemplates.isEmpty()) {
+      var cedarId = candidateTemplates.get(0).getTemplateExtract().getCedarId();  // return top-ranked template
+      return Optional.of(cedarId);
     }
-    // templateId suggested by CEDAR's template recommendation service
-    RecommendTemplatesResponse recommendTemplatesResponse = templateService.recommendCedarTemplates(metadataRecord);
-    if (recommendTemplatesResponse.getRecommendations().size() > 0) {
-      return recommendTemplatesResponse.getRecommendations().get(0).getTemplateExtract().getCedarId(); // return top-ranked template
-    }
-    // couldn't find a template id, return null
-    return null;
+    // Give up!
+    return Optional.empty();
   }
-
 }

@@ -1,8 +1,8 @@
 package org.metadatacenter.fairware.api.request;
 
-public class SearchMetadataRequest {
+import com.google.auto.value.AutoValue;
 
-
-
+@AutoValue
+public abstract class SearchMetadataRequest {
 
 }

@@ -35,5 +35,5 @@ public abstract class SearchMetadataItem {
   public abstract String getSchemaName();
 
   @Nonnull
-  public abstract Map<String, Object> getMetadata();
+  public abstract ImmutableMap<String, Object> getMetadata();
 }

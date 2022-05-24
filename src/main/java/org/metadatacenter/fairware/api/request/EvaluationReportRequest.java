@@ -1,18 +1,24 @@
 package org.metadatacenter.fairware.api.request;
 
-import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
-import javax.validation.constraints.NotEmpty;
-import java.util.List;
+import javax.annotation.Nonnull;
 
-public class EvaluationReportRequest {
+@AutoValue
+public abstract class EvaluationReportRequest {
 
-  @NotEmpty
-  List<EvaluateMetadataRequest> evaluateMetadataRequests;
+  private static final String METADATA_LIST = "metadataList";
 
-  public EvaluationReportRequest() { }
-
-  public List<EvaluateMetadataRequest> getEvaluateMetadataRequests() {
-    return evaluateMetadataRequests;
+  @Nonnull
+  @JsonCreator
+  public static EvaluationReportRequest create(@Nonnull @JsonProperty(METADATA_LIST) ImmutableList<EvaluateMetadataRequest> metadataList) {
+    return new AutoValue_EvaluationReportRequest(metadataList);
   }
+
+  @Nonnull
+  @JsonProperty(METADATA_LIST)
+  public abstract ImmutableList<EvaluateMetadataRequest> getEvaluateMetadataRequests();
 }

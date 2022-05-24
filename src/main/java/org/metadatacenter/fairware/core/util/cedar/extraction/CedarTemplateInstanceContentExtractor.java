@@ -124,7 +124,7 @@ public class CedarTemplateInstanceContentExtractor {
         if (!templateNode.isArray()) {
           // Template Element
           if (templateNode.isTemplateElementNode()) {
-            getFieldValues(currentNodeMap.getValue(), templateNodesMap, ImmutableList.copyOf(currentPath), results);
+            getFieldValues(currentNodeMap.getValue(), templateNodesMap, currentPath, results);
           }
           // Template Field
           else if (templateNode.isTemplateFieldNode()) {
@@ -140,7 +140,7 @@ public class CedarTemplateInstanceContentExtractor {
           // Array of template elements
           if (templateNode.isTemplateElementNode()) {
             for (JsonNode node : currentNodeMap.getValue()) {
-              getFieldValues(node, templateNodesMap, ImmutableList.copyOf(currentPath), results);
+              getFieldValues(node, templateNodesMap, currentPath, results);
             }
           }
           // Array of template fields

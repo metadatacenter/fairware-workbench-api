@@ -1,27 +1,24 @@
 package org.metadatacenter.fairware.api.request;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableMap;
 
-public class RecommendTemplatesRequest {
+import javax.annotation.Nonnull;
 
-  @NotEmpty // ensure that name isn't null or blank
-  private Map<String, Object> metadataRecord;
+@AutoValue
+public abstract class RecommendTemplatesRequest {
 
-  public RecommendTemplatesRequest() { }
+  private static final String METADATA_RECORD = "metadataRecord";
 
-  public RecommendTemplatesRequest(@Valid @NotNull Map<String, Object> metadataRecord) {
-    this.metadataRecord = metadataRecord;
+  @Nonnull
+  @JsonCreator
+  public static RecommendTemplatesRequest create(@Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
+    return new AutoValue_RecommendTemplatesRequest(metadataRecord);
   }
 
-  public Map<String, Object> getMetadataRecord() {
-    return metadataRecord;
-  }
-
-  public void setMetadataRecord(Map<String, Object> metadataRecord) {
-    this.metadataRecord = metadataRecord;
-  }
-
+  @Nonnull
+  @JsonProperty(METADATA_RECORD)
+  public abstract ImmutableMap<String, Object> getMetadataRecord();
 }

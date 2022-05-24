@@ -1,70 +1,63 @@
 package org.metadatacenter.fairware.api.response.evaluationReport;
 
-public class FieldReport {
+import com.google.auto.value.AutoValue;
 
-  private String metadataFieldPath;
-  private String templateId;
-  private String templateName;
-  private int fieldsCount;
-  private int completeCount;
-  private int missingRequiredValuesCount;
-  private int missingOptionalValuesCount;
+import javax.annotation.Nonnull;
 
-  public FieldReport() {}
+@AutoValue
+public abstract class FieldReport {
 
-  public String getMetadataFieldPath() {
-    return metadataFieldPath;
+  @Nonnull
+  public static FieldReport create(@Nonnull String metadataFieldPath,
+                                   @Nonnull String templateId,
+                                   @Nonnull String templateName,
+                                   int fieldsCount,
+                                   int completeCount,
+                                   int missingRequiredValuesCount,
+                                   int missingOptionalValuesCount) {
+    return new AutoValue_FieldReport(metadataFieldPath, templateId, templateName, fieldsCount,
+        completeCount, missingRequiredValuesCount, missingOptionalValuesCount);
   }
 
-  public void setMetadataFieldPath(String metadataFieldPath) {
-    this.metadataFieldPath = metadataFieldPath;
+  @Nonnull
+  public abstract String getMetadataFieldPath();
+
+  @Nonnull
+  public abstract String getTemplateId();
+
+  @Nonnull
+  public abstract String getTemplateName();
+
+  public abstract int getFieldsCount();
+
+  public abstract int getCompleteCount();
+
+  public abstract int getMissingRequiredValuesCount();
+
+  public abstract int getMissingOptionalValuesCount();
+
+  public FieldReport incrementFieldsCount() {
+    return create(getMetadataFieldPath(), getTemplateId(), getTemplateName(), getFieldsCount() + 1,
+        getCompleteCount(), getMissingRequiredValuesCount(), getMissingOptionalValuesCount());
   }
 
-  public String getTemplateId() {
-    return templateId;
+  public FieldReport incrementCompleteCount() {
+    return create(getMetadataFieldPath(), getTemplateId(), getTemplateName(), getFieldsCount(),
+        getCompleteCount() + 1, getMissingRequiredValuesCount(), getMissingOptionalValuesCount());
   }
 
-  public void setTemplateId(String templateId) {
-    this.templateId = templateId;
+  public FieldReport decrementCompleteCount() {
+    return create(getMetadataFieldPath(), getTemplateId(), getTemplateName(), getFieldsCount(),
+        getCompleteCount() - 1, getMissingRequiredValuesCount(), getMissingOptionalValuesCount());
   }
 
-  public String getTemplateName() {
-    return templateName;
+  public FieldReport incrementMissingRequiredValuesCount() {
+    return create(getMetadataFieldPath(), getTemplateId(), getTemplateName(), getFieldsCount(),
+        getCompleteCount(), getMissingRequiredValuesCount() + 1, getMissingOptionalValuesCount());
   }
 
-  public void setTemplateName(String templateName) {
-    this.templateName = templateName;
-  }
-
-  public int getFieldsCount() {
-    return fieldsCount;
-  }
-
-  public void setFieldsCount(int fieldsCount) {
-    this.fieldsCount = fieldsCount;
-  }
-
-  public int getCompleteCount() {
-    return completeCount;
-  }
-
-  public void setCompleteCount(int completeCount) {
-    this.completeCount = completeCount;
-  }
-
-  public int getMissingRequiredValuesCount() {
-    return missingRequiredValuesCount;
-  }
-
-  public void setMissingRequiredValuesCount(int missingRequiredValuesCount) {
-    this.missingRequiredValuesCount = missingRequiredValuesCount;
-  }
-
-  public int getMissingOptionalValuesCount() {
-    return missingOptionalValuesCount;
-  }
-
-  public void setMissingOptionalValuesCount(int missingOptionalValuesCount) {
-    this.missingOptionalValuesCount = missingOptionalValuesCount;
+  public FieldReport incrementMissingOptionalValuesCount() {
+    return create(getMetadataFieldPath(), getTemplateId(), getTemplateName(), getFieldsCount(),
+        getCompleteCount(), getMissingRequiredValuesCount(), getMissingOptionalValuesCount() + 1);
   }
 }

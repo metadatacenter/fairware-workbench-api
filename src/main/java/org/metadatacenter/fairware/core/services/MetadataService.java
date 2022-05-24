@@ -2,6 +2,8 @@ package org.metadatacenter.fairware.core.services;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
@@ -35,15 +37,15 @@ import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNode
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MetadataService implements IMetadataService {
 
@@ -56,14 +58,18 @@ public class MetadataService implements IMetadataService {
   private final BioportalConfig bioportalConfig;
   private final MetadataContentExtractor metadataContentExtractor;
 
-  public MetadataService(CedarService cedarService, BioportalService bioportalService, CitationService citationService,
-                         CoreConfig coreConfig, BioportalConfig bioportalConfig, MetadataContentExtractor metadataContentExtractor) {
-    this.cedarService = cedarService;
-    this.bioportalService = bioportalService;
-    this.citationService = citationService;
-    this.coreConfig = coreConfig;
-    this.bioportalConfig = bioportalConfig;
-    this.metadataContentExtractor = metadataContentExtractor;
+  public MetadataService(@Nonnull CedarService cedarService,
+                         @Nonnull BioportalService bioportalService,
+                         @Nonnull CitationService citationService,
+                         @Nonnull CoreConfig coreConfig,
+                         @Nonnull BioportalConfig bioportalConfig,
+                         @Nonnull MetadataContentExtractor metadataContentExtractor) {
+    this.cedarService = checkNotNull(cedarService);
+    this.bioportalService = checkNotNull(bioportalService);
+    this.citationService = checkNotNull(citationService);
+    this.coreConfig = checkNotNull(coreConfig);
+    this.bioportalConfig = checkNotNull(bioportalConfig);
+    this.metadataContentExtractor = checkNotNull(metadataContentExtractor);
   }
 
   /**
@@ -77,23 +83,23 @@ public class MetadataService implements IMetadataService {
    * @throws HttpException
    */
   @Override
-  public List<FieldAlignment> alignMetadata(String templateId,
-                                            Map<String, Object> metadataRecord) throws IOException, HttpException {
-    Map<String, Object> template = cedarService.findTemplate(templateId);
+  public ImmutableList<FieldAlignment> alignMetadata(String templateId, ImmutableMap<String, Object> metadataRecord)
+      throws IOException, HttpException {
+    var template = cedarService.findTemplate(templateId);
 
     // Extract template nodes from the template. Keep fields only
-    List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
+    var templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream()
         .filter(TemplateNodeInfo::isTemplateFieldNode)
         .collect(Collectors.toList());
     // Extract metadata fields from the metadata record
-    List<MetadataFieldInfo> metadataFields = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    var metadataFields = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
 
     // Find alignments between metadata fields and template fields
-    int maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
-    double[][] similarityMatrix = new double[maxDimension][maxDimension];
-    for (int i = 0; i < maxDimension; i++) {
-      for (int j = 0; j < maxDimension; j++) {
+    var maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
+    var similarityMatrix = new double[maxDimension][maxDimension];
+    for (var i = 0; i < maxDimension; i++) {
+      for (var j = 0; j < maxDimension; j++) {
         if (i >= metadataFields.size() || j >= templateFields.size()) {
           similarityMatrix[i][j] = -1;
         } else {
@@ -110,123 +116,111 @@ public class MetadataService implements IMetadataService {
     // Apply a similarity filter to discard any correspondences under a threshold
     similarityMatrix = FieldsAlignmentUtil.filterBySimilarity(similarityMatrix, coreConfig.getSimilarityThreshold());
 
-    HungarianAlgorithm hungarianAlgorithm = new HungarianAlgorithm(FieldsAlignmentUtil.translateMatrix(similarityMatrix));
-    int[] optimalAlignment = hungarianAlgorithm.execute();
+    var hungarianAlgorithm = new HungarianAlgorithm(FieldsAlignmentUtil.translateMatrix(similarityMatrix));
+    var optimalAlignment = hungarianAlgorithm.execute();
 
-    return FieldsAlignmentUtil.generateFieldAlignments(
-        metadataFields,
-        templateFields,
-        similarityMatrix,
-        optimalAlignment);
+    var fieldAlignments =
+        FieldsAlignmentUtil.generateFieldAlignments(metadataFields,
+            templateFields,
+            similarityMatrix,
+            optimalAlignment);
+    return ImmutableList.copyOf(fieldAlignments);
   }
 
   @Override
-  public EvaluateMetadataResponse evaluateMetadata(String metadataRecordId,
-                                                   String templateId,
-                                                   Map<String, Object> metadataRecord,
-                                                   List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
-    List<EvaluationReportItem> reportItems =
-        evaluateMetadata(templateId, metadataRecord, fieldAlignments);
-    // Count errors and warnings
-    int warningsCount = 0;
-    int errorsCount = 0;
-    for (EvaluationReportItem item : reportItems) {
-      if (item.getIssue().getIssueLevel().equals(IssueLevel.WARNING)) {
-        warningsCount++;
-      } else if (item.getIssue().getIssueLevel().equals(IssueLevel.ERROR)) {
-        errorsCount++;
-      } else {
-        throw new InvalidParameterException("Invalid issue type");
-      }
-    }
-
-    // The following lines are doing work that is already done by "evaluateMetadata". They could be optimized
-    Map<String, Object> template = cedarService.findTemplate(templateId);
-    List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
-        .stream()
-        .filter(TemplateNodeInfo::isTemplateFieldNode)
-        .collect(Collectors.toList());
-    List<String> metadataFieldsPaths = new ArrayList<>();
-    for (TemplateNodeInfo tf : templateFields) {
-      metadataFieldsPaths.add(GeneralUtil.generateFullPathDotNotation(tf));
-    }
-
-    String metadataRecordName = null;
-    if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {
-      metadataRecordName = metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    }
-    String templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-
-    return new EvaluateMetadataResponse(metadataRecordId, metadataRecordName,
-        templateId, templateName, metadataRecord, metadataFieldsPaths, reportItems.size(), warningsCount, errorsCount,
-        reportItems, LocalDateTime.now());
-  }
-
-  /**
-   * Evaluates an input metadata record against a given metadata template
-   *
-   * @param templateId
-   * @param metadataRecord
-   * @param fieldAlignments
-   * @return
-   */
-  @Override
-  public List<EvaluationReportItem> evaluateMetadata(String templateId,
-                                                     Map<String, Object> metadataRecord,
-                                                     List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
-
+  public EvaluateMetadataResponse evaluateMetadata(@Nonnull Optional<String> metadataRecordId,
+                                                   @Nonnull ImmutableMap<String, Object> metadataRecord,
+                                                   @Nonnull String templateId,
+                                                   @Nonnull ImmutableList<FieldAlignment> fieldAlignments) throws HttpException, IOException {
     // Extract nodes from the template (limited to fields) and store them into a HashMap (tfMap)
-    Map<String, Object> template = cedarService.findTemplate(templateId);
-    List<TemplateNodeInfo> templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
+    var template = cedarService.findTemplate(templateId);
+    var templateFieldInfos = CedarTemplateContentExtractor.getTemplateNodes(template)
         .stream()
         .filter(TemplateNodeInfo::isTemplateFieldNode)
         .collect(Collectors.toList());
-    Map<String, TemplateNodeInfo> tfMap = new HashMap<>();
-    for (TemplateNodeInfo tf : templateFields) {
-      tfMap.put(GeneralUtil.generateFullPathDotNotation(tf), tf);
+    var templateNodeInfoMap = Maps.<String, TemplateNodeInfo>newHashMap();
+    for (var templateFieldInfo : templateFieldInfos) {
+      var key = GeneralUtil.generateFullPathDotNotation(templateFieldInfo);
+      templateNodeInfoMap.put(key, templateFieldInfo);
     }
 
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
-    List<MetadataFieldInfo> metadataFieldsInfo = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
-    Map<String, MetadataFieldInfo> mfMap = new HashMap<>();
-    for (MetadataFieldInfo mf : metadataFieldsInfo) {
-      mfMap.put(GeneralUtil.generateFullPathDotNotation(mf), mf);
+    var metadataFieldInfos = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    var metadataFieldInfoMap = Maps.<String, MetadataFieldInfo>newHashMap();
+    for (var metadataFieldInfo : metadataFieldInfos) {
+      var key = GeneralUtil.generateFullPathDotNotation(metadataFieldInfo);
+      metadataFieldInfoMap.put(key, metadataFieldInfo);
     }
 
     // Use the alignments to apply the template constraints against each metadata field
-    List<EvaluationReportItem> reportItems = new ArrayList<>();
+    var reportItems = Lists.<EvaluationReportItem>newArrayList();
     // Use an automatically-generated alignment if one has not been provided
     if (fieldAlignments.size() == 0) {
-      fieldAlignments.addAll(alignMetadata(templateId, metadataRecord));
+      fieldAlignments = alignMetadata(templateId, metadataRecord);
     }
+
     // Check missing required values
-    RequiredValuesEvaluator requiredValuesEv = new RequiredValuesEvaluator();
-    reportItems.addAll(requiredValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
+    var requiredValuesEvaluator = new RequiredValuesEvaluator(); // TODO: Add as a dependency
+    var requiredValuesReports = requiredValuesEvaluator.evaluateMetadata(metadataFieldInfoMap, templateNodeInfoMap, fieldAlignments);
+    reportItems.addAll(requiredValuesReports);
 
     // Check missing optional values
-    OptionalValuesEvaluator optionalValuesEv = new OptionalValuesEvaluator();
-    reportItems.addAll(optionalValuesEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
+    var optionalValuesEv = new OptionalValuesEvaluator(); // TODO: Add as a dependency
+    var optionalValuesReports = optionalValuesEv.evaluateMetadata(metadataFieldInfoMap, templateNodeInfoMap, fieldAlignments);
+    reportItems.addAll(optionalValuesReports);
 
     // 2. Check missing template fields (find ontology terms for the extra metadata fields)
     // ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService, coreConfig, bioportalConfig);
     // reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
     // Check ...
 
-    return reportItems;
+    var warningsCount = 0;
+    var errorsCount = 0;
+    for (var item : reportItems) {
+      var issueLevel = item.getMetadataIssue().getIssueLevel();
+      if (issueLevel.equals(IssueLevel.WARNING)) {
+        warningsCount++;
+      } else if (issueLevel.equals(IssueLevel.ERROR)) {
+        errorsCount++;
+      } else {
+        throw new InvalidParameterException("Invalid issue type");
+      }
+    }
+
+    var metadataRecordName = Optional.<String>empty();
+    if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {
+      metadataRecordName = Optional.of(metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString());
+    }
+    var templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    var metadataFieldsPaths = templateFieldInfos.stream()
+        .map(templateField -> GeneralUtil.generateFullPathDotNotation(templateField))
+        .collect(ImmutableList.toImmutableList());
+
+    return EvaluateMetadataResponse.create(metadataRecordId,
+        metadataRecordName,
+        templateId,
+        templateName,
+        metadataRecord,
+        metadataFieldsPaths,
+        reportItems.size(),
+        warningsCount,
+        errorsCount,
+        ImmutableList.copyOf(reportItems),
+        LocalDateTime.now());
   }
 
   /**
    * Retrieves the metadata associated to a list of Digital Object Identifiers (DOIs)
    *
-   * @param uris
-   * @return
+   * @param uris A list of DOI URIs
+   * @return A search metadata response object
    */
   @Override
-  public SearchMetadataResponse searchMetadata(List<String> uris) throws IOException, HttpException {
-    List<SearchMetadataItem> records = new ArrayList<>();
-    for (String uri : uris) {
+  public SearchMetadataResponse searchMetadata(ImmutableList<String> uris) throws IOException, HttpException {
+    var records = Lists.<SearchMetadataItem>newArrayList();
+    for (var uri : uris) {
       if (CedarUtil.isCedarTemplateInstanceId(uri)) {
-        ImmutableMap<String, Object> templateInstance = cedarService.findTemplateInstance(uri);
+        var templateInstance = cedarService.findTemplateInstance(uri);
         if (templateInstance != null) {
           records.add(cedarService.toMetadataItem(templateInstance));
         }
@@ -238,35 +232,32 @@ public class MetadataService implements IMetadataService {
   }
 
   @Override
-  public EvaluationReportResponse generateEvaluationReport(List<EvaluateMetadataResponse> evaluationResults) {
-
-    // Records completeness report
-    RecordsCompletenessReport recordsCompletenessReport = new RecordsCompletenessReport();
-    List<RecordReport> recordReports = new ArrayList<>();
+  public EvaluationReportResponse generateEvaluationReport(ImmutableList<EvaluateMetadataResponse> evaluationResults) {
+    var recordReports = Lists.<RecordReport>newArrayList();
     int completeRecordsCount = 0;
     int recordsWithMissingRequiredCount = 0;
     int recordsWithMissingOptionalCount = 0;
-    for (EvaluateMetadataResponse recordEvaluationResult : evaluationResults) {
+    for (var recordEvaluationResult : evaluationResults) {
       int missingRequiredCount = 0;
       int missingOptionalCount = 0;
-      for (EvaluationReportItem fieldEvaluationResult : recordEvaluationResult.getItems()) {
-        if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_REQUIRED_VALUE)) {
+      for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReportItems()) {
+        var issueType = fieldEvaluationResult.getMetadataIssue().getIssueType();
+        if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {
           missingRequiredCount++;
-        } else if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_OPTIONAL_VALUE)) {
+        } else if (issueType.equals(IssueType.MISSING_OPTIONAL_VALUE)) {
           missingOptionalCount++;
         }
       }
       int fieldsCount = recordEvaluationResult.getMetadataFieldPaths().size();
-      RecordReport recordReport = new RecordReport();
-      recordReport.setMetadataRecordId(recordEvaluationResult.getMetadataRecordId());
-      recordReport.setMetadataRecordName(recordEvaluationResult.getMetadataRecordName());
-      recordReport.setTemplateId(recordEvaluationResult.getTemplateId());
-      recordReport.setTemplateName(recordEvaluationResult.getTemplateName());
-      recordReport.setFieldsCount(fieldsCount);
-      recordReport.setCompleteCount(fieldsCount - missingRequiredCount - missingOptionalCount);
-      recordReport.setMissingRequiredValuesCount(missingRequiredCount);
-      recordReport.setMissingOptionalValuesCount(missingOptionalCount);
+      var recordReport = RecordReport.create(recordEvaluationResult.getMetadataRecordId(),
+          recordEvaluationResult.getMetadataRecordName(),
+          recordEvaluationResult.getTemplateId(),
+          recordEvaluationResult.getTemplateName(),
+          fieldsCount,
+          missingRequiredCount,
+          missingOptionalCount);
       recordReports.add(recordReport);
+
       if (missingRequiredCount == 0 && missingOptionalCount == 0) {
         completeRecordsCount++;
       } else if (missingRequiredCount > 0) {
@@ -275,10 +266,7 @@ public class MetadataService implements IMetadataService {
         recordsWithMissingOptionalCount++;
       }
     }
-    recordsCompletenessReport.setRecordsCount(recordReports.size());
-    recordsCompletenessReport.setCompleteRecordsCount(completeRecordsCount);
-    recordsCompletenessReport.setRecordsWithMissingRequiredValuesCount(recordsWithMissingRequiredCount);
-    recordsCompletenessReport.setRecordsWithMissingOptionalValuesCount(recordsWithMissingOptionalCount);
+
     // Sort recordReports by number of missing values
     Collections.sort(recordReports, (r1, r2) -> {
       if (r1.getMissingRequiredValuesCount() == r2.getMissingRequiredValuesCount()) {
@@ -287,41 +275,45 @@ public class MetadataService implements IMetadataService {
         return r2.getMissingRequiredValuesCount() - r1.getMissingRequiredValuesCount();
       }
     });
-    recordsCompletenessReport.setItems(recordReports);
+    var recordsCompletenessReport = RecordsCompletenessReport.create(recordReports.size(),
+        completeRecordsCount,
+        recordsWithMissingRequiredCount,
+        recordsWithMissingOptionalCount,
+        ImmutableList.copyOf(recordReports));
 
     // Fields completeness report
-    FieldsCompletenessReport fieldsCompletenessReport = new FieldsCompletenessReport();
-    Map<String, FieldReport> fieldReportMap = new HashMap<>();
-    for (EvaluateMetadataResponse recordEvaluationResult : evaluationResults) {
-      String templateId = recordEvaluationResult.getTemplateId();
+    var fieldReportMap = Maps.<String, FieldReport>newHashMap();
+    for (var recordEvaluationResult : evaluationResults) {
+      var templateId = recordEvaluationResult.getTemplateId();
       // Add to the map all the fields, and assume that they don't have any missing values
-      for (String fieldPath : recordEvaluationResult.getMetadataFieldPaths()) {
-        String key = templateId + fieldPath;
+      for (var fieldPath : recordEvaluationResult.getMetadataFieldPaths()) {
+        var key = templateId + fieldPath;
         if (!fieldReportMap.containsKey(key)) {
-          fieldReportMap.put(key, new FieldReport());
-          fieldReportMap.get(key).setMetadataFieldPath(fieldPath);
-          fieldReportMap.get(key).setTemplateId(templateId);
-          fieldReportMap.get(key).setTemplateName(recordEvaluationResult.getTemplateName());
-          fieldReportMap.get(key).setCompleteCount(0);
+          fieldReportMap.put(key, FieldReport.create(fieldPath,
+              templateId,
+              recordEvaluationResult.getTemplateName(),
+              0,
+              0,
+              0,
+              0));
         }
-        fieldReportMap.get(key).setFieldsCount(fieldReportMap.get(key).getFieldsCount() + 1);
-        // Initially assume that they don't have any missing values
-        fieldReportMap.get(key).setCompleteCount(fieldReportMap.get(key).getCompleteCount() + 1);
+        var existingFieldReportMap = fieldReportMap.get(key);
+        fieldReportMap.put(key, existingFieldReportMap.incrementFieldsCount());
+        fieldReportMap.put(key, existingFieldReportMap.incrementCompleteCount());
       }
       // Add to the map the info about the fields with missing values
-      for (EvaluationReportItem fieldEvaluationResult : recordEvaluationResult.getItems()) {
-        String fieldPath = fieldEvaluationResult.getMetadataFieldPath();
-        String key = templateId + fieldPath;
-        if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_REQUIRED_VALUE)) {
-          int missingCount = fieldReportMap.get(key).getMissingRequiredValuesCount();
-          fieldReportMap.get(key).setMissingRequiredValuesCount(missingCount + 1);
-          int completeCount = fieldReportMap.get(key).getCompleteCount();
-          fieldReportMap.get(key).setCompleteCount(completeCount - 1);
-        } else if (fieldEvaluationResult.getIssue().getIssueType().equals(IssueType.MISSING_OPTIONAL_VALUE)) {
-          int missingCount = fieldReportMap.get(key).getMissingOptionalValuesCount();
-          fieldReportMap.get(key).setMissingOptionalValuesCount(missingCount + 1);
-          int completeCount = fieldReportMap.get(key).getCompleteCount();
-          fieldReportMap.get(key).setCompleteCount(completeCount - 1);
+      for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReportItems()) {
+        var fieldPath = fieldEvaluationResult.getMetadataFieldPath();
+        var key = templateId + fieldPath;
+        var issueType = fieldEvaluationResult.getMetadataIssue().getIssueType();
+        if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {
+          var existingFieldReport = fieldReportMap.get(key);
+          fieldReportMap.put(key, existingFieldReport.incrementMissingRequiredValuesCount());
+          fieldReportMap.put(key, existingFieldReport.decrementCompleteCount());
+        } else if (issueType.equals(IssueType.MISSING_OPTIONAL_VALUE)) {
+          var existingFieldReport = fieldReportMap.get(key);
+          fieldReportMap.put(key, existingFieldReport.incrementMissingOptionalValuesCount());
+          fieldReportMap.put(key, existingFieldReport.decrementCompleteCount());
         }
       }
     }
@@ -329,11 +321,11 @@ public class MetadataService implements IMetadataService {
     int completeFieldsCount = 0;
     int fieldsWithMissingRequiredCount = 0;
     int fieldsWithMissingOptionalCount = 0;
-    List<FieldReport> fieldReports = new ArrayList<>(fieldReportMap.values());
-    for (FieldReport fr : fieldReports) {
-      if (fr.getMissingRequiredValuesCount() > 0) {
+    var fieldReports = ImmutableList.copyOf(fieldReportMap.values());
+    for (var fieldReport : fieldReports) {
+      if (fieldReport.getMissingRequiredValuesCount() > 0) {
         fieldsWithMissingRequiredCount++;
-      } else if (fr.getMissingOptionalValuesCount() > 0) {
+      } else if (fieldReport.getMissingOptionalValuesCount() > 0) {
         fieldsWithMissingOptionalCount++;
       } else {
         completeFieldsCount++;
@@ -348,20 +340,17 @@ public class MetadataService implements IMetadataService {
         return r2.getMissingRequiredValuesCount() - r1.getMissingRequiredValuesCount();
       }
     });
-
-    fieldsCompletenessReport.setCompleteFieldsCount(completeFieldsCount);
-    fieldsCompletenessReport.setFieldsWithMissingRequiredValuesCount(fieldsWithMissingRequiredCount);
-    fieldsCompletenessReport.setFieldsWithMissingOptionalValuesCount(fieldsWithMissingOptionalCount);
-    fieldsCompletenessReport.setItems(fieldReports);
+    var fieldsCompletenessReport = FieldsCompletenessReport.create(completeFieldsCount,
+        fieldsWithMissingRequiredCount,
+        fieldsWithMissingOptionalCount,
+        ImmutableList.copyOf(fieldReports));
 
     // Generate completeness report
-    CompletenessReport completenessReport = new CompletenessReport();
-    completenessReport.setRecordsReport(recordsCompletenessReport);
-    completenessReport.setFieldsReport(fieldsCompletenessReport);
+    var completenessReport = CompletenessReport.create(recordsCompletenessReport,
+        fieldsCompletenessReport);
 
     // Generate evaluation report
-    EvaluationReportResponse reportResponse = new EvaluationReportResponse();
-    reportResponse.setCompletenessReport(completenessReport);
+    var reportResponse = EvaluationReportResponse.create(completenessReport);
     return reportResponse;
   }
 }

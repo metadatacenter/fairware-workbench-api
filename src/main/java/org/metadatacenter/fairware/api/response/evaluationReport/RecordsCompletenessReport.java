@@ -1,55 +1,32 @@
 package org.metadatacenter.fairware.api.response.evaluationReport;
 
-import java.util.List;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
-public class RecordsCompletenessReport {
+import javax.annotation.Nonnull;
 
-  private int recordsCount;
-  private int completeRecordsCount;
-  private int recordsWithMissingRequiredValuesCount;
-  private int recordsWithMissingOptionalValuesCount;
-  private List<RecordReport> items;
+@AutoValue
+public abstract class RecordsCompletenessReport {
 
-  public RecordsCompletenessReport() {
+  @Nonnull
+  public static RecordsCompletenessReport create(int recordsCount,
+                                                 int completeRecordsCount,
+                                                 int recordsWithMissingRequiredValuesCount,
+                                                 int recordsWithMissingOptionalValuesCount,
+                                                 @Nonnull ImmutableList<RecordReport> recordReports) {
+    return new AutoValue_RecordsCompletenessReport(recordsCount, completeRecordsCount,
+        recordsWithMissingRequiredValuesCount, recordsWithMissingOptionalValuesCount,
+        recordReports);
   }
 
-  public int getRecordsCount() {
-    return recordsCount;
-  }
+  public abstract int getRecordsCount();
 
-  public void setRecordsCount(int recordsCount) {
-    this.recordsCount = recordsCount;
-  }
+  public abstract int getCompleteRecordsCount();
 
-  public int getCompleteRecordsCount() {
-    return completeRecordsCount;
-  }
+  public abstract int getRecordsWithMissingRequiredValuesCount();
 
-  public void setCompleteRecordsCount(int completeRecordsCount) {
-    this.completeRecordsCount = completeRecordsCount;
-  }
+  public abstract int getRecordsWithMissingOptionalValuesCount();
 
-  public int getRecordsWithMissingRequiredValuesCount() {
-    return recordsWithMissingRequiredValuesCount;
-  }
-
-  public void setRecordsWithMissingRequiredValuesCount(int recordsWithMissingRequiredValuesCount) {
-    this.recordsWithMissingRequiredValuesCount = recordsWithMissingRequiredValuesCount;
-  }
-
-  public int getRecordsWithMissingOptionalValuesCount() {
-    return recordsWithMissingOptionalValuesCount;
-  }
-
-  public void setRecordsWithMissingOptionalValuesCount(int recordsWithMissingOptionalValuesCount) {
-    this.recordsWithMissingOptionalValuesCount = recordsWithMissingOptionalValuesCount;
-  }
-
-  public List<RecordReport> getItems() {
-    return items;
-  }
-
-  public void setItems(List<RecordReport> items) {
-    this.items = items;
-  }
+  @Nonnull
+  public abstract ImmutableList<RecordReport> getRecordReports();
 }

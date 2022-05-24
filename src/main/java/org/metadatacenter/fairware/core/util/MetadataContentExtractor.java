@@ -35,11 +35,7 @@ public class MetadataContentExtractor {
   @Nonnull
   public List<MetadataFieldInfo> extractMetadataFieldsInfo(@Nonnull Map<String, Object> metadataRecord,
                                                            @Nonnull Map<String, Object> template) throws IOException {
-    if (cedarTemplateInstanceContentExtractor.isCedarTemplateInstance(metadataRecord)) {
-      return cedarTemplateInstanceContentExtractor.generateInfoFieldsFromInstance(metadataRecord, template);
-    } else {
-      throw new IOException("Metadata is not a CEDAR template instance");
-    }
+    return cedarTemplateInstanceContentExtractor.generateInfoFieldsFromInstance(metadataRecord, template);
   }
 }
 

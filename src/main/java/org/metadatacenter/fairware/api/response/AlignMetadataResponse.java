@@ -1,27 +1,24 @@
 package org.metadatacenter.fairware.api.response;
 
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
-public class AlignMetadataResponse {
+@AutoValue
+public abstract class AlignMetadataResponse {
 
-  private int totalCount;
-  private List<FieldAlignment> fieldAlignments;
-
-  public AlignMetadataResponse() {
+  @Nonnull
+  public static AlignMetadataResponse create(@Nonnull ImmutableList<FieldAlignment> fieldAlignments) {
+    return new AutoValue_AlignMetadataResponse(fieldAlignments);
   }
 
-  public AlignMetadataResponse(int totalCount, List<FieldAlignment> fieldAlignments) {
-    this.totalCount = totalCount;
-    this.fieldAlignments = fieldAlignments;
-  }
+  @Nonnull
+  public abstract ImmutableList<FieldAlignment> getFieldAlignments();
 
   public int getTotalCount() {
-    return totalCount;
-  }
-
-  public List<FieldAlignment> getFieldAlignments() {
-    return fieldAlignments;
+    return getFieldAlignments().size();
   }
 }

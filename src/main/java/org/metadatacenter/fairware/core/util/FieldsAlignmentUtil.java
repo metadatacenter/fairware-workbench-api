@@ -1,5 +1,6 @@
 package org.metadatacenter.fairware.core.util;
 
+import com.google.common.collect.ImmutableList;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang3.StringUtils;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
@@ -91,7 +92,8 @@ public class FieldsAlignmentUtil {
    */
   public static List<FieldAlignment> generateFieldAlignments(List<MetadataFieldInfo> metadataFields,
                                                              List<TemplateNodeInfo> templateFields,
-                                                             double[][] similarityMatrix, int[] selectedAlignments) {
+                                                             double[][] similarityMatrix,
+                                                             int[] selectedAlignments) {
     List<FieldAlignment> alignments = new ArrayList<>();
     for (int i=0; i<selectedAlignments.length; i++) {
       int templateFieldIndex = selectedAlignments[i];

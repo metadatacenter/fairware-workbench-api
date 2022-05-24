@@ -1,46 +1,28 @@
 package org.metadatacenter.fairware.api.response.evaluationReport;
 
-import java.util.List;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
-public class FieldsCompletenessReport {
+import javax.annotation.Nonnull;
 
-  private int completeFieldsCount;
-  private int fieldsWithMissingRequiredValuesCount;
-  private int fieldsWithMissingOptionalValuesCount;
-  private List<FieldReport> items;
+@AutoValue
+public abstract class FieldsCompletenessReport {
 
-  public FieldsCompletenessReport() {
+  @Nonnull
+  public static FieldsCompletenessReport create(int completeFieldsCount,
+                                                int fieldsWithMissingRequiredValuesCount,
+                                                int fieldsWithMissingOptionalValuesCount,
+                                                @Nonnull ImmutableList<FieldReport> fieldReports) {
+    return new AutoValue_FieldsCompletenessReport(completeFieldsCount, fieldsWithMissingRequiredValuesCount,
+        fieldsWithMissingOptionalValuesCount, fieldReports);
   }
 
-  public int getCompleteFieldsCount() {
-    return completeFieldsCount;
-  }
+  public abstract int getCompleteFieldsCount();
 
-  public void setCompleteFieldsCount(int completeFieldsCount) {
-    this.completeFieldsCount = completeFieldsCount;
-  }
+  public abstract int getFieldsWithMissingRequiredValuesCount();
 
-  public int getFieldsWithMissingRequiredValuesCount() {
-    return fieldsWithMissingRequiredValuesCount;
-  }
+  public abstract int getFieldsWithMissingOptionalValuesCount();
 
-  public void setFieldsWithMissingRequiredValuesCount(int fieldsWithMissingRequiredValuesCount) {
-    this.fieldsWithMissingRequiredValuesCount = fieldsWithMissingRequiredValuesCount;
-  }
-
-  public int getFieldsWithMissingOptionalValuesCount() {
-    return fieldsWithMissingOptionalValuesCount;
-  }
-
-  public void setFieldsWithMissingOptionalValuesCount(int fieldsWithMissingOptionalValuesCount) {
-    this.fieldsWithMissingOptionalValuesCount = fieldsWithMissingOptionalValuesCount;
-  }
-
-  public List<FieldReport> getItems() {
-    return items;
-  }
-
-  public void setItems(List<FieldReport> items) {
-    this.items = items;
-  }
+  @Nonnull
+  public abstract ImmutableList<FieldReport> getItems();
 }

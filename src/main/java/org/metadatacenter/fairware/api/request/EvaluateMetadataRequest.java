@@ -1,32 +1,45 @@
 package org.metadatacenter.fairware.api.request;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Nonnull;
+import java.util.Optional;
 
-public class EvaluateMetadataRequest {
+@AutoValue
+public abstract class EvaluateMetadataRequest {
 
-  private String templateId;
-  private Map<String, Object> metadataRecord;
-  private String metadataRecordId;
-  private List<FieldAlignment> fieldAlignments;
+  private static final String TEMPLATE_ID = "templateId";
+  private static final String METADATA_RECORD_ID = "metadataRecordId";
+  private static final String METADATA_RECORD = "metadataRecord";
+  private static final String FIELD_ALIGNMENTS = "fieldAlignments";
 
-  public EvaluateMetadataRequest() { }
-
-  public String getTemplateId() {
-    return templateId;
+  @Nonnull
+  @JsonCreator
+  public static EvaluateMetadataRequest create(@Nonnull @JsonProperty(TEMPLATE_ID) Optional<String> templateId,
+                                               @Nonnull @JsonProperty(METADATA_RECORD_ID) Optional<String> metadataRecordId,
+                                               @Nonnull @JsonProperty(METADATA_RECORD) Optional<ImmutableMap<String, Object>> metadataRecord,
+                                               @Nonnull @JsonProperty(FIELD_ALIGNMENTS) ImmutableList<FieldAlignment> fieldAlignments) {
+    return new AutoValue_EvaluateMetadataRequest(templateId, metadataRecordId, metadataRecord, fieldAlignments);
   }
 
-  public Map<String, Object> getMetadataRecord() {
-    return metadataRecord;
-  }
+  @Nonnull
+  @JsonProperty(TEMPLATE_ID)
+  public abstract Optional<String> getTemplateId();
 
-  public String getMetadataRecordId() {
-    return metadataRecordId;
-  }
+  @Nonnull
+  @JsonProperty(METADATA_RECORD_ID)
+  public abstract Optional<String> getMetadataRecordId();
 
-  public List<FieldAlignment> getFieldAlignments() {
-    return fieldAlignments;
-  }
+  @Nonnull
+  @JsonProperty(METADATA_RECORD)
+  public abstract Optional<ImmutableMap<String, Object>> getMetadataRecord();
+
+  @Nonnull
+  @JsonProperty(FIELD_ALIGNMENTS)
+  public abstract ImmutableList<FieldAlignment> getFieldAlignments();
 }

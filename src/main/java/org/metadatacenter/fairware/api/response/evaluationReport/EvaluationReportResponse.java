@@ -1,16 +1,19 @@
 package org.metadatacenter.fairware.api.response.evaluationReport;
 
-public class EvaluationReportResponse {
+import com.google.auto.value.AutoValue;
+
+import javax.annotation.Nonnull;
+
+@AutoValue
+public abstract class EvaluationReportResponse {
 
   CompletenessReport completenessReport;
 
-  public EvaluationReportResponse() {}
-
-  public CompletenessReport getCompletenessReport() {
-    return completenessReport;
+  @Nonnull
+  public static EvaluationReportResponse create(@Nonnull CompletenessReport completenessReport) {
+    return new AutoValue_EvaluationReportResponse(completenessReport);
   }
 
-  public void setCompletenessReport(CompletenessReport completenessReport) {
-    this.completenessReport = completenessReport;
-  }
+  @Nonnull
+  public abstract CompletenessReport getCompletenessReport();
 }

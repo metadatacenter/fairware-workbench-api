@@ -1,23 +1,30 @@
 package org.metadatacenter.fairware.api.request;
 
-import javax.validation.constraints.NotEmpty;
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableMap;
 
-public class AlignMetadataRequest {
+import javax.annotation.Nonnull;
 
-  @NotEmpty // ensure that name isn't null or blank
-  private String templateId;
+@AutoValue
+public abstract class AlignMetadataRequest {
 
-  @NotEmpty // ensure that name isn't null or blank
-  private Map<String, Object> metadataRecord;
+  private static final String TEMPLATE_ID = "templateId";
+  private static final String METADATA_RECORD = "metadataRecord";
 
-  public AlignMetadataRequest() { }
-
-  public String getTemplateId() {
-    return templateId;
+  @Nonnull
+  @JsonCreator
+  public static AlignMetadataRequest create(@Nonnull @JsonProperty(TEMPLATE_ID) String templateId,
+                                            @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
+    return new AutoValue_AlignMetadataRequest(templateId, metadataRecord);
   }
 
-  public Map<String, Object> getMetadataRecord() {
-    return metadataRecord;
-  }
+  @Nonnull
+  @JsonProperty(TEMPLATE_ID)
+  public abstract String getTemplateId();
+
+  @Nonnull
+  @JsonProperty(METADATA_RECORD)
+  public abstract ImmutableMap<String, Object> getMetadataRecord();
 }
