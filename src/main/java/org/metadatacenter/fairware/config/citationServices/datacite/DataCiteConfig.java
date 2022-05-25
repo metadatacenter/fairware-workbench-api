@@ -1,14 +1,23 @@
 package org.metadatacenter.fairware.config.citationServices.datacite;
 
-public class DataCiteConfig {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 
-  private String doisUrl;
+import javax.annotation.Nonnull;
 
-  public DataCiteConfig() {
+@AutoValue
+public abstract class DataCiteConfig {
+
+  private static final String DOIS_URL = "doisUrl";
+
+  @Nonnull
+  @JsonCreator
+  public static DataCiteConfig create(@Nonnull @JsonProperty(DOIS_URL) String doisUrl) {
+    return new AutoValue_DataCiteConfig(doisUrl);
   }
 
-  public String getDoisUrl() {
-    return doisUrl;
-  }
-
+  @Nonnull
+  @JsonProperty(DOIS_URL)
+  public abstract String getDoisUrl();
 }

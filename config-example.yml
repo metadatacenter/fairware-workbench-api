@@ -57,5 +57,5 @@ bioportal:
   pageSize: 20
 
 citationServices:
-  datacite:
+  dataCite:
     doisUrl: 'https://api.datacite.org/dois/'

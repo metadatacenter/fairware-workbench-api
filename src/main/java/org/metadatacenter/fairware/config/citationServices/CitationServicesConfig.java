@@ -1,14 +1,24 @@
 package org.metadatacenter.fairware.config.citationServices;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 import org.metadatacenter.fairware.config.citationServices.datacite.DataCiteConfig;
 
-public class CitationServicesConfig {
+import javax.annotation.Nonnull;
 
-  private DataCiteConfig datacite;
+@AutoValue
+public abstract class CitationServicesConfig {
 
-  public CitationServicesConfig() {}
+  private static final String DATA_CITE_CONFIG = "dataCite";
 
-  public DataCiteConfig getDatacite() {
-    return datacite;
+  @Nonnull
+  @JsonCreator
+  public static CitationServicesConfig create(@Nonnull @JsonProperty(DATA_CITE_CONFIG) DataCiteConfig dataCiteConfig) {
+    return new AutoValue_CitationServicesConfig(dataCiteConfig);
   }
+
+  @Nonnull
+  @JsonProperty(DATA_CITE_CONFIG)
+  public abstract DataCiteConfig getDatacite();
 }

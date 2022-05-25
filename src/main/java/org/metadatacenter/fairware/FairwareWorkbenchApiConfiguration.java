@@ -1,6 +1,8 @@
 package org.metadatacenter.fairware;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.dropwizard.Configuration;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
@@ -8,33 +10,45 @@ import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.citationServices.CitationServicesConfig;
 
-public class FairwareWorkbenchApiConfiguration extends Configuration {
+import javax.annotation.Nonnull;
 
-  @JsonProperty("swagger")
-  private SwaggerBundleConfiguration swaggerBundleConfiguration;
-  @JsonProperty("core")
-  private CoreConfig coreConfig;
-  @JsonProperty("cedar")
-  private CedarConfig cedarConfig;
-  @JsonProperty("bioportal")
-  private BioportalConfig bioportalConfig;
-  @JsonProperty("citationServices")
-  private CitationServicesConfig metadataServicesConfig;
+@AutoValue
+public abstract class FairwareWorkbenchApiConfiguration extends Configuration {
 
+  private static final String SWAGGER = "swagger";
+  private static final String CORE = "core";
+  private static final String CEDAR = "cedar";
+  private static final String BIOPORTAL = "bioportal";
+  private static final String CITATION_SERVICES = "citationServices";
 
-  public SwaggerBundleConfiguration getSwaggerBundleConfiguration() {
-    return swaggerBundleConfiguration;
+  @Nonnull
+  @JsonCreator
+  public static FairwareWorkbenchApiConfiguration create(@Nonnull @JsonProperty(SWAGGER) SwaggerBundleConfiguration swaggerBundleConfiguration,
+                                                         @Nonnull @JsonProperty(CORE) CoreConfig coreConfig,
+                                                         @Nonnull @JsonProperty(CEDAR) CedarConfig cedarConfig,
+                                                         @Nonnull @JsonProperty(BIOPORTAL) BioportalConfig bioportalConfig,
+                                                         @Nonnull @JsonProperty(CITATION_SERVICES) CitationServicesConfig citationServicesConfig) {
+    return new AutoValue_FairwareWorkbenchApiConfiguration(swaggerBundleConfiguration, coreConfig,
+        cedarConfig, bioportalConfig, citationServicesConfig);
   }
 
-  public CoreConfig getCoreConfig() {
-    return coreConfig;
-  }
+  @Nonnull
+  @JsonProperty(SWAGGER)
+  public abstract SwaggerBundleConfiguration getSwaggerBundleConfiguration();
 
-  public CedarConfig getCedarConfig() {
-    return cedarConfig;
-  }
+  @Nonnull
+  @JsonProperty(CORE)
+  public abstract CoreConfig getCoreConfig();
 
-  public BioportalConfig getBioportalConfig() { return bioportalConfig; }
+  @Nonnull
+  @JsonProperty(CEDAR)
+  public abstract CedarConfig getCedarConfig();
 
-  public CitationServicesConfig getMetadataServicesConfig() { return metadataServicesConfig; }
+  @Nonnull
+  @JsonProperty(BIOPORTAL)
+  public abstract BioportalConfig getBioportalConfig();
+
+  @Nonnull
+  @JsonProperty(CITATION_SERVICES)
+  public abstract CitationServicesConfig getMetadataServicesConfig();
 }

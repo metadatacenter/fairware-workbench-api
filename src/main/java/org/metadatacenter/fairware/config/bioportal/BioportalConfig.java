@@ -1,33 +1,44 @@
 package org.metadatacenter.fairware.config.bioportal;
 
-public class BioportalConfig {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 
-  private String apiKey;
-  private String searchUrl;
-  private int connectTimeout;
-  private int socketTimeout;
-  private int pageSize;
+import javax.annotation.Nonnull;
 
-  public BioportalConfig() {
+@AutoValue
+public abstract class BioportalConfig {
+
+  private static final String API_KEY = "apiKey";
+  private static final String SEARCH_URL = "searchUrl";
+  private static final String CONNECT_TIMEOUT = "connectTimeout";
+  private static final String SOCKET_TIMEOUT = "socketTimeout";
+  private static final String PAGE_SIZE = "pageSize";
+
+  @Nonnull
+  @JsonCreator
+  public static BioportalConfig create(@Nonnull @JsonProperty(API_KEY) String apiKey,
+                                       @Nonnull @JsonProperty(SEARCH_URL) String searchUrl,
+                                       @JsonProperty(CONNECT_TIMEOUT) int connectTimeout,
+                                       @JsonProperty(SOCKET_TIMEOUT) int socketTimeout,
+                                       @JsonProperty(PAGE_SIZE) int pageSize) {
+    return new AutoValue_BioportalConfig(apiKey, searchUrl, connectTimeout, socketTimeout, pageSize);
   }
 
-  public String getApiKey() {
-    return apiKey;
-  }
+  @Nonnull
+  @JsonProperty(API_KEY)
+  public abstract String getApiKey();
 
-  public String getSearchUrl() {
-    return searchUrl;
-  }
+  @Nonnull
+  @JsonProperty(SEARCH_URL)
+  public abstract String getSearchUrl();
 
-  public int getConnectTimeout() {
-    return connectTimeout;
-  }
+  @JsonProperty(CONNECT_TIMEOUT)
+  public abstract int getConnectTimeout();
 
-  public int getSocketTimeout() {
-    return socketTimeout;
-  }
+  @JsonProperty(SOCKET_TIMEOUT)
+  public abstract int getSocketTimeout();
 
-  public int getPageSize() {
-    return pageSize;
-  }
+  @JsonProperty(PAGE_SIZE)
+  public abstract int getPageSize();
 }

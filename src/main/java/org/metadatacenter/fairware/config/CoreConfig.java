@@ -1,26 +1,38 @@
 package org.metadatacenter.fairware.config;
 
-public class CoreConfig {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 
-  private double similarityThreshold;
-  private double nameSimilarityWeight;
-  private double pathSimilarityWeight;
-  private int termSuggestionsListSize;
+import javax.annotation.Nonnull;
 
-  public CoreConfig() {
+@AutoValue
+public abstract class CoreConfig {
+
+  private static final String SIMILARITY_THRESHOLD = "similarityThreshold";
+  private static final String NAME_SIMILARITY_WEIGHT = "nameSimilarityWeight";
+  private static final String PATH_SIMILARITY_WEIGHT = "pathSimilarityWeight";
+  private static final String TERM_SUGGESTIONS_LIST_SIZE = "termSuggestionsListSize";
+
+  @Nonnull
+  @JsonCreator
+  public static CoreConfig create(@JsonProperty(SIMILARITY_THRESHOLD) double similarityThreshold,
+                                  @JsonProperty(NAME_SIMILARITY_WEIGHT) double nameSimilarityWeight,
+                                  @JsonProperty(PATH_SIMILARITY_WEIGHT) double pathSimilarityWeight,
+                                  @JsonProperty(TERM_SUGGESTIONS_LIST_SIZE) int termSuggestionsListSize) {
+    return new AutoValue_CoreConfig(similarityThreshold, nameSimilarityWeight, pathSimilarityWeight,
+        termSuggestionsListSize);
   }
 
-  public double getSimilarityThreshold() {
-    return similarityThreshold;
-  }
+  @JsonProperty(SIMILARITY_THRESHOLD)
+  public abstract double getSimilarityThreshold();
 
-  public double getNameSimilarityWeight() {
-    return nameSimilarityWeight;
-  }
+  @JsonProperty(NAME_SIMILARITY_WEIGHT)
+  public abstract double getNameSimilarityWeight();
 
-  public double getPathSimilarityWeight() {
-    return pathSimilarityWeight;
-  }
+  @JsonProperty(PATH_SIMILARITY_WEIGHT)
+  public abstract double getPathSimilarityWeight();
 
-  public int getTermSuggestionsListSize() { return termSuggestionsListSize; }
+  @JsonProperty(TERM_SUGGESTIONS_LIST_SIZE)
+  public abstract int getTermSuggestionsListSize();
 }
