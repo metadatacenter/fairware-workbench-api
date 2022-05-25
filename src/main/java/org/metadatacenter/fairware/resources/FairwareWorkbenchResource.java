@@ -292,24 +292,24 @@ public class FairwareWorkbenchResource {
 //    }
 //  }
 
-  private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest evaluateMetadataRequest)
+  private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
       throws IOException, HttpException, BadRequestException {
-    var metadataRecordId = evaluateMetadataRequest.getMetadataRecordId();
+    var metadataRecordId = request.getMetadataRecordId();
     var metadataRecord = getMetadataRecordFromId(metadataRecordId);
     if (!metadataRecord.isPresent()) {
-      metadataRecord = evaluateMetadataRequest.getMetadataRecord();
+      metadataRecord = request.getMetadataRecord();
     }
     if (!metadataRecord.isPresent()) {
       throw new BadRequestException("Metadata record is not provided or not found");
     }
-    var templateId = evaluateMetadataRequest.getTemplateId();
+    var templateId = request.getTemplateId();
     if (!templateId.isPresent()) {
       templateId = getTemplateIdFromMetadataRecord(metadataRecord.get());
     }
     if (!templateId.isPresent()) {
       throw new BadRequestException("Template ID is not provide or not found");
     }
-    var fieldAlignments = evaluateMetadataRequest.getFieldAlignments();
+    var fieldAlignments = metadataService.alignMetadata(templateId.get(), metadataRecord.get());
     return metadataService.evaluateMetadata(
         metadataRecordId,
         metadataRecord.get(),

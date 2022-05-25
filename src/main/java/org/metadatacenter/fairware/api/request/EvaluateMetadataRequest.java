@@ -16,15 +16,13 @@ public abstract class EvaluateMetadataRequest {
   private static final String TEMPLATE_ID = "templateId";
   private static final String METADATA_RECORD_ID = "metadataRecordId";
   private static final String METADATA_RECORD = "metadataRecord";
-  private static final String FIELD_ALIGNMENTS = "fieldAlignments";
 
   @Nonnull
   @JsonCreator
   public static EvaluateMetadataRequest create(@Nonnull @JsonProperty(TEMPLATE_ID) Optional<String> templateId,
                                                @Nonnull @JsonProperty(METADATA_RECORD_ID) Optional<String> metadataRecordId,
-                                               @Nonnull @JsonProperty(METADATA_RECORD) Optional<ImmutableMap<String, Object>> metadataRecord,
-                                               @Nonnull @JsonProperty(FIELD_ALIGNMENTS) ImmutableList<FieldAlignment> fieldAlignments) {
-    return new AutoValue_EvaluateMetadataRequest(templateId, metadataRecordId, metadataRecord, fieldAlignments);
+                                               @Nonnull @JsonProperty(METADATA_RECORD) Optional<ImmutableMap<String, Object>> metadataRecord) {
+    return new AutoValue_EvaluateMetadataRequest(templateId, metadataRecordId, metadataRecord);
   }
 
   @Nonnull
@@ -38,8 +36,4 @@ public abstract class EvaluateMetadataRequest {
   @Nonnull
   @JsonProperty(METADATA_RECORD)
   public abstract Optional<ImmutableMap<String, Object>> getMetadataRecord();
-
-  @Nonnull
-  @JsonProperty(FIELD_ALIGNMENTS)
-  public abstract ImmutableList<FieldAlignment> getFieldAlignments();
 }
