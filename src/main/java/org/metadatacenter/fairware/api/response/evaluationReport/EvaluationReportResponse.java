@@ -7,8 +7,6 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class EvaluationReportResponse {
 
-  CompletenessReport completenessReport;
-
   @Nonnull
   public static EvaluationReportResponse create(@Nonnull CompletenessReport completenessReport) {
     return new AutoValue_EvaluationReportResponse(completenessReport);
