@@ -6,7 +6,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
+import org.metadatacenter.fairware.api.response.EvaluationReport;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
+import org.metadatacenter.fairware.api.response.MetadataSpecification;
 import org.metadatacenter.fairware.api.response.evaluationReport.CompletenessReport;
 import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
 import org.metadatacenter.fairware.api.response.evaluationReport.FieldReport;
@@ -179,19 +181,6 @@ public class MetadataService implements IMetadataService {
     // reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
     // Check ...
 
-    var warningsCount = 0;
-    var errorsCount = 0;
-    for (var item : reportItems) {
-      var issueLevel = item.getMetadataIssue().getIssueLevel();
-      if (issueLevel.equals(IssueLevel.WARNING)) {
-        warningsCount++;
-      } else if (issueLevel.equals(IssueLevel.ERROR)) {
-        errorsCount++;
-      } else {
-        throw new InvalidParameterException("Invalid issue type");
-      }
-    }
-
     var metadataRecordName = Optional.<String>empty();
     if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {
       metadataRecordName = Optional.of(metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString());
@@ -203,12 +192,9 @@ public class MetadataService implements IMetadataService {
 
     return EvaluateMetadataResponse.create(metadataRecordId,
         metadataRecordName,
-        metadataRecord, templateId, templateName, templateFieldPaths,
-        reportItems.size(),
-        warningsCount,
-        errorsCount,
-        ImmutableList.copyOf(reportItems),
-        LocalDateTime.now());
+        metadataRecord,
+        MetadataSpecification.create(templateId, templateName, templateFieldPaths),
+        EvaluationReport.create(ImmutableList.copyOf(reportItems), LocalDateTime.now()));
   }
 
   /**
@@ -242,7 +228,7 @@ public class MetadataService implements IMetadataService {
     for (var recordEvaluationResult : evaluationResults) {
       int missingRequiredCount = 0;
       int missingOptionalCount = 0;
-      for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReportItems()) {
+      for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReport().getAllIssueReports()) {
         var issueType = fieldEvaluationResult.getMetadataIssue().getIssueType();
         if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {
           missingRequiredCount++;
@@ -250,11 +236,13 @@ public class MetadataService implements IMetadataService {
           missingOptionalCount++;
         }
       }
-      int fieldsCount = recordEvaluationResult.getTemplateFieldNames().size();
+
+      var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
+      int fieldsCount = metadataSpecification.getTemplateFieldNames().size();
       var recordReport = RecordReport.create(recordEvaluationResult.getMetadataRecordId(),
           recordEvaluationResult.getMetadataRecordName(),
-          recordEvaluationResult.getTemplateId(),
-          recordEvaluationResult.getTemplateName(),
+          metadataSpecification.getTemplateId(),
+          metadataSpecification.getTemplateName(),
           fieldsCount,
           missingRequiredCount,
           missingOptionalCount);
@@ -286,14 +274,15 @@ public class MetadataService implements IMetadataService {
     // Fields completeness report
     var fieldReportMap = Maps.<String, FieldReport>newHashMap();
     for (var recordEvaluationResult : evaluationResults) {
-      var templateId = recordEvaluationResult.getTemplateId();
+      var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
+      var templateId = metadataSpecification.getTemplateId();
       // Add to the map all the fields, and assume that they don't have any missing values
-      for (var templateFieldName : recordEvaluationResult.getTemplateFieldNames()) {
+      for (var templateFieldName : metadataSpecification.getTemplateFieldNames()) {
         var key = templateId + "#" + templateFieldName;
         if (!fieldReportMap.containsKey(key)) {
           fieldReportMap.put(key, FieldReport.create(templateFieldName,
               templateId,
-              recordEvaluationResult.getTemplateName(),
+              metadataSpecification.getTemplateName(),
               0,
               0,
               0,
@@ -304,7 +293,7 @@ public class MetadataService implements IMetadataService {
         fieldReportMap.put(key, existingFieldReportMap.incrementCompleteCount());
       }
       // Add to the map the info about the fields with missing values
-      for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReportItems()) {
+      for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReport().getAllIssueReports()) {
         var fieldPath = fieldEvaluationResult.getMetadataFieldPath();
         var key = templateId + fieldPath;
         var issueType = fieldEvaluationResult.getMetadataIssue().getIssueType();
