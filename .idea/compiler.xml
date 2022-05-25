@@ -11,9 +11,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="fairware-workbench-api" target="1.8" />
-      <module name="fairware-workbench-api (1)" target="1.8" />
-      <module name="fairware-workbench-api (2)" target="1.5" />
+      <module name="fairware-workbench-api" target="10" />
     </bytecodeTargetLevel>
   </component>
 </project>
