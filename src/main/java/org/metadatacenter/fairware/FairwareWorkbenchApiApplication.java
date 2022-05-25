@@ -51,16 +51,13 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
         return configuration.getSwaggerBundleConfiguration();
       }
     });
-    // Serve static files
-    //bootstrap.addBundle(new AssetsBundle("/examples/", "/examples/"));
   }
 
   @Override
   public void run(final FairwareWorkbenchApiConfiguration configuration, final Environment environment) {
-
+    
     // Enable CORS headers
-    final FilterRegistration.Dynamic cors =
-        environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+    final var cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
     // Configure CORS parameters
     cors.setInitParameter("allowedOrigins", "*");
@@ -71,21 +68,25 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
     // Register resources
-    final CommonApiDocumentationResource commonApiDocumentationResource = new CommonApiDocumentationResource();
+    final var commonApiDocumentationResource = new CommonApiDocumentationResource();
     environment.jersey().register(commonApiDocumentationResource);
 
-    HttpRequestHandler requestHandler = new HttpRequestHandler(objectMapper);
-    CedarService cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler);
-    BioportalService bioportalService = new BioportalService(configuration.getBioportalConfig());
-    TemplateService templateService = new TemplateService(cedarService);
-    CitationService citationService = new CitationService(new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
-    MapBasedMetadataContentExtractor mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
-    CedarTemplateInstanceContentExtractor cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
-    MetadataContentExtractor metadataContentExtractor = new MetadataContentExtractor(mapBasedMetadataContentExtractor, cedarTemplateInstanceContentExtractor);
-    MetadataService metadataService = new MetadataService(cedarService, bioportalService, citationService,
-        configuration.getCoreConfig(), configuration.getBioportalConfig(), metadataContentExtractor);
-    final FairwareWorkbenchResource fairwareWorkbenchResource =
-        new FairwareWorkbenchResource(templateService, metadataService);
+    // TODO: Use Dagger for dependency injection
+    var requestHandler = new HttpRequestHandler(objectMapper);
+    var cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler);
+    var bioportalService = new BioportalService(configuration.getBioportalConfig());
+    var templateService = new TemplateService(cedarService);
+    var citationService = new CitationService(new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
+    var mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
+    var cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
+    var metadataContentExtractor = new MetadataContentExtractor(mapBasedMetadataContentExtractor, cedarTemplateInstanceContentExtractor);
+    var metadataService = new MetadataService(cedarService,
+        bioportalService,
+        citationService,
+        configuration.getCoreConfig(),
+        configuration.getBioportalConfig(),
+        metadataContentExtractor);
+    final var fairwareWorkbenchResource = new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);
   }
 }
