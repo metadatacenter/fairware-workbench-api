@@ -7,25 +7,23 @@ import com.google.common.collect.ImmutableList;
 import org.metadatacenter.fairware.core.domain.CedarArtifactType;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * This class stores information about JSON nodes in a CEDAR template. A template node may contain:
- *
+ * <p>
  * 1) A template element, or
  * 2) A template field, or
  * 3) An array of template elements, or
  * 4) An array of template fields
- *
  */
 @AutoValue
 public abstract class TemplateNodeInfo {
 
   public static TemplateNodeInfo create(@JsonProperty("id") @Nonnull String id,
                                         @JsonProperty("name") @Nonnull String name,
-                                        @JsonProperty("prefLabel") @Nullable String prefLabel,
+                                        @JsonProperty("prefLabel") @Nonnull Optional<String> prefLabel,
                                         @JsonProperty("path") @Nonnull ImmutableList<String> path,
                                         @Nonnull CedarArtifactType type,
                                         @Nonnull boolean isArray,
@@ -55,8 +53,8 @@ public abstract class TemplateNodeInfo {
    * Get the artifact preferred label. It corresponds to the 'skos:prefLabel' JSON field.
    */
   @JsonProperty("prefLabel")
-  @Nullable
-  public abstract String getPrefLabel();
+  @Nonnull
+  public abstract Optional<String> getPrefLabel();
 
   /**
    * Get the of JSON keys from the root, including the key of the current JSON node.
@@ -112,8 +110,12 @@ public abstract class TemplateNodeInfo {
    */
   @Nonnull
   public String generateFullPathDotNotation() {
-    String fieldName = generatePathDotNotation();
-    return fieldName + "." + getName();
+    var fullPath = generatePathDotNotation();
+    if (fullPath.isEmpty()) {
+      return getName();
+    } else {
+      return fullPath + "." + getName();
+    }
   }
 
   /**

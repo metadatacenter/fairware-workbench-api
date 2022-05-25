@@ -1,11 +1,10 @@
 package org.metadatacenter.fairware.core.util;
 
-import com.google.common.collect.ImmutableList;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang3.StringUtils;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +30,12 @@ public class FieldsAlignmentUtil {
     }
 
     /* 1. Name similarity */
-    double nameSimilarity = calculateNameSimilarity(metadataField.getName(), templateField.getName());
-    if (templateField.getPrefLabel() != null && templateField.getPrefLabel().length() > 0) {
-      nameSimilarity = Math.max(nameSimilarity, calculateNameSimilarity(metadataField.getName(), templateField.getPrefLabel()));
+    var metadataFieldName = metadataField.getName();
+    var templateFieldName = templateField.getName();
+    double nameSimilarity = calculateNameSimilarity(metadataFieldName, templateFieldName);
+    if (templateField.getPrefLabel().isPresent()) {
+      var templateFieldPrefLabel = templateField.getPrefLabel().get();
+      nameSimilarity = Math.max(nameSimilarity, calculateNameSimilarity(metadataFieldName, templateFieldPrefLabel));
     }
 
     double pathSimilarity = 0;

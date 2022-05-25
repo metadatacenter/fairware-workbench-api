@@ -4,32 +4,32 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.util.Optional;
 
 @AutoValue
 public abstract class MetadataFieldInfo {
 
   @Nonnull
   public static MetadataFieldInfo create(@Nonnull String name,
-                           @Nullable String prefLabel,
-                           @Nonnull ImmutableList<String> path,
-                           @Nullable Object value,
-                           @Nullable String valueUri) {
+                                         @Nonnull Optional<String> prefLabel,
+                                         @Nonnull ImmutableList<String> path,
+                                         @Nonnull Optional<Object> value,
+                                         @Nonnull Optional<String> valueUri) {
     return new AutoValue_MetadataFieldInfo(name, prefLabel, path, value, valueUri);
   }
 
   @Nonnull
   public abstract String getName();
 
-  @Nullable
-  public abstract String getPrefLabel();
+  @Nonnull
+  public abstract Optional<String> getPrefLabel();
 
   @Nonnull
   public abstract ImmutableList<String> getPath();
 
-  @Nullable
-  public abstract Object getValue();
+  @Nonnull
+  public abstract Optional<Object> getValue();
 
-  @Nullable
-  public abstract String getValueUri();
+  @Nonnull
+  public abstract Optional<String> getValueUri();
 }

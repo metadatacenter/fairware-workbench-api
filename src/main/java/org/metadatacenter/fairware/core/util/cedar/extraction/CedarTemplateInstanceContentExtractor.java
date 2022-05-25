@@ -3,20 +3,24 @@ package org.metadatacenter.fairware.core.util.cedar.extraction;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.FieldValue;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * Utilities to extract information from CEDAR Template Instances
@@ -26,13 +30,15 @@ public class CedarTemplateInstanceContentExtractor {
   private static final Logger log = LoggerFactory.getLogger(CedarTemplateInstanceContentExtractor.class);
   private static final ObjectMapper mapper = new ObjectMapper();
 
-  public List<MetadataFieldInfo> generateInfoFieldsFromInstance(Map<String, Object> templateInstance,
-                                                                Map<String, Object> template) throws UnsupportedEncodingException {
-    return generateInfoFieldsFromInstance(mapper.convertValue(templateInstance, JsonNode.class),
+  @Nonnull
+  public ImmutableList<MetadataFieldInfo> generateInfoFieldsFromInstance(ImmutableMap<String, Object> templateInstance,
+                                                                         ImmutableMap<String, Object> template) {
+    return generateInfoFieldsFromInstance(
+        mapper.convertValue(templateInstance, JsonNode.class),
         mapper.convertValue(template, JsonNode.class));
   }
 
-  public boolean isCedarTemplateInstance(Map<String, Object> metadataRecord) {
+  public boolean isCedarTemplateInstance(ImmutableMap<String, Object> metadataRecord) {
     if (metadataRecord.containsKey(CedarModelConstants.IS_BASED_ON)) {
       return Pattern.matches(CedarConstants.CEDAR_TEMPLATE_URI_REGEX,
           (String) metadataRecord.get(CedarModelConstants.IS_BASED_ON));
@@ -45,47 +51,39 @@ public class CedarTemplateInstanceContentExtractor {
    * Generates a list of InfoField objects from a template instance. These InfoFields objects contain information
    * about the template fields and the values entered for the template instance
    */
-  public List<MetadataFieldInfo> generateInfoFieldsFromInstance(JsonNode templateInstance, JsonNode template) throws UnsupportedEncodingException {
+  public ImmutableList<MetadataFieldInfo> generateInfoFieldsFromInstance(JsonNode templateInstance, JsonNode template) {
+    var infoFields = Lists.<MetadataFieldInfo>newArrayList();
+    var templateNodes = CedarTemplateContentExtractor.getTemplateNodes(template);
+    var templateNodesMap = templateNodes.stream()
+        .collect(collectingAndThen(
+            toMap(node -> node.generateFullPathDotNotation(),
+                node -> node),
+            ImmutableMap::copyOf));
 
-    List<MetadataFieldInfo> infoFields = new ArrayList<>();
-    List<TemplateNodeInfo> templateNodes = CedarTemplateContentExtractor.getTemplateNodes(template);
+    var fieldValues = getFieldValues(templateInstance,
+        templateNodesMap,
+        Lists.<String>newArrayList(),
+        Lists.<FieldValue>newArrayList());
 
-    HashMap<String, TemplateNodeInfo> nodesMap = new HashMap<>();
-    for (TemplateNodeInfo node : templateNodes) {
-      nodesMap.put(node.generateFullPathDotNotation(), node);
-    }
-
-    List<FieldValue> fieldValues = getFieldValues(templateInstance, nodesMap, new ArrayList<>(), new ArrayList());
-
-    for (FieldValue fieldValue : fieldValues) {
-      String fieldName = null;
-      String fieldPrefLabel = null;
-      String fieldFullPath = fieldValue.generateFullPathDotNotation();
-      if (nodesMap.containsKey(fieldFullPath)) {
-        TemplateNodeInfo templateNode = nodesMap.get(fieldFullPath);
-        fieldName = templateNode.getName();
-        fieldPrefLabel = templateNode.getPrefLabel();
-      } else {
-        log.error("Field path not found in nodesMap: " + fieldFullPath);
-        throw new IllegalArgumentException("Field path not found in nodesMap: " + fieldFullPath);
+    for (var fieldValue : fieldValues) {
+      var fieldFullPath = fieldValue.generateFullPathDotNotation();
+      if (!templateNodesMap.containsKey(fieldFullPath)) {
+        log.error("Field path not found in templateNodesMap: " + fieldFullPath);
+        throw new IllegalArgumentException("Field path not found in templateNodesMap: " + fieldFullPath);
       }
-      // Add to the list if it's not already there
-      MetadataFieldInfo infoField = null;
-      try {
-        String fieldValueUri = fieldValue.getFieldValueUri();
-        if (fieldValueUri != null) {
-          fieldValueUri = URLEncoder.encode(fieldValueUri, StandardCharsets.UTF_8.toString());
-        }
-        infoField = MetadataFieldInfo.create(fieldName, fieldPrefLabel, fieldValue.getFieldPath(), fieldValue.getFieldValue(), fieldValueUri);
-      } catch (UnsupportedEncodingException e) {
-        throw e;
-      }
+      var templateNode = templateNodesMap.get(fieldFullPath);
+      var fieldName = templateNode.getName();
+      var fieldPrefLabel = templateNode.getPrefLabel();
+      var infoField = MetadataFieldInfo.create(fieldName,
+          fieldPrefLabel,
+          fieldValue.getFieldPath(),
+          Optional.ofNullable(fieldValue.getFieldValue().get()),
+          fieldValue.getFieldValueUri());
       if (!infoFields.contains(infoField)) {
         infoFields.add(infoField);
       }
     }
-    return infoFields;
-
+    return ImmutableList.copyOf(infoFields);
   }
 
   /**
@@ -97,99 +95,68 @@ public class CedarTemplateInstanceContentExtractor {
    * @param templateNodesMap
    * @param currentPath      Used internally
    * @param results          Used internally
-   * @return
+   * @return an immutable list of field values
    */
-  public List<FieldValue> getFieldValues(JsonNode currentNode, HashMap<String, TemplateNodeInfo> templateNodesMap,
-                                                List<String> currentPath, List<FieldValue> results) {
+  public ImmutableList<FieldValue> getFieldValues(JsonNode currentNode,
+                                                  ImmutableMap<String, TemplateNodeInfo> templateNodesMap,
+                                                  List<String> currentPath,
+                                                  List<FieldValue> results) {
 
-    Iterator<Map.Entry<String, JsonNode>> jsonNodesIterator = currentNode.fields();
-    while (jsonNodesIterator.hasNext()) {
-      Map.Entry<String, JsonNode> currentNodeMap = jsonNodesIterator.next();
-
-//      List<String> tmpPath = new ArrayList<>();
-//      tmpPath.addAll(currentPath);
-//      tmpPath.add(currentNodeMap.getKey());
-//      String tmpPathDotNotation = getPathDotNotation(tmpPath);
-
-      TemplateNodeInfo templateNode = null;
-
-      String fullPathDotNotation = GeneralUtil.generateFullPathDotNotation(currentPath, currentNodeMap.getKey());
-
-      if (templateNodesMap.containsKey(fullPathDotNotation)) {
-
-        currentPath.add(currentNodeMap.getKey());
-
-        templateNode = templateNodesMap.get(fullPathDotNotation);
-        // Not an array
-        if (!templateNode.isArray()) {
-          // Template Element
+    var fieldNodesIter = currentNode.fields();
+    while (fieldNodesIter.hasNext()) {
+      var fieldNode = fieldNodesIter.next();
+      var fieldName = fieldNode.getKey();
+      var fieldAddress = GeneralUtil.generateFullPathDotNotation(currentPath, fieldName);
+      if (templateNodesMap.containsKey(fieldAddress)) {
+        currentPath.add(fieldName);
+        var templateNode = templateNodesMap.get(fieldAddress);
+        if (!templateNode.isArray()) {   // Not an array
+          var fieldValueNode = fieldNode.getValue();
           if (templateNode.isTemplateElementNode()) {
-            getFieldValues(currentNodeMap.getValue(), templateNodesMap, currentPath, results);
-          }
-          // Template Field
-          else if (templateNode.isTemplateFieldNode()) {
-            // Extract value and save it to the results
-            results.add(generateFieldValue(currentNodeMap.getValue(), ImmutableList.copyOf(currentPath)));
+            getFieldValues(fieldValueNode, templateNodesMap, currentPath, results);
+          } else if (templateNode.isTemplateFieldNode()) {
+            var fieldValue = generateFieldValue(fieldValueNode, ImmutableList.copyOf(currentPath));
+            results.add(fieldValue);
           } else {
             throw new IllegalArgumentException("Unrecognized node type. The template node must be either a " +
                 "Template Field or a Template Element. Node type: " + templateNode.getName());
           }
-        }
-        // Array
-        else {
-          // Array of template elements
+        } else {
           if (templateNode.isTemplateElementNode()) {
-            for (JsonNode node : currentNodeMap.getValue()) {
-              getFieldValues(node, templateNodesMap, currentPath, results);
+            for (var fieldValueNode : fieldNode.getValue()) {
+              getFieldValues(fieldValueNode, templateNodesMap, currentPath, results);
             }
-          }
-          // Array of template fields
-          else if (templateNode.isTemplateFieldNode()) {
-            for (JsonNode node : currentNodeMap.getValue()) {
-              // Extract value and save it to the results
-              results.add(generateFieldValue(node, ImmutableList.copyOf(currentPath)));
+          } else if (templateNode.isTemplateFieldNode()) {
+            for (var fieldValueNode : fieldNode.getValue()) {
+              var fieldValue = generateFieldValue(fieldValueNode, ImmutableList.copyOf(currentPath));
+              results.add(fieldValue);
             }
           } else {
             throw new IllegalArgumentException("Unrecognized node type. The template node must be either a " +
                 "Template Field or a Template Element. Node type: " + templateNode.getName());
           }
         }
-
-        currentPath.remove(currentPath.size()-1);
-
-      } else {
-        // Node not found in the map of template nodes. It is not a relevant node (e.g. @context) so we ignore it.
+        currentPath.remove(currentPath.size() - 1);
       }
     }
-    return results;
+    return ImmutableList.copyOf(results);
   }
 
-//  public static String getPathDotNotation(List<String> path) {
-//    return String.join(".", path);
-//  }
-
-  private FieldValue generateFieldValue(JsonNode fieldNode, ImmutableList<String> fieldPath) {
-    String fieldName = fieldPath.get(fieldPath.size() - 1);
-
-    // Regular value
-    if (fieldNode.hasNonNull(CedarModelConstants.JSON_LD_VALUE)
-        && !fieldNode.get(CedarModelConstants.JSON_LD_VALUE).asText().isEmpty()) {
-      String fieldValue = fieldNode.get(CedarModelConstants.JSON_LD_VALUE).asText();
-      return FieldValue.create(fieldName, fieldValue, null, fieldPath);
-    }
-    // Ontology term
-    else {
-      if (fieldNode.hasNonNull(CedarModelConstants.RDFS_LABEL)
-          && !fieldNode.get(CedarModelConstants.RDFS_LABEL).asText().isEmpty()) {
-        String fieldValue = fieldNode.get(CedarModelConstants.RDFS_LABEL).asText();
-        return FieldValue.create(fieldName, fieldValue, null, fieldPath);
+  @Nonnull
+  private FieldValue generateFieldValue(JsonNode fieldValueNode, ImmutableList<String> fieldPath) {
+    String fieldName = fieldPath.get(fieldPath.size() - 1);  // the last element is the field name
+    if (fieldValueNode.hasNonNull(CedarModelConstants.JSON_LD_VALUE)) {
+      var fieldValue = fieldValueNode.get(CedarModelConstants.JSON_LD_VALUE).asText();
+      return FieldValue.create(fieldName, Optional.of(fieldValue), Optional.empty(), fieldPath);
+    } else if (fieldValueNode.hasNonNull(CedarModelConstants.JSON_LD_ID)) {
+      var fieldValueAsUri = Optional.of(fieldValueNode.get(CedarModelConstants.JSON_LD_ID).asText());
+      var fieldValueAsLabel = Optional.<String>empty();
+      if (fieldValueNode.hasNonNull(CedarModelConstants.RDFS_LABEL)) {
+        fieldValueAsLabel = Optional.of(fieldValueNode.get(CedarModelConstants.RDFS_LABEL).asText());
       }
-      if (fieldNode.hasNonNull(CedarModelConstants.JSON_LD_ID)
-          && !fieldNode.get(CedarModelConstants.JSON_LD_ID).asText().isEmpty()) {
-        String fieldValueUri = fieldNode.get(CedarModelConstants.JSON_LD_ID).asText();
-        return FieldValue.create(fieldName, null, fieldValueUri, fieldPath);
-      }
+      return FieldValue.create(fieldName, fieldValueAsLabel, fieldValueAsUri, fieldPath);
+    } else {
+      throw new IllegalArgumentException("Invalid CEDAR node: " + fieldValueNode.asText());
     }
-    throw new IllegalArgumentException("Invalid CEDAR node: " + fieldNode.asText());
   }
 }

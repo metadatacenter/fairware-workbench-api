@@ -6,8 +6,8 @@ import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -26,9 +26,8 @@ public class RequiredValuesEvaluator implements IMetadataEvaluator {
         var templateNodeInfo = templateNodeInfoMap.get(fieldAlignment.getTemplateFieldPath());
         // Check required value constraint
         if (templateNodeInfo.isValueRequired()) {
-          if (metadataFieldInfo.getValue() == null
-            || (metadataFieldInfo.getValue() instanceof String
-              && metadataFieldInfo.getValue().toString().trim().isEmpty())) {
+          var fieldValue = metadataFieldInfo.getValue();
+          if (!fieldValue.isPresent() || fieldValue.get().toString().isEmpty()) {
             reportItems.add(
                 EvaluationReportItem.create(
                     fieldAlignment.getMetadataFieldPath(),

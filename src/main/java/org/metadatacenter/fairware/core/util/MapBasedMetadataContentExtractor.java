@@ -1,12 +1,14 @@
 package org.metadatacenter.fairware.core.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Josef Hardi <josef.hardi@stanford.edu> <br>
@@ -14,46 +16,58 @@ import java.util.Map;
  */
 public class MapBasedMetadataContentExtractor {
 
-  public List<MetadataFieldInfo> generateInfoFieldsFromMetadata(Map<String, Object> metadata) {
-    List<String> pathCollector = Lists.newArrayList();
-    return generateInfoFieldsFromMetadata(metadata, pathCollector);
+  @Nonnull
+  public ImmutableList<MetadataFieldInfo> generateInfoFieldsFromMetadata(ImmutableMap<String, Object> metadata) {
+    return generateInfoFieldsFromMetadata(metadata, Lists.newArrayList());
   }
 
-  private List<MetadataFieldInfo> generateInfoFieldsFromMetadata(@Nonnull Map<String, Object> metadataObject,
-                                                                 @Nonnull List<String> currentPath) {
-    List<MetadataFieldInfo> result = Lists.newArrayList();
-    for (Map.Entry<String, Object> entry : metadataObject.entrySet()) {
-      String metadataField = entry.getKey();
-      Object metadataValue = entry.getValue();
-      if (metadataValue == null) {
-        result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), null, null));
-      }
-      else if (metadataValue instanceof String || metadataValue instanceof Number) { // String or Numeric
-        result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), metadataValue,null));
-      }
-      else if (metadataValue instanceof Map) { // Another object
-        List<String> innerPath = Lists.newArrayList(currentPath);
+  @Nonnull
+  private ImmutableList<MetadataFieldInfo> generateInfoFieldsFromMetadata(@Nonnull ImmutableMap<String, Object> metadataObject,
+                                                                          @Nonnull List<String> currentPath) {
+    var result = Lists.<MetadataFieldInfo>newArrayList();
+    for (var entry : metadataObject.entrySet()) {
+      var metadataField = entry.getKey();
+      var metadataValue = entry.getValue();
+      if (metadataValue == null || metadataValue.equals(Optional.empty())) {
+        result.add(MetadataFieldInfo.create(metadataField,
+            Optional.empty(),
+            ImmutableList.copyOf(currentPath),
+            Optional.empty(),
+            Optional.empty()));
+      } else if (metadataValue instanceof String || metadataValue instanceof Number) {
+        result.add(MetadataFieldInfo.create(metadataField,
+            Optional.empty(),
+            ImmutableList.copyOf(currentPath),
+            Optional.of(metadataValue),
+            Optional.empty()));
+      } else if (metadataValue instanceof Map) {
+        var innerPath = Lists.newArrayList(currentPath);
         innerPath.add(metadataField);
-        List<MetadataFieldInfo> innerResult = generateInfoFieldsFromMetadata((Map) metadataValue, innerPath);
+        var innerResult = generateInfoFieldsFromMetadata(
+            (ImmutableMap<String, Object>) metadataValue,
+            innerPath);
         result.addAll(innerResult);
-      }
-      else if (metadataValue instanceof List) { // Array of homogenous values
-        List<Object> valueList = ((List) metadataValue);
-        Object firstValue = valueList.get(0);
-        if (firstValue instanceof String || firstValue instanceof Number) { // Array of primitive values
-          result.add(MetadataFieldInfo.create(metadataField, null, ImmutableList.copyOf(currentPath), metadataValue, null));
-        }
-        else if (firstValue instanceof Map) { // Array of objects
+      } else if (metadataValue instanceof List) { // Array of homogenous values
+        var valueList = ((List) metadataValue);
+        var firstValue = valueList.get(0);
+        if (firstValue instanceof Map) { // Array of objects
           for (Object o : valueList) {
-            List<String> innerPath = Lists.newArrayList(currentPath);
+            var innerPath = Lists.newArrayList(currentPath);
             innerPath.add(metadataField);
-            List<MetadataFieldInfo> innerResult = generateInfoFieldsFromMetadata((Map) o, innerPath);
+            var innerResult = generateInfoFieldsFromMetadata(
+                (ImmutableMap<String, Object>) o,
+                innerPath);
             result.addAll(innerResult);
           }
+        } else {
+          result.add(MetadataFieldInfo.create(metadataField,
+              Optional.empty(),
+              ImmutableList.copyOf(currentPath),
+              Optional.of(valueList),
+              Optional.empty()));
         }
-        // else, do nothing. Any other relevant cases?
       }
     }
-    return result;
+    return ImmutableList.copyOf(result);
   }
 }

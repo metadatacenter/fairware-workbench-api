@@ -98,7 +98,7 @@ public class CedarTemplateContentExtractor {
 
           // Field
           if (isTemplateFieldNode(jsonFieldNode)) {
-            results.add(TemplateNodeInfo.create(id, name, prefLabel,
+            results.add(TemplateNodeInfo.create(id, name, Optional.of(prefLabel),
                 ImmutableList.copyOf(jsonFieldPath.subList(0, jsonFieldPath.size()-1)),
                 CedarArtifactType.FIELD,
                 isArray,
@@ -106,7 +106,7 @@ public class CedarTemplateContentExtractor {
           }
           // Element
           else if (isTemplateElementNode(jsonFieldNode)) {
-            results.add(TemplateNodeInfo.create(id, name, prefLabel,
+            results.add(TemplateNodeInfo.create(id, name, Optional.of(prefLabel),
                 ImmutableList.copyOf(jsonFieldPath.subList(0, jsonFieldPath.size()-1)),
                 CedarArtifactType.ELEMENT,
                 isArray,

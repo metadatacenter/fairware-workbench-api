@@ -1,12 +1,12 @@
 package org.metadatacenter.fairware.core.util;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,14 +28,18 @@ public class MetadataContentExtractor {
   }
 
   @Nonnull
-  public List<MetadataFieldInfo> extractMetadataFieldsInfo(@Nonnull Map<String, Object> metadataRecord) {
+  public ImmutableList<MetadataFieldInfo> extractMetadataFieldsInfo(@Nonnull ImmutableMap<String, Object> metadataRecord) {
     return mapBasedMetadataContentExtractor.generateInfoFieldsFromMetadata(metadataRecord);
   }
 
   @Nonnull
-  public List<MetadataFieldInfo> extractMetadataFieldsInfo(@Nonnull Map<String, Object> metadataRecord,
-                                                           @Nonnull Map<String, Object> template) throws IOException {
-    return cedarTemplateInstanceContentExtractor.generateInfoFieldsFromInstance(metadataRecord, template);
+  public ImmutableList<MetadataFieldInfo> extractMetadataFieldsInfo(@Nonnull ImmutableMap<String, Object> metadataRecord,
+                                                                    @Nonnull ImmutableMap<String, Object> template) throws IOException {
+    if (cedarTemplateInstanceContentExtractor.isCedarTemplateInstance(metadataRecord)) {
+      return cedarTemplateInstanceContentExtractor.generateInfoFieldsFromInstance(metadataRecord, template);
+    } else {
+      return mapBasedMetadataContentExtractor.generateInfoFieldsFromMetadata(metadataRecord);
+    }
   }
 }
 

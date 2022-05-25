@@ -26,9 +26,8 @@ public class OptionalValuesEvaluator implements IMetadataEvaluator {
         var templateNodeInfo = templateNodeInfoMap.get(fieldAlignment.getTemplateFieldPath());
         // Check required value constraint
         if (!templateNodeInfo.isValueRequired()) {
-          if (metadataFieldInfo.getValue() == null
-            || (metadataFieldInfo.getValue() instanceof String
-              && metadataFieldInfo.getValue().toString().trim().isEmpty())) {
+          var fieldValue = metadataFieldInfo.getValue();
+          if (!fieldValue.isPresent() || fieldValue.get().toString().isEmpty()) {
             reportItems.add(
                 EvaluationReportItem.create(
                     fieldAlignment.getMetadataFieldPath(),
