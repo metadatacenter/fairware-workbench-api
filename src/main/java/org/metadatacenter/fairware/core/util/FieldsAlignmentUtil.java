@@ -102,8 +102,10 @@ public class FieldsAlignmentUtil {
       if (templateFieldIndex > -1 && similarityMatrix[i][templateFieldIndex] >= 0) {
         String metadataFieldPath = GeneralUtil.generateFullPathDotNotation(metadataFields.get(i));
         String templateFieldPath = GeneralUtil.generateFullPathDotNotation(templateFields.get(templateFieldIndex));
-        alignments.add(new FieldAlignment(similarityMatrix[i][templateFieldIndex],
-            metadataFieldPath, templateFieldPath));
+        alignments.add(
+            FieldAlignment.create(similarityMatrix[i][templateFieldIndex],
+                metadataFieldPath,
+                templateFieldPath));
       }
     }
     return alignments;

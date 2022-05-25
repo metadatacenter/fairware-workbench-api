@@ -1,28 +1,23 @@
 package org.metadatacenter.fairware.api.shared;
 
-public class FieldAlignment {
+import com.google.auto.value.AutoValue;
 
-  private double similarityScore;
-  private String metadataFieldPath;
-  private String templateFieldPath;
+import javax.annotation.Nonnull;
 
-  public FieldAlignment() { }
+@AutoValue
+public abstract class FieldAlignment {
 
-  public FieldAlignment(double similarityScore, String metadataFieldPath, String templateFieldPath) {
-    this.similarityScore = similarityScore;
-    this.metadataFieldPath = metadataFieldPath;
-    this.templateFieldPath = templateFieldPath;
+  public static FieldAlignment create(double similarityScore,
+                                      @Nonnull String metadataFieldPath,
+                                      @Nonnull String templateFieldPath) {
+    return new AutoValue_FieldAlignment(similarityScore, metadataFieldPath, templateFieldPath);
   }
 
-  public double getSimilarityScore() {
-    return similarityScore;
-  }
+  public abstract double getSimilarityScore();
 
-  public String getMetadataFieldPath() {
-    return metadataFieldPath;
-  }
+  @Nonnull
+  public abstract String getMetadataFieldPath();
 
-  public String getTemplateFieldPath() {
-    return templateFieldPath;
-  }
+  @Nonnull
+  public abstract String getTemplateFieldPath();
 }
