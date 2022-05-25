@@ -161,12 +161,17 @@ public class MetadataService implements IMetadataService {
 
     // Check missing required values
     var requiredValuesEvaluator = new RequiredValuesEvaluator(); // TODO: Add as a dependency
-    var requiredValuesReports = requiredValuesEvaluator.evaluateMetadata(metadataFieldInfoMap, templateNodeInfoMap, fieldAlignments);
+    var requiredValuesReports = requiredValuesEvaluator.evaluateMetadata(
+        metadataFieldInfoMap,
+        templateNodeInfoMap,
+        fieldAlignments);
     reportItems.addAll(requiredValuesReports);
 
     // Check missing optional values
     var optionalValuesEv = new OptionalValuesEvaluator(); // TODO: Add as a dependency
-    var optionalValuesReports = optionalValuesEv.evaluateMetadata(metadataFieldInfoMap, templateNodeInfoMap, fieldAlignments);
+    var optionalValuesReports = optionalValuesEv.evaluateMetadata(metadataFieldInfoMap,
+        templateNodeInfoMap,
+        fieldAlignments);
     reportItems.addAll(optionalValuesReports);
 
     // 2. Check missing template fields (find ontology terms for the extra metadata fields)
@@ -192,16 +197,13 @@ public class MetadataService implements IMetadataService {
       metadataRecordName = Optional.of(metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString());
     }
     var templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    var metadataFieldsPaths = templateFieldInfos.stream()
+    var templateFieldPaths = templateFieldInfos.stream()
         .map(templateField -> GeneralUtil.generateFullPathDotNotation(templateField))
         .collect(ImmutableList.toImmutableList());
 
     return EvaluateMetadataResponse.create(metadataRecordId,
         metadataRecordName,
-        templateId,
-        templateName,
-        metadataRecord,
-        metadataFieldsPaths,
+        metadataRecord, templateId, templateName, templateFieldPaths,
         reportItems.size(),
         warningsCount,
         errorsCount,
@@ -248,7 +250,7 @@ public class MetadataService implements IMetadataService {
           missingOptionalCount++;
         }
       }
-      int fieldsCount = recordEvaluationResult.getMetadataFieldPaths().size();
+      int fieldsCount = recordEvaluationResult.getTemplateFieldNames().size();
       var recordReport = RecordReport.create(recordEvaluationResult.getMetadataRecordId(),
           recordEvaluationResult.getMetadataRecordName(),
           recordEvaluationResult.getTemplateId(),
@@ -286,10 +288,10 @@ public class MetadataService implements IMetadataService {
     for (var recordEvaluationResult : evaluationResults) {
       var templateId = recordEvaluationResult.getTemplateId();
       // Add to the map all the fields, and assume that they don't have any missing values
-      for (var fieldPath : recordEvaluationResult.getMetadataFieldPaths()) {
-        var key = templateId + fieldPath;
+      for (var templateFieldName : recordEvaluationResult.getTemplateFieldNames()) {
+        var key = templateId + "#" + templateFieldName;
         if (!fieldReportMap.containsKey(key)) {
-          fieldReportMap.put(key, FieldReport.create(fieldPath,
+          fieldReportMap.put(key, FieldReport.create(templateFieldName,
               templateId,
               recordEvaluationResult.getTemplateName(),
               0,
