@@ -1,6 +1,5 @@
 package org.metadatacenter.fairware.resources;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -100,7 +99,7 @@ public class FairwareWorkbenchResource {
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
-    } catch (IOException | HttpException e) {
+    } catch (IOException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }
@@ -216,11 +215,11 @@ public class FairwareWorkbenchResource {
   @Path("/metadata/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "List of DOIs", required = true,
+  @RequestBody(description = "A metadata record identifier (e.g., DOI)", required = true,
       content = @Content(
-          schema = @Schema(implementation = List.class),
+          schema = @Schema(implementation = String.class),
           examples = {
-              @ExampleObject(value = "[\"10.15468/9vuieb\"]")
+              @ExampleObject(value = "10.15468/9vuieb")
           }
       ))
   @ApiResponse(
@@ -235,14 +234,14 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "400", description = "Bad request")
   @ApiResponse(responseCode = "422", description = "Unprocessable entity")
   @ApiResponse(responseCode = "500", description = "Internal Server Error")
-  public Response searchMetadata(@NotNull @Valid ImmutableList<String> uris) {
+  public Response searchMetadata(@NotNull @Valid String metadataRecordId) {
     try {
-      var results = metadataService.searchMetadata(uris);
+      var results = metadataService.searchMetadata(metadataRecordId);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
-    } catch (IOException | HttpException e) {
+    } catch (Exception e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }
@@ -295,43 +294,47 @@ public class FairwareWorkbenchResource {
   private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
       throws IOException, HttpException, BadRequestException {
     var metadataRecordId = request.getMetadataRecordId();
-    var metadataRecord = getMetadataRecordFromId(metadataRecordId);
-    if (!metadataRecord.isPresent()) {
-      metadataRecord = request.getMetadataRecord();
-    }
-    if (!metadataRecord.isPresent()) {
-      throw new BadRequestException("Metadata record is not provided or not found");
-    }
-    var templateId = request.getTemplateId();
-    if (!templateId.isPresent()) {
-      templateId = getTemplateIdFromMetadataRecord(metadataRecord.get());
-    }
-    if (!templateId.isPresent()) {
-      throw new BadRequestException("Template ID is not provide or not found");
-    }
-    var fieldAlignments = metadataService.alignMetadata(templateId.get(), metadataRecord.get());
+    var metadataRecord = getMetadataRecord(request);
+    var templateId = getTemplateId(request, metadataRecord);
+    var fieldAlignments = metadataService.alignMetadata(templateId, metadataRecord);
     return metadataService.evaluateMetadata(
         metadataRecordId,
-        metadataRecord.get(),
-        templateId.get(),
+        metadataRecord,
+        templateId,
         fieldAlignments);
   }
 
-  /* Helper functions */
-  public Optional<ImmutableMap<String, Object>> getMetadataRecordFromId(Optional<String> metadataRecordId)
-      throws IOException, HttpException {
+  private ImmutableMap<String, Object> getMetadataRecord(EvaluateMetadataRequest request) throws IOException {
+    var metadataRecordId = request.getMetadataRecordId();
     if (metadataRecordId.isPresent()) {
-      var searchResults = metadataService.searchMetadata(
-          ImmutableList.of(metadataRecordId.get()));
-      if (!searchResults.getItems().isEmpty()) {
-        return Optional.of(searchResults.getItems().get(0).getMetadata());
+      return getMetadataRecordFromId(metadataRecordId.get());
+    }
+    var metadataRecord = request.getMetadataRecord();
+    if (!metadataRecord.isPresent()) {
+      throw new BadRequestException("Metadata record is not provided or not found");
+    }
+    return metadataRecord.get();
+  }
+
+  private String getTemplateId(EvaluateMetadataRequest request, ImmutableMap<String, Object> metadataRecord)
+      throws IOException {
+    var templateId = request.getTemplateId();
+    if (!templateId.isPresent()) {
+      templateId = getTemplateIdFromMetadataRecord(metadataRecord);
+      if (!templateId.isPresent()) {
+        throw new BadRequestException("Template ID is not provide or not found");
       }
     }
-    return Optional.empty();
+    return templateId.get();
+  }
+
+  /* Helper functions */
+  public ImmutableMap<String, Object> getMetadataRecordFromId(String metadataRecordId) throws IOException {
+    return metadataService.searchMetadata(metadataRecordId).getMetadataRecord();
   }
 
   private Optional<String> getTemplateIdFromMetadataRecord(@Nonnull Map<String, Object> metadataRecord)
-      throws IOException, HttpException {
+      throws IOException {
     // First attempt is by getting it from the metadata object
     var templateId = CedarUtil.getTemplateId(metadataRecord);
     if (templateId.isPresent()) {

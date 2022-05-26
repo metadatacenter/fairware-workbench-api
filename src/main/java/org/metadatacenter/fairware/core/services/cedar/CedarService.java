@@ -7,6 +7,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.constants.CedarModelConstants;
@@ -15,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.ws.rs.BadRequestException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -46,7 +49,7 @@ public class CedarService {
    * @return a CEDAR template
    */
   @Nonnull
-  public ImmutableMap<String, Object> findTemplate(String id) throws IOException, HttpException {
+  public ImmutableMap<String, Object> findTemplate(String id) throws IOException {
     var url = getTemplateUrl(id);
     var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
     var response = requestHandler.execute(request);
@@ -56,11 +59,11 @@ public class CedarService {
             response.getEntity().getContent(),
             ImmutableMap.class);
       case HttpStatus.SC_NOT_FOUND:
-        throw new HttpException(format(
+        throw new FileNotFoundException(format(
             "Couldn't find CEDAR template (ID = %s). Cause: %s",
             id, response.getStatusLine()));
       default:
-        throw new HttpException(format(
+        throw new BadRequestException(format(
             "Error retrieving template (ID = %s). Cause: %s",
             id, response.getStatusLine()));
     }
@@ -81,7 +84,7 @@ public class CedarService {
    * @return a CEDAR instance
    */
   @Nonnull
-  public ImmutableMap<String, Object> findTemplateInstance(String id) throws IOException, HttpException {
+  public ImmutableMap<String, Object> retrieveMetadataById(String id) throws IOException {
     var url = getTemplateInstanceUrl(id);
     var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
     var response = requestHandler.execute(request);
@@ -90,11 +93,11 @@ public class CedarService {
         var content = response.getEntity().getContent();
         return objectMapper.readValue(content, ImmutableMap.class);
       case HttpStatus.SC_NOT_FOUND:
-        throw new HttpException(format(
+        throw new FileNotFoundException(format(
             "Couldn't find CEDAR template instance (ID = %s). Cause: %s",
             id, response.getStatusLine()));
       default:
-        throw new HttpException(format(
+        throw new BadRequestException(format(
             "Error retrieving template instance (ID = %s). Cause: %s",
             id, response.getStatusLine()));
     }
@@ -109,16 +112,6 @@ public class CedarService {
         .toString();
   }
 
-  @Nonnull
-  public SearchMetadataItem toMetadataItem(ImmutableMap<String, Object> templateInstance) throws HttpException, IOException {
-    var uri = templateInstance.get(CedarModelConstants.JSON_LD_ID).toString();
-    var source = CedarConstants.CEDAR_SYSTEM_NAME;
-    var name = templateInstance.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    var schemaId = templateInstance.get(CedarModelConstants.IS_BASED_ON).toString();
-    var schemaName = findTemplate(schemaId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    return SearchMetadataItem.create(uri, source, name, schemaId, schemaName, templateInstance);
-  }
-
   /**
    * Makes a call to CEDAR's template recommendation endpoint to retrieve a ranked list of recommended templates for
    * the given input metadata record
@@ -127,7 +120,7 @@ public class CedarService {
    * @return a ranked list of recommended CEDAR templates
    */
   @Nonnull
-  public RecommendTemplatesResponse recommendTemplates(ImmutableMap<String, Object> metadataRecord) throws IOException, HttpException {
+  public RecommendTemplatesResponse recommendTemplates(ImmutableMap<String, Object> metadataRecord) throws IOException {
     var url = getRecommendTemplateUrl();
     var request = requestHandler.createPostRequest(url, metadataRecord, "apiKey " + cedarConfig.getApiKey());
     var response = requestHandler.execute(request);
@@ -136,11 +129,11 @@ public class CedarService {
         var content = response.getEntity().getContent();
         return objectMapper.readValue(content, RecommendTemplatesResponse.class);
       case HttpStatus.SC_NOT_FOUND:
-        throw new HttpException(format(
+        throw new FileNotFoundException(format(
             "Couldn't find recommended templates. Cause: %s",
             response.getStatusLine()));
       default:
-        throw new HttpException(format(
+        throw new BadRequestException(format(
             "Error retrieving recommended templates. Cause: %s",
             response.getStatusLine()));
     }

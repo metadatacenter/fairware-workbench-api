@@ -8,7 +8,7 @@ import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import java.io.IOException;
 import java.util.Map;
 
-public class TemplateService implements ITemplateService {
+public class TemplateService {
 
   private final CedarService cedarService;
 
@@ -16,11 +16,7 @@ public class TemplateService implements ITemplateService {
     this.cedarService = cedarService;
   }
 
-  @Override
-  public RecommendTemplatesResponse recommendCedarTemplates(Map<String, Object> metadataRecord)
-      throws IOException, HttpException {
-
+  public RecommendTemplatesResponse recommendCedarTemplates(Map<String, Object> metadataRecord) throws IOException {
     return cedarService.recommendTemplates(ImmutableMap.copyOf(metadataRecord));
-
   }
 }

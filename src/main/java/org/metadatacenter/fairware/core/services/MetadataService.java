@@ -15,9 +15,7 @@ import org.metadatacenter.fairware.api.response.evaluationReport.FieldReport;
 import org.metadatacenter.fairware.api.response.evaluationReport.FieldsCompletenessReport;
 import org.metadatacenter.fairware.api.response.evaluationReport.RecordReport;
 import org.metadatacenter.fairware.api.response.evaluationReport.RecordsCompletenessReport;
-import org.metadatacenter.fairware.api.response.issue.IssueLevel;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
-import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
@@ -41,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -49,9 +46,9 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MetadataService implements IMetadataService {
+public class MetadataService {
 
-  private static final Logger logger = LoggerFactory.getLogger(IMetadataService.class);
+  private static final Logger logger = LoggerFactory.getLogger(MetadataService.class);
 
   private final CedarService cedarService;
   private final BioportalService bioportalService;
@@ -84,7 +81,6 @@ public class MetadataService implements IMetadataService {
    * @throws IOException
    * @throws HttpException
    */
-  @Override
   public ImmutableList<FieldAlignment> alignMetadata(String templateId, ImmutableMap<String, Object> metadataRecord)
       throws IOException, HttpException {
     var template = cedarService.findTemplate(templateId);
@@ -129,7 +125,6 @@ public class MetadataService implements IMetadataService {
     return ImmutableList.copyOf(fieldAlignments);
   }
 
-  @Override
   public EvaluateMetadataResponse evaluateMetadata(@Nonnull Optional<String> metadataRecordId,
                                                    @Nonnull ImmutableMap<String, Object> metadataRecord,
                                                    @Nonnull String templateId,
@@ -198,28 +193,21 @@ public class MetadataService implements IMetadataService {
   }
 
   /**
-   * Retrieves the metadata associated to a list of Digital Object Identifiers (DOIs)
+   * Retrieves the metadata associated to the metadata identifier
    *
-   * @param uris A list of DOI URIs
+   * @param metadataRecordId a metadata identifier
    * @return A search metadata response object
    */
-  @Override
-  public SearchMetadataResponse searchMetadata(ImmutableList<String> uris) throws IOException, HttpException {
-    var records = Lists.<SearchMetadataItem>newArrayList();
-    for (var uri : uris) {
-      if (CedarUtil.isCedarTemplateInstanceId(uri)) {
-        var templateInstance = cedarService.findTemplateInstance(uri);
-        if (templateInstance != null) {
-          records.add(cedarService.toMetadataItem(templateInstance));
-        }
-      } else {
-        records.add(citationService.searchMetadata(uri));
-      }
+  public SearchMetadataResponse searchMetadata(String metadataRecordId) throws IOException {
+    var metadataRecord = ImmutableMap.<String, Object>of();
+    if (CedarUtil.isCedarTemplateInstanceId(metadataRecordId)) {
+      metadataRecord = cedarService.retrieveMetadataById(metadataRecordId);
+    } else {
+      metadataRecord = citationService.retrieveMetadataById(metadataRecordId);
     }
-    return SearchMetadataResponse.create(records.size(), ImmutableList.copyOf(records));
+    return SearchMetadataResponse.create(metadataRecord);
   }
 
-  @Override
   public EvaluationReportResponse generateEvaluationReport(ImmutableList<EvaluateMetadataResponse> evaluationResults) {
     var recordReports = Lists.<RecordReport>newArrayList();
     int completeRecordsCount = 0;

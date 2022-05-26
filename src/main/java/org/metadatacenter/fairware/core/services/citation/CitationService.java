@@ -1,36 +1,33 @@
 package org.metadatacenter.fairware.core.services.citation;
 
-import org.apache.http.HttpException;
-import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
-import org.metadatacenter.fairware.core.util.DoiUtil;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.ws.rs.BadRequestException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CitationService {
 
   private static final Logger logger = LoggerFactory.getLogger(CitationService.class);
-  private DataCiteService dataCiteService;
 
-  public CitationService(DataCiteService dataCiteService) {
-    this.dataCiteService = dataCiteService;
+  private final ImmutableList<CitationServiceProvider> citationServiceProviders;
+
+  public CitationService(@Nonnull ImmutableList<CitationServiceProvider> citationServiceProviders) {
+    this.citationServiceProviders = checkNotNull(citationServiceProviders);
   }
 
-//  public List<SearchMetadataItem> searchMetadata(List<String> dois) throws IOException, HttpException {
-//    List<SearchMetadataItem> results = new ArrayList<>();
-//    for (String doi : dois) {
-//      String normalizedDoi = DoiUtil.normalizeDoi(doi);
-//      results.add(dataCiteService.retrieveDoiMetadata(normalizedDoi));
-//    }
-//    return results;
-//  }
-
-  public SearchMetadataItem searchMetadata(String doi) throws IOException, HttpException {
-    return dataCiteService.retrieveDoiMetadata(DoiUtil.normalizeDoi(doi));
+  @Nonnull
+  public ImmutableMap<String, Object> retrieveMetadataById(String metadataRecordId) throws IOException {
+    for (var citationServiceProvider : citationServiceProviders) {
+      if (citationServiceProvider.isCompatible(metadataRecordId)) {
+        return citationServiceProvider.retrieveMetadata(metadataRecordId);
+      }
+    }
+    throw new BadRequestException("Metadata record is not yet supported to handle: " + metadataRecordId);
   }
-
-
 }

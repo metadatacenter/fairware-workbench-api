@@ -2,6 +2,7 @@ package org.metadatacenter.fairware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.google.common.collect.ImmutableList;
 import in.vectorpro.dropwizard.swagger.SwaggerBundle;
 import in.vectorpro.dropwizard.swagger.SwaggerBundleConfiguration;
 import io.dropwizard.Application;
@@ -14,6 +15,7 @@ import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
+import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
@@ -55,7 +57,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
 
   @Override
   public void run(final FairwareWorkbenchApiConfiguration configuration, final Environment environment) {
-    
+
     // Enable CORS headers
     final var cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
@@ -76,7 +78,9 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler);
     var bioportalService = new BioportalService(configuration.getBioportalConfig());
     var templateService = new TemplateService(cedarService);
-    var citationService = new CitationService(new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
+    var citationServiceProviders = ImmutableList.<CitationServiceProvider>of(
+        new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
+    var citationService = new CitationService(citationServiceProviders);
     var mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
     var cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
     var metadataContentExtractor = new MetadataContentExtractor(mapBasedMetadataContentExtractor, cedarTemplateInstanceContentExtractor);

@@ -3,7 +3,6 @@ package org.metadatacenter.fairware.core.services.cedar;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -18,6 +17,8 @@ import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.ws.rs.BadRequestException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -63,7 +64,7 @@ class CedarServiceTest {
   }
 
   @Test
-  public void shouldFindTemplate() throws IOException, HttpException {
+  public void shouldFindTemplate() throws IOException, IOException {
     var expected = ImmutableMap.of("title", "Lorem Ipsum", "id", "123");
 
     when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
@@ -85,35 +86,35 @@ class CedarServiceTest {
   }
 
   @Test
-  public void shouldThrowHttpExceptionWhenTemplateNotFound() throws IOException {
+  public void shouldThrowFileNotFoundExceptionWhenTemplateNotFound() throws IOException {
     when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
     when(requestHandler.execute(request)).thenReturn(response);
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
     when(statusLine.toString()).thenReturn("<404>");
 
-    var thrown = Assertions.assertThrows(HttpException.class, () -> {
+    var thrown = Assertions.assertThrows(FileNotFoundException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
       cedarService.findTemplate("123");
-    }, "HttpException was expected");
+    }, "FileNotFoundException was expected");
     assertThat(thrown.getMessage(), equalTo("Couldn't find CEDAR template (ID = 123). Cause: <404>"));
   }
 
   @Test
-  public void shouldThrowHttpExceptionWhenFindingTemplateReturnsBadResponse() throws IOException {
+  public void shouldThrowBadRequestExceptionWhenFindingTemplateReturnsBadResponse() throws IOException {
     when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
     when(requestHandler.execute(request)).thenReturn(response);
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_GATEWAY_TIMEOUT);
     when(statusLine.toString()).thenReturn("<504>");
 
-    var thrown = Assertions.assertThrows(HttpException.class, () -> {
+    var thrown = Assertions.assertThrows(BadRequestException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
       cedarService.findTemplate("123");
-    }, "HttpException was expected");
+    }, "BadRequestException was expected");
     assertThat(thrown.getMessage(), equalTo("Error retrieving template (ID = 123). Cause: <504>"));
   }
 
   @Test
-  public void shouldFindTemplateInstance() throws IOException, HttpException {
+  public void shouldFindTemplateInstance() throws IOException {
     var expected = ImmutableMap.of("fname", "John", "lname", "Doe");
 
     mockInputStreamResponse();
@@ -123,47 +124,47 @@ class CedarServiceTest {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
 
     var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
-    var output = cedarService.findTemplateInstance("123");
+    var output = cedarService.retrieveMetadataById("123");
 
     verify(objectMapper, times(1)).readValue(any(InputStream.class), eq(ImmutableMap.class));
     assertThat(output, equalTo(expected));
   }
 
   @Test
-  public void shouldThrowHttpExceptionWhenTemplateInstanceNotFound() throws IOException {
+  public void shouldThrowFileNotFoundExceptionWhenTemplateInstanceNotFound() throws IOException {
     when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
     when(requestHandler.execute(request)).thenReturn(response);
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
     when(statusLine.toString()).thenReturn("<404>");
 
-    var thrown = Assertions.assertThrows(HttpException.class, () -> {
+    var thrown = Assertions.assertThrows(FileNotFoundException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
-      cedarService.findTemplateInstance("123");
-    }, "HttpException was expected");
+      cedarService.retrieveMetadataById("123");
+    }, "FileNotFoundException was expected");
     assertThat(thrown.getMessage(), equalTo("Couldn't find CEDAR template instance (ID = 123). Cause: <404>"));
   }
 
   @Test
-  public void shouldThrowHttpExceptionWhenFindingTemplateInstanceReturnsBadResponse() throws IOException {
+  public void shouldThrowBadRequestExceptionWhenFindingTemplateInstanceReturnsBadResponse() throws IOException {
     when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
     when(requestHandler.execute(request)).thenReturn(response);
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_BAD_GATEWAY);
     when(statusLine.toString()).thenReturn("<502>");
 
-    var thrown = Assertions.assertThrows(HttpException.class, () -> {
+    var thrown = Assertions.assertThrows(BadRequestException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
-      cedarService.findTemplateInstance("123");
-    }, "HttpException was expected");
+      cedarService.retrieveMetadataById("123");
+    }, "BadRequestException was expected");
     assertThat(thrown.getMessage(), equalTo("Error retrieving template instance (ID = 123). Cause: <502>"));
   }
 
   @Test
   @Disabled
-  public void shouldFindRecommendedTemplate() throws IOException, HttpException {
+  public void shouldFindRecommendedTemplate() throws IOException, IOException {
   }
 
   @Test
-  public void shouldThrowHttpExceptionWhenFindingRecommendedNotFound() throws IOException {
+  public void shouldThrowFileNotFoundExceptionWhenFindingRecommendedNotFound() throws IOException {
     var payload = mock(ImmutableMap.class);
 
     when(requestHandler.createPostRequest(anyString(), eq(payload), anyString())).thenReturn(request);
@@ -171,15 +172,15 @@ class CedarServiceTest {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_NOT_FOUND);
     when(statusLine.toString()).thenReturn("<404>");
 
-    var thrown = Assertions.assertThrows(HttpException.class, () -> {
+    var thrown = Assertions.assertThrows(FileNotFoundException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
       cedarService.recommendTemplates(payload);
-    }, "HttpException was expected");
+    }, "FileNotFoundException was expected");
     assertThat(thrown.getMessage(), equalTo("Couldn't find recommended templates. Cause: <404>"));
   }
 
   @Test
-  public void shouldThrowHttpExceptionWhenFindingRecommendedTemplateReturnsBadResponse() throws IOException {
+  public void shouldThrowBadRequestExceptionWhenFindingRecommendedTemplateReturnsBadResponse() throws IOException {
     var payload = mock(ImmutableMap.class);
 
     when(requestHandler.createPostRequest(anyString(), eq(payload), anyString())).thenReturn(request);
@@ -187,10 +188,10 @@ class CedarServiceTest {
     when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_BAD_REQUEST);
     when(statusLine.toString()).thenReturn("<400>");
 
-    var thrown = Assertions.assertThrows(HttpException.class, () -> {
+    var thrown = Assertions.assertThrows(BadRequestException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler);
       cedarService.recommendTemplates(payload);
-    }, "HttpException was expected");
+    }, "BadRequestException was expected");
     assertThat(thrown.getMessage(), equalTo("Error retrieving recommended templates. Cause: <400>"));
   }
 }
