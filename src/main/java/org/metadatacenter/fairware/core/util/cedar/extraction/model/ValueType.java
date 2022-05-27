@@ -4,5 +4,6 @@ public enum ValueType {
   TEXT,
   NUMBER,
   DATE,
-  OBJECT
+  OBJECT,
+  UNSUPPORTED_TYPE
 }

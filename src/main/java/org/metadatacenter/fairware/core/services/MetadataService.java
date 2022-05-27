@@ -86,10 +86,7 @@ public class MetadataService {
     var template = cedarService.findTemplate(templateId);
 
     // Extract template nodes from the template. Keep fields only
-    var templateFields = CedarTemplateContentExtractor.getTemplateNodes(template)
-        .stream()
-        .filter(TemplateNodeInfo::isTemplateFieldNode)
-        .collect(Collectors.toList());
+    var templateFields = cedarService.retrieveCedarTemplate(templateId).getTemplateFields();
     // Extract metadata fields from the metadata record
     var metadataFields = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
 

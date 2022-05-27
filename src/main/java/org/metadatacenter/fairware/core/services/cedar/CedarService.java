@@ -3,15 +3,13 @@ package org.metadatacenter.fairware.core.services.cedar;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
-import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
-import org.metadatacenter.fairware.api.response.search.SearchMetadataItem;
-import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.constants.CedarConstants;
-import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
+import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.CedarTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +31,16 @@ public class CedarService {
   private final CedarConfig cedarConfig;
   private final ObjectMapper objectMapper;
   private final HttpRequestHandler requestHandler;
+  private final CedarTemplateFieldsExtractor cedarTemplateFieldsExtractor;
 
   public CedarService(@Nonnull CedarConfig cedarConfig,
                       @Nonnull ObjectMapper objectMapper,
-                      @Nonnull HttpRequestHandler requestHandler) {
+                      @Nonnull HttpRequestHandler requestHandler,
+                      @Nonnull CedarTemplateFieldsExtractor cedarTemplateFieldsExtractor) {
     this.cedarConfig = checkNotNull(cedarConfig);
     this.objectMapper = checkNotNull(objectMapper);
     this.requestHandler = checkNotNull(requestHandler);
+    this.cedarTemplateFieldsExtractor = checkNotNull(cedarTemplateFieldsExtractor);
   }
 
   /**
@@ -67,6 +68,12 @@ public class CedarService {
             "Error retrieving template (ID = %s). Cause: %s",
             id, response.getStatusLine()));
     }
+  }
+
+  @Nonnull
+  public CedarTemplate retrieveCedarTemplate(String id) throws IOException {
+    var templateObject = findTemplate(id);
+    return new CedarTemplate(templateObject, cedarTemplateFieldsExtractor);
   }
 
   private String getTemplateUrl(String id) throws UnsupportedEncodingException {

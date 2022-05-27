@@ -4,7 +4,7 @@ import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang3.StringUtils;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class FieldsAlignmentUtil {
    * @param pathSimilarityWeight weight in the interval [0,1] assigned to the field path similarity
    * @return Similarity value in the range [0,1]
    */
-  public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateNodeInfo templateField,
+  public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateField templateField,
                                            double nameSimilarityWeight, double pathSimilarityWeight) {
 
     if (metadataField == null || templateField == null) {
@@ -41,7 +41,7 @@ public class FieldsAlignmentUtil {
     double pathSimilarity = 0;
     /* 2. Path similarity */
     if (nameSimilarity > 0) {
-      pathSimilarity = calculatePathSimilarity(metadataField.getPath(), templateField.getPath());
+      pathSimilarity = calculatePathSimilarity(metadataField.getPath(), templateField.getContainerName().orElse(""));
     }
 
     /* 3. Aggregate name and path similarities */
@@ -68,17 +68,23 @@ public class FieldsAlignmentUtil {
    * @param fieldPath2 the path of the second field
    * @return a similarity value in the range [0,1] that represents the similarity between the two input paths
    */
-  private static double calculatePathSimilarity(List<String> fieldPath1, List<String> fieldPath2) {
-    if (fieldPath1.isEmpty() && fieldPath2.isEmpty()) {
-      return 1;
-    }
-    if (fieldPath1.isEmpty() || fieldPath2.isEmpty()) {
-      return 0;
-    }
+  private static double calculatePathSimilarity(List<String> fieldPath1, String fieldPath2) {
+//    if (fieldPath1.isEmpty() && fieldPath2.isEmpty()) {
+//      return 1;
+//    }
+//    if (fieldPath1.isEmpty() || fieldPath2.isEmpty()) {
+//      return 0;
+//    }
     String fieldPath1Str = StringUtil.basicNormalization(StringUtils.join(fieldPath1, "."));
-    String fieldPath2Str = StringUtil.basicNormalization(StringUtils.join(fieldPath2, "."));
-    int ratio = FuzzySearch.ratio(fieldPath1Str, fieldPath2Str);
-    return (double) ratio / (double) 100;
+    String fieldPath2Str = fieldPath2;
+    if (fieldPath1Str.isEmpty() && fieldPath2Str.isEmpty()) {
+      return 1;
+    } else if (fieldPath1.isEmpty() || fieldPath2Str.isEmpty()) {
+      return 0;
+    } else {
+      int ratio = FuzzySearch.ratio(fieldPath1Str, fieldPath2Str);
+      return (double) ratio / (double) 100;
+    }
   }
 
   /**
@@ -93,7 +99,7 @@ public class FieldsAlignmentUtil {
    * @return a list of alignments between metadata and template fields, represented using the FieldAlignment class
    */
   public static List<FieldAlignment> generateFieldAlignments(List<MetadataFieldInfo> metadataFields,
-                                                             List<TemplateNodeInfo> templateFields,
+                                                             List<TemplateField> templateFields,
                                                              double[][] similarityMatrix,
                                                              int[] selectedAlignments) {
     List<FieldAlignment> alignments = new ArrayList<>();
@@ -101,7 +107,7 @@ public class FieldsAlignmentUtil {
       int templateFieldIndex = selectedAlignments[i];
       if (templateFieldIndex > -1 && similarityMatrix[i][templateFieldIndex] >= 0) {
         String metadataFieldPath = GeneralUtil.generateFullPathDotNotation(metadataFields.get(i));
-        String templateFieldPath = GeneralUtil.generateFullPathDotNotation(templateFields.get(templateFieldIndex));
+        String templateFieldPath = templateFields.get(templateFieldIndex).getJsonPath();
         alignments.add(
             FieldAlignment.create(similarityMatrix[i][templateFieldIndex],
                 metadataFieldPath,

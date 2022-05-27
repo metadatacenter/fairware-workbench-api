@@ -22,6 +22,27 @@ public abstract class FieldSpecification {
   }
 
   @Nonnull
+  public static FieldSpecification ofObjectField(@Nonnull String name,
+                                                 @Nonnull Optional<String> prefLabel,
+                                                 boolean allowMultipleValues,
+                                                 @Nonnull Optional<TemplateField> parentField) {
+    return create(name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
+        Optional.empty(), parentField);
+  }
+
+  @Nonnull
+  public static FieldSpecification ofValueField(@Nonnull String name,
+                                                @Nonnull Optional<String> prefLabel,
+                                                @Nonnull ValueType valueType,
+                                                boolean isRequired,
+                                                boolean allowMultipleValues,
+                                                @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
+                                                @Nonnull Optional<TemplateField> parentField) {
+    return create(name, prefLabel, valueType, isRequired, allowMultipleValues,
+        valueConstraints, parentField);
+  }
+
+  @Nonnull
   public abstract String getName();
 
   @Nonnull

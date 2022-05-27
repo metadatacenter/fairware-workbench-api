@@ -28,13 +28,47 @@ public abstract class TemplateField {
   public abstract FieldSpecification objectField();
 
   @Nonnull
-  public String toJsonPath() {
+  public String getName() {
+    switch (getKind()) {
+      case VALUE_FIELD:
+        return valueField().getName();
+      case OBJECT_FIELD:
+        return objectField().getName();
+      default:
+        throw throwIllegalKindException();
+    }
+  }
+
+  @Nonnull
+  public Optional<String> getPrefLabel() {
+    switch (getKind()) {
+      case VALUE_FIELD:
+        return valueField().getPrefLabel();
+      case OBJECT_FIELD:
+        return objectField().getPrefLabel();
+      default:
+        throw throwIllegalKindException();
+    }
+  }
+
+  @Nonnull
+  public Optional<String> getContainerName() {
+    var containerName = getJsonPath().substring(0, getJsonPath().lastIndexOf(".") + 1);
+    if (containerName.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(containerName);
+    }
+  }
+
+  @Nonnull
+  public String getJsonPath() {
     StringBuilder sb = new StringBuilder();
     var parentField = getParentField();
     if (parentField.isPresent()) {
-      sb.append(parentField.get().toJsonPath()).append(".");
+      sb.append(parentField.get().getJsonPath()).append(".");
     }
-    sb.append(getFieldName());
+    sb.append(getName());
     return sb.toString();
   }
 
@@ -53,20 +87,9 @@ public abstract class TemplateField {
     return new IllegalArgumentException("Field is neither a value nor object type");
   }
 
-  private String getFieldName() {
-    switch (getKind()) {
-      case VALUE_FIELD:
-        return valueField().getName();
-      case OBJECT_FIELD:
-        return objectField().getName();
-      default:
-        throw throwIllegalKindException();
-    }
-  }
-
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder(toJsonPath());
+    StringBuilder sb = new StringBuilder(getJsonPath());
     if (isRequired()) {
       sb.append("*");
     }

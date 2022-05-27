@@ -19,6 +19,7 @@ import org.metadatacenter.fairware.core.services.citation.CitationServiceProvide
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
+import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
 import org.metadatacenter.fairware.resources.CommonApiDocumentationResource;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;
@@ -26,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration;
 import java.util.EnumSet;
 
 public class FairwareWorkbenchApiApplication extends Application<FairwareWorkbenchApiConfiguration> {
@@ -75,7 +75,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
 
     // TODO: Use Dagger for dependency injection
     var requestHandler = new HttpRequestHandler(objectMapper);
-    var cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler);
+    var cedarTemplateFieldsExtractor = new CedarTemplateFieldsExtractor();
+    var cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler, cedarTemplateFieldsExtractor);
     var bioportalService = new BioportalService(configuration.getBioportalConfig());
     var templateService = new TemplateService(cedarService);
     var citationServiceProviders = ImmutableList.<CitationServiceProvider>of(

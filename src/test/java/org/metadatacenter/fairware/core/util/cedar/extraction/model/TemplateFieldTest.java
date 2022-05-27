@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
  * Stanford Center for Biomedical Informatics Research
  */
 @ExtendWith(MockitoExtension.class)
-class FieldTest {
+class TemplateFieldTest {
 
   @Test
   public void shouldCreateValueField() {
@@ -58,10 +58,10 @@ class FieldTest {
     when(cityFieldSpecification.getParentField()).thenReturn(Optional.of(homeAddressField));
     var cityField = TemplateField.ofValueField(cityFieldSpecification);
 
-    assertThat(personField.toJsonPath(), equalTo("person"));
-    assertThat(fullNameField.toJsonPath(), equalTo("person.fullName"));
-    assertThat(homeAddressField.toJsonPath(), equalTo("person.homeAddress"));
-    assertThat(streetField.toJsonPath(), equalTo("person.homeAddress.street"));
-    assertThat(cityField.toJsonPath(), equalTo("person.homeAddress.city"));
+    assertThat(personField.getJsonPath(), equalTo("person"));
+    assertThat(fullNameField.getJsonPath(), equalTo("person.fullName"));
+    assertThat(homeAddressField.getJsonPath(), equalTo("person.homeAddress"));
+    assertThat(streetField.getJsonPath(), equalTo("person.homeAddress.street"));
+    assertThat(cityField.getJsonPath(), equalTo("person.homeAddress.city"));
   }
 }
