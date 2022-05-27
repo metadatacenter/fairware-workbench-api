@@ -16,7 +16,7 @@ public class TemplateService {
     this.cedarService = cedarService;
   }
 
-  public RecommendTemplatesResponse recommendCedarTemplates(Map<String, Object> metadataRecord) throws IOException {
-    return cedarService.recommendTemplates(ImmutableMap.copyOf(metadataRecord));
+  public RecommendTemplatesResponse recommendCedarTemplates(ImmutableMap<String, Object> metadataRecord) throws IOException {
+    return cedarService.recommendTemplates(metadataRecord);
   }
 }

@@ -333,7 +333,7 @@ public class FairwareWorkbenchResource {
     return metadataService.searchMetadata(metadataRecordId).getMetadataRecord();
   }
 
-  private Optional<String> getTemplateIdFromMetadataRecord(@Nonnull Map<String, Object> metadataRecord)
+  private Optional<String> getTemplateIdFromMetadataRecord(@Nonnull ImmutableMap<String, Object> metadataRecord)
       throws IOException {
     // First attempt is by getting it from the metadata object
     var templateId = CedarUtil.getTemplateId(metadataRecord);

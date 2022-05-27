@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
+import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -57,8 +58,8 @@ public class HttpRequestHandler {
   @Nonnull
   public Request createPostRequest(String uri, ImmutableMap<String, Object> payload, Optional<String> apiKey)
       throws JsonProcessingException {
-    var request = Request.Post(uri)
-        .bodyString(objectMapper.writeValueAsString(payload), ContentType.APPLICATION_JSON);
+    var payloadString = objectMapper.writeValueAsString(RecommendTemplatesRequest.create(payload));
+    var request = Request.Post(uri).bodyString(payloadString, ContentType.APPLICATION_JSON);
     request = addAuthorization(apiKey, request);
     return request;
   }
