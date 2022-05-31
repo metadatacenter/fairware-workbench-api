@@ -134,10 +134,16 @@ public class CedarTemplateFieldsExtractor {
     } else if ("numeric".equals(inputType)) {
       return ValueType.NUMBER;
     } else if ("temporal".equals(inputType)) {
-      return ValueType.DATE;
-    } else {
-      return ValueType.UNSUPPORTED_TYPE;
+      var temporalType = node.get("_valueConstraints").get("temporalType").asText();
+      if ("xsd:dateTime".equals(temporalType)) {
+        return ValueType.DATE_TIME;
+      } else if ("xsd:date".equals(temporalType)) {
+          return ValueType.DATE;
+      } else if ("xsd:time".equals(temporalType)) {
+        return ValueType.TIME;
+      }
     }
+    return ValueType.UNSUPPORTED_TYPE;
   }
 
   private boolean isRequired(JsonNode node) {

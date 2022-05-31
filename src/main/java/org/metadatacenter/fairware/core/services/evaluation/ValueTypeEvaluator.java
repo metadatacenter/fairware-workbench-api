@@ -18,13 +18,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ValueTypeEvaluator implements IMetadataEvaluator {
 
   private final StringValueChecker stringValueChecker;
-
   private final NumberValueChecker numberValueChecker;
+  private final DateTimeValueChecker dateTimeValueChecker;
+  private final DateValueChecker dateValueChecker;
+  private final TimeValueChecker timeValueChecker;
 
   public ValueTypeEvaluator(@Nonnull StringValueChecker stringValueChecker,
-                            @Nonnull NumberValueChecker numberValueChecker) {
+                            @Nonnull NumberValueChecker numberValueChecker,
+                            @Nonnull DateTimeValueChecker dateTimeValueChecker,
+                            @Nonnull DateValueChecker dateValueChecker,
+                            @Nonnull TimeValueChecker timeValueChecker) {
     this.stringValueChecker = checkNotNull(stringValueChecker);
     this.numberValueChecker = checkNotNull(numberValueChecker);
+    this.dateTimeValueChecker = checkNotNull(dateTimeValueChecker);
+    this.dateValueChecker = checkNotNull(dateValueChecker);
+    this.timeValueChecker = checkNotNull(timeValueChecker);
   }
 
   @Override
@@ -45,6 +53,15 @@ public class ValueTypeEvaluator implements IMetadataEvaluator {
             break;
           case NUMBER:
             numberValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            break;
+          case DATE_TIME:
+            dateTimeValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            break;
+          case DATE:
+            dateValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            break;
+          case TIME:
+            timeValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
             break;
         }
       }

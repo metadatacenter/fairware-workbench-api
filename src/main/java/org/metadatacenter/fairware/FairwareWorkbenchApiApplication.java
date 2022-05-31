@@ -17,10 +17,13 @@ import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.services.evaluation.DateTimeValueChecker;
+import org.metadatacenter.fairware.core.services.evaluation.DateValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.NumberValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.StringValueChecker;
+import org.metadatacenter.fairware.core.services.evaluation.TimeValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
@@ -32,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
+import java.sql.Time;
 import java.util.EnumSet;
 
 public class FairwareWorkbenchApiApplication extends Application<FairwareWorkbenchApiConfiguration> {
@@ -94,7 +98,11 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var optionalValuesEvaluator = new OptionalValuesEvaluator();
     var stringValueChecker = new StringValueChecker();
     var numberValueChecker = new NumberValueChecker();
-    var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker);
+    var dateTimeValueChecker = new DateTimeValueChecker();
+    var dateValueChecker = new DateValueChecker();
+    var timeValueChecker = new TimeValueChecker();
+    var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker,
+        dateTimeValueChecker, dateValueChecker, timeValueChecker);
     var metadataService = new MetadataService(cedarService,
         bioportalService,
         citationService,
