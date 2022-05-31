@@ -34,7 +34,7 @@ public class MapBasedMetadataContentExtractor {
             ImmutableList.copyOf(currentPath),
             Optional.empty(),
             Optional.empty()));
-      } else if (metadataValue instanceof String || metadataValue instanceof Number) {
+      } else if (metadataValue instanceof String || metadataValue instanceof Number || metadataValue instanceof Boolean) {
         result.add(MetadataFieldInfo.create(metadataField,
             Optional.empty(),
             ImmutableList.copyOf(currentPath),
