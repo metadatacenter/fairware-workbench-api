@@ -22,7 +22,7 @@ public class MapBasedMetadataContentExtractor {
   }
 
   @Nonnull
-  private ImmutableList<MetadataFieldInfo> generateInfoFieldsFromMetadata(@Nonnull ImmutableMap<String, Object> metadataObject,
+  private ImmutableList<MetadataFieldInfo> generateInfoFieldsFromMetadata(@Nonnull Map<String, Object> metadataObject,
                                                                           @Nonnull List<String> currentPath) {
     var result = Lists.<MetadataFieldInfo>newArrayList();
     for (var entry : metadataObject.entrySet()) {
@@ -44,7 +44,7 @@ public class MapBasedMetadataContentExtractor {
         var innerPath = Lists.newArrayList(currentPath);
         innerPath.add(metadataField);
         var innerResult = generateInfoFieldsFromMetadata(
-            (ImmutableMap<String, Object>) metadataValue,
+            (Map<String, Object>) metadataValue,
             innerPath);
         result.addAll(innerResult);
       } else if (metadataValue instanceof List) { // Array of homogenous values
@@ -55,7 +55,7 @@ public class MapBasedMetadataContentExtractor {
             var innerPath = Lists.newArrayList(currentPath);
             innerPath.add(metadataField);
             var innerResult = generateInfoFieldsFromMetadata(
-                (ImmutableMap<String, Object>) o,
+                (Map<String, Object>) o,
                 innerPath);
             result.addAll(innerResult);
           }
