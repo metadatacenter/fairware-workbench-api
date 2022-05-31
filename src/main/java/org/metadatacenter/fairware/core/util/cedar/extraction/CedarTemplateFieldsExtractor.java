@@ -130,7 +130,7 @@ public class CedarTemplateFieldsExtractor {
   private ValueType getValueType(JsonNode node) {
     var inputType = node.get("_ui").get("inputType").asText();
     if ("textfield".equals(inputType)) {
-      return ValueType.TEXT;
+      return ValueType.STRING;
     } else if ("numeric".equals(inputType)) {
       return ValueType.NUMBER;
     } else if ("temporal".equals(inputType)) {

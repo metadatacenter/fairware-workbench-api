@@ -18,14 +18,14 @@ public abstract class MetadataIssue {
   @Nonnull
   public IssueLevel getIssueLevel() {
     var issueType = getIssueType();
-    if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {
-      return IssueLevel.ERROR;
-    }
-    else if (issueType.equals(IssueType.MISSING_OPTIONAL_VALUE)) {
-      return IssueLevel.WARNING;
-    }
-    else {
-      throw new InvalidParameterException("Invalid issue type");
+    switch (issueType) {
+      case MISSING_REQUIRED_VALUE:
+      case INVALID_VALUE_REPRESENTATION:
+        return IssueLevel.ERROR;
+      case MISSING_OPTIONAL_VALUE:
+        return IssueLevel.WARNING;
+      default:
+        throw new InvalidParameterException("Invalid issue type");
     }
   }
 }
