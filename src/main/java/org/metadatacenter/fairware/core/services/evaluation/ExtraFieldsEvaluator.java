@@ -1,5 +1,6 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
+import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
@@ -9,17 +10,22 @@ import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * For metadata fields that have not been aligned to template fields, this evaluator determines whether they align with
@@ -45,7 +51,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
 
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> mfMap,
-                                                     Map<String, TemplateNodeInfo> tfMap,
+                                                     ImmutableMap<String, TemplateField> templateFieldMap,
                                                      List<FieldAlignment> fieldAlignments)
       throws HttpException, IOException {
 
