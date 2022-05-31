@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpException;
+import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReport;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
@@ -56,19 +57,25 @@ public class MetadataService {
   private final CoreConfig coreConfig;
   private final BioportalConfig bioportalConfig;
   private final MetadataContentExtractor metadataContentExtractor;
+  private final RequiredValuesEvaluator requiredValuesEvaluator;
+  private final OptionalValuesEvaluator optionalValuesEvaluator;
 
   public MetadataService(@Nonnull CedarService cedarService,
                          @Nonnull BioportalService bioportalService,
                          @Nonnull CitationService citationService,
                          @Nonnull CoreConfig coreConfig,
                          @Nonnull BioportalConfig bioportalConfig,
-                         @Nonnull MetadataContentExtractor metadataContentExtractor) {
+                         @Nonnull MetadataContentExtractor metadataContentExtractor,
+                         @Nonnull RequiredValuesEvaluator requiredValuesEvaluator,
+                         @Nonnull OptionalValuesEvaluator optionalValuesEvaluator) {
     this.cedarService = checkNotNull(cedarService);
     this.bioportalService = checkNotNull(bioportalService);
     this.citationService = checkNotNull(citationService);
     this.coreConfig = checkNotNull(coreConfig);
     this.bioportalConfig = checkNotNull(bioportalConfig);
     this.metadataContentExtractor = checkNotNull(metadataContentExtractor);
+    this.requiredValuesEvaluator = checkNotNull(requiredValuesEvaluator);
+    this.optionalValuesEvaluator = checkNotNull(optionalValuesEvaluator);
   }
 
   /**
@@ -154,7 +161,6 @@ public class MetadataService {
     }
 
     // Check missing required values
-    var requiredValuesEvaluator = new RequiredValuesEvaluator(); // TODO: Add as a dependency
     var requiredValuesReports = requiredValuesEvaluator.evaluateMetadata(
         metadataFieldInfoMap,
         templateNodeInfoMap,
@@ -162,16 +168,10 @@ public class MetadataService {
     reportItems.addAll(requiredValuesReports);
 
     // Check missing optional values
-    var optionalValuesEv = new OptionalValuesEvaluator(); // TODO: Add as a dependency
-    var optionalValuesReports = optionalValuesEv.evaluateMetadata(metadataFieldInfoMap,
+    var optionalValuesReports = optionalValuesEvaluator.evaluateMetadata(metadataFieldInfoMap,
         templateNodeInfoMap,
         fieldAlignments);
     reportItems.addAll(optionalValuesReports);
-
-    // 2. Check missing template fields (find ontology terms for the extra metadata fields)
-    // ExtraFieldsEvaluator missingTemplateFieldsEv = new ExtraFieldsEvaluator(bioportalService, coreConfig, bioportalConfig);
-    // reportItems.addAll(missingTemplateFieldsEv.evaluateMetadata(mfMap, tfMap, fieldAlignments));
-    // Check ...
 
     var metadataRecordName = Optional.<String>empty();
     if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {

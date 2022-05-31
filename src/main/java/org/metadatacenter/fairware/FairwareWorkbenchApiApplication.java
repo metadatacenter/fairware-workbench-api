@@ -17,6 +17,8 @@ import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
+import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
@@ -85,12 +87,16 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
     var cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
     var metadataContentExtractor = new MetadataContentExtractor(mapBasedMetadataContentExtractor, cedarTemplateInstanceContentExtractor);
+    var requiredValuesEvaluator = new RequiredValuesEvaluator();
+    var optionalValuesEvaluator = new OptionalValuesEvaluator();
     var metadataService = new MetadataService(cedarService,
         bioportalService,
         citationService,
         configuration.getCoreConfig(),
         configuration.getBioportalConfig(),
-        metadataContentExtractor);
+        metadataContentExtractor,
+        requiredValuesEvaluator,
+        optionalValuesEvaluator);
     final var fairwareWorkbenchResource = new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);
   }
