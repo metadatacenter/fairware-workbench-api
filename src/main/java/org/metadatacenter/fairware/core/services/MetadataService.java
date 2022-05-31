@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpException;
-import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluationReport;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
@@ -32,9 +31,8 @@ import org.metadatacenter.fairware.core.util.FieldsAlignmentUtil;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
-import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateNodeInfo;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,9 +41,10 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toMap;
 
 public class MetadataService {
 
@@ -135,15 +134,11 @@ public class MetadataService {
                                                    @Nonnull ImmutableList<FieldAlignment> fieldAlignments) throws HttpException, IOException {
     // Extract nodes from the template (limited to fields) and store them into a HashMap (tfMap)
     var template = cedarService.findTemplate(templateId);
-    var templateFieldInfos = CedarTemplateContentExtractor.getTemplateNodes(template)
-        .stream()
-        .filter(TemplateNodeInfo::isTemplateFieldNode)
-        .collect(Collectors.toList());
-    var templateNodeInfoMap = Maps.<String, TemplateNodeInfo>newHashMap();
-    for (var templateFieldInfo : templateFieldInfos) {
-      var key = GeneralUtil.generateFullPathDotNotation(templateFieldInfo);
-      templateNodeInfoMap.put(key, templateFieldInfo);
-    }
+    var templateFields = cedarService.retrieveCedarTemplate(templateId).getTemplateFields();
+    var templateFieldMap = templateFields.<String, TemplateField>stream()
+        .collect(collectingAndThen(
+            toMap(TemplateField::getJsonPath, templateField -> templateField),
+            ImmutableMap::copyOf));
 
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
     var metadataFieldInfos = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
@@ -163,13 +158,14 @@ public class MetadataService {
     // Check missing required values
     var requiredValuesReports = requiredValuesEvaluator.evaluateMetadata(
         metadataFieldInfoMap,
-        templateNodeInfoMap,
+        templateFieldMap,
         fieldAlignments);
     reportItems.addAll(requiredValuesReports);
 
     // Check missing optional values
-    var optionalValuesReports = optionalValuesEvaluator.evaluateMetadata(metadataFieldInfoMap,
-        templateNodeInfoMap,
+    var optionalValuesReports = optionalValuesEvaluator.evaluateMetadata(
+        metadataFieldInfoMap,
+        templateFieldMap,
         fieldAlignments);
     reportItems.addAll(optionalValuesReports);
 
@@ -178,8 +174,8 @@ public class MetadataService {
       metadataRecordName = Optional.of(metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString());
     }
     var templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    var templateFieldPaths = templateFieldInfos.stream()
-        .map(templateField -> GeneralUtil.generateFullPathDotNotation(templateField))
+    var templateFieldPaths = templateFields.stream()
+        .map(TemplateField::getJsonPath)
         .collect(ImmutableList.toImmutableList());
 
     return EvaluateMetadataResponse.create(metadataRecordId,
