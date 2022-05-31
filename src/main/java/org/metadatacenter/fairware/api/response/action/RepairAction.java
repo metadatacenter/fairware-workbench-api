@@ -12,8 +12,16 @@ public abstract class RepairAction {
     return AutoOneOf_RepairAction.enterMissingValue();
   }
 
+  public static RepairAction ofEnterCorrectValue() {
+    return AutoOneOf_RepairAction.enterCorrectValue();
+  }
+
   public static RepairAction ofEnterStringTypeValue(@Nonnull String value) {
     return AutoOneOf_RepairAction.enterStringTypeValue(value);
+  }
+
+  public static RepairAction ofEnterNumberTypeValue(@Nonnull Number value) {
+    return AutoOneOf_RepairAction.enterNumberTypeValue(value);
   }
 
   public static RepairAction ofReplaceFieldNameWithOntologyTerm(@Nonnull List<SuggestedOntologyTerm> suggestedOntologyTerms) {
@@ -27,14 +35,22 @@ public abstract class RepairAction {
   public abstract void enterMissingValue();
 
   @Nonnull
+  public abstract void enterCorrectValue();
+
+  @Nonnull
   public abstract String enterStringTypeValue();
+
+  @Nonnull
+  public abstract Number enterNumberTypeValue();
 
   @Nonnull
   public abstract List<SuggestedOntologyTerm> replaceFieldNameWithOntologyTerm();
 
   public enum Kind {
     ENTER_MISSING_VALUE,
+    ENTER_CORRECT_VALUE,
     ENTER_STRING_TYPE_VALUE,
+    ENTER_NUMBER_TYPE_VALUE,
     REPLACE_FIELD_NAME_WITH_ONTOLOGY_TERM
   }
 }

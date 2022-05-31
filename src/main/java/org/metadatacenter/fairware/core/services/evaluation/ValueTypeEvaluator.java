@@ -19,8 +19,12 @@ public class ValueTypeEvaluator implements IMetadataEvaluator {
 
   private final StringValueChecker stringValueChecker;
 
-  public ValueTypeEvaluator(@Nonnull StringValueChecker stringValueChecker) {
+  private final NumberValueChecker numberValueChecker;
+
+  public ValueTypeEvaluator(@Nonnull StringValueChecker stringValueChecker,
+                            @Nonnull NumberValueChecker numberValueChecker) {
     this.stringValueChecker = checkNotNull(stringValueChecker);
+    this.numberValueChecker = checkNotNull(numberValueChecker);
   }
 
   @Override
@@ -38,6 +42,9 @@ public class ValueTypeEvaluator implements IMetadataEvaluator {
         switch (valueType) {
           case STRING:
             stringValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            break;
+          case NUMBER:
+            numberValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
             break;
         }
       }

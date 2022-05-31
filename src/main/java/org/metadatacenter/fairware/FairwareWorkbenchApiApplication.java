@@ -17,6 +17,7 @@ import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.services.evaluation.NumberValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.StringValueChecker;
@@ -92,7 +93,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var requiredValuesEvaluator = new RequiredValuesEvaluator();
     var optionalValuesEvaluator = new OptionalValuesEvaluator();
     var stringValueChecker = new StringValueChecker();
-    var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker);
+    var numberValueChecker = new NumberValueChecker();
+    var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker);
     var metadataService = new MetadataService(cedarService,
         bioportalService,
         citationService,
