@@ -25,6 +25,7 @@ public abstract class MetadataIssue {
     var issueType = getIssueType();
     switch (issueType) {
       case MISSING_OPTIONAL_VALUE:
+      case FIELD_NOT_FOUND_IN_TEMPLATE:
         return IssueLevel.WARNING;
       default:
         return IssueLevel.ERROR;
