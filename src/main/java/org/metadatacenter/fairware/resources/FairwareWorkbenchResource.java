@@ -32,8 +32,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,43 +52,26 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(
-      summary = "Searches the CEDAR repository for templates that match the field names in an input metadata record.")
+  @Operation(summary = "Search CEDAR templates that closely match with the given metadata record.")
   @Path("/templates/recommend")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Templates")
-  @RequestBody(description = "Metadata record", required = true,
+  @RequestBody(description = "A JSON object containing the metadata record", required = true,
       content = @Content(
-          schema = @Schema(implementation = RecommendTemplatesRequest.class),
-          examples = {
-              @ExampleObject(value = "{\"metadataRecord\":{\"study_id\":\"12811\",\"study title\":\"My Study\"," +
-                  "\"contact " +
-                  "e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\",\"age\":76,\"sex\":\"male\"," +
-                  "\"tissue\":\"liver\",\"platform\":\"Illumina\"}}")
-          }
+          schema = @Schema(implementation = RecommendTemplatesRequest.class)
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "OK",
+      description = "Response showing a list of recommended CEDAR templates sorted from the highest recommendation " +
+          "score to the lowest.",
       content = @Content(
-          schema = @Schema(implementation = RecommendTemplatesResponse.class),
-          examples = {
-              @ExampleObject(value = "{\"totalCount\":2,\"requestSummary\":{\"sourceFieldsCount\":3}," +
-                  "\"recommendations\":[{\"recommendationScore\":0.5,\"sourceFieldsMatched\":2," +
-                  "\"targetFieldsCount\":3,\"templateExtract\":{\"@id\":\"https://repo.metadatacenter" +
-                  ".orgx/templates/f76ad487-43a2-4693-97cd-0aaca90e85a8\",\"schema:identifier\":null," +
-                  "\"schema:name\":\"Research Study\",\"schema:description\":\"\",\"pav:version\":\"0.0.1\"," +
-                  "\"bibo:status\":\"bibo:draft\"}},{\"recommendationScore\":0.16666666666666666," +
-                  "\"sourceFieldsMatched\":1,\"targetFieldsCount\":4,\"templateExtract\":{\"@id\":\"https://repo" +
-                  ".metadatacenter.orgx/templates/82ceb37e-7edd-4dd1-b541-d55311de62bb\",\"schema:identifier\":null," +
-                  "\"schema:name\":\"Study Template\",\"schema:description\":\"\",\"pav:version\":\"0.0.1\"," +
-                  "\"bibo:status\":\"bibo:draft\"}}]}")
-          }
+          schema = @Schema(implementation = RecommendTemplatesResponse.class)
       ))
-  @ApiResponse(responseCode = "400", description = "Bad request")
-  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
-  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
+      "malformed syntax in the request body.")
+  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
+      "it from fulfilling the request.")
   public Response recommendTemplates(@NotNull @Valid RecommendTemplatesRequest request) {
 
     try {
@@ -106,37 +87,29 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(
-      summary = "Align the metadata field names in an input metadata record with those of a CEDAR metadata template.")
+  @Operation(summary = "Align the metadata fields in the input metadata record with those in the CEDAR template.")
   @Path("/metadata/align")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "Metadata record and CEDAR template identifier", required = true,
+  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2) metadata record object. " +
+      "The template fields are collected from the CEDAR template and the metadata fields are collected from " +
+      "the input metadata record.", required = true,
       content = @Content(
-          schema = @Schema(implementation = AlignMetadataRequest.class),
-          examples = {
-              @ExampleObject(value = "{\"metadataRecord\":{\"study_id\":\"12811\",\"title of study\":\"My Study\"," +
-                  "\"contact e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\",\"age\":76," +
-                  "\"sex\":\"male\",\"tissue\":\"liver\",\"platform\":\"Illumina\"},\"templateId\":\"https://repo" +
-                  ".metadatacenter.orgx/templates/262cac6c-4245-4ce3-90d2-122a488c36cd\"}")
-          }
+          schema = @Schema(implementation = AlignMetadataRequest.class)
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "OK",
+      description = "Response showing a list of aligned fields between the source template and target metadata. " +
+          "A similarity score of 0.0 indicates that no alignment was found whilst a score of 1.0 means that a perfect " +
+          "alignment was found.",
       content = @Content(
-          schema = @Schema(implementation = AlignMetadataResponse.class),
-          examples = {
-              @ExampleObject(value = "{\"totalCount\":3,\"fieldAlignments\":[{\"similarityScore\":0.91," +
-                  "\"metadataFieldPath\":\"study_id\",\"templateFieldPath\":\"Study ID\"},{\"similarityScore\":0.85," +
-                  "\"metadataFieldPath\":\"title of study\",\"templateFieldPath\":\"Study title\"}," +
-                  "{\"similarityScore\":1,\"metadataFieldPath\":\"organism\",\"templateFieldPath\":\"Organism\"}]}")
-          }
+          schema = @Schema(implementation = AlignMetadataResponse.class)
       ))
-  @ApiResponse(responseCode = "400", description = "Bad request")
-  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
-  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
+      "malformed syntax in the request body.")
+  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
+      "it from fulfilling the request.")
   public Response alignMetadata(@NotNull @Valid AlignMetadataRequest request) {
     try {
       var fieldAlignments = metadataService.alignMetadata(
@@ -154,48 +127,29 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(
-      summary = "Evaluate an input metadata record based on a given CEDAR template and a list of metadata-template " +
-          "alignments.")
+  @Operation(summary = "Evaluate the given metadata record based on the specification in the CEDAR template.")
   @Path("/metadata/evaluate")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "Template identifier, metadata record, and field alignments", required = true,
+  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2a) CEDAR template instance id or " +
+      "2b) metadata record object", required = true,
       content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataRequest.class),
-          examples = {
-              @ExampleObject(value = "{\"templateId\":\"https://repo.metadatacenter" +
-                  ".orgx/templates/262cac6c-4245-4ce3-90d2-122a488c36cd\",\"metadataRecord\":{\"study_id\":\"12811\"," +
-                  "\"title of study\":\"\",\"contact e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo " +
-                  "sapiens\",\"age\":76,\"sex\":\"male\",\"tissue\":\"liver\",\"platform\":\"Illumina\"}," +
-                  "\"fieldAlignments\":[{\"similarityScore\":0.91,\"metadataFieldPath\":\"study_id\"," +
-                  "\"templateFieldPath\":\"Study ID\"},{\"similarityScore\":0.85,\"metadataFieldPath\":\"title of " +
-                  "study\",\"templateFieldPath\":\"Study title\"},{\"similarityScore\":1," +
-                  "\"metadataFieldPath\":\"organism\",\"templateFieldPath\":\"Organism\"}]}")
-          }
+          schema = @Schema(implementation = EvaluateMetadataRequest.class)
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "OK",
+      description = "Response showing the input metadata record, the metadata specification and the evaluation " +
+          "reports. The CEDAR template is the metadata specification where it defines how to construct the metadata" +
+          "record correctly. The evaluation report describes the issue location, the type of the issue, and the " +
+          "action to fix the issue.",
       content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataResponse.class),
-          examples = {
-              @ExampleObject(value = "{\"templateId\":\"https://repo.metadatacenter" +
-                  ".orgx/templates/262cac6c-4245-4ce3-90d2-122a488c36cd\",\"metadataRecord\":{\"study_id\":\"12811\"," +
-                  "\"title of study\":\"\",\"contact e-mail\":\"john.doe@acme.com\",\"organism\":\"Homo sapiens\"," +
-                  "\"age\":76,\"sex\":\"male\",\"tissue\":\"liver\",\"platform\":\"Illumina\"}," +
-                  "\"fieldAlignments\":[{\"similarityScore\":0.91,\"metadataFieldPath\":\"study_id\"," +
-                  "\"templateFieldPath\":\"Study ID\"},{\"similarityScore\":0.85,\"metadataFieldPath\":\"title of " +
-                  "study\",\"templateFieldPath\":\"Study title\"},{\"similarityScore\":1," +
-                  "\"metadataFieldPath\":\"organism\",\"templateFieldPath\":\"Organism\"}]," +
-                  "\"items\":[{\"metadataFieldPath\":\"title of study\",\"issue\":\"MISSING_REQUIRED_VALUE\"}]," +
-                  "\"generatedOn\":\"2021-10-06 15:13:16\"}")
-          }
+          schema = @Schema(implementation = EvaluateMetadataResponse.class)
       ))
-  @ApiResponse(responseCode = "400", description = "Bad request")
-  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
-  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
+      "malformed syntax in the request body.")
+  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
+      "it from fulfilling the request.")
   public Response evaluateMetadata(@NotNull @Valid EvaluateMetadataRequest request) {
     try {
       var response = getEvaluateMetadataResponse(request);
@@ -210,30 +164,27 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(
-      summary = "Searches for publicly-available, doi-associated metadata.")
+  @Operation(summary = "Search for a publicly-available, DOI-associated metadata record.")
   @Path("/metadata/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A metadata record identifier (e.g., DOI)", required = true,
+  @RequestBody(description = "A DOI string", required = true,
       content = @Content(
           schema = @Schema(implementation = String.class),
           examples = {
-              @ExampleObject(value = "10.15468/9vuieb")
+              @ExampleObject(value = "10.5061/dryad.rm2n805")
           }
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "OK",
+      description = "Response showing the metadata record that is associated with the given DOI string",
       content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataResponse.class),
-          examples = {
-              @ExampleObject(value = "")
-          }
+          schema = @Schema(implementation = EvaluateMetadataResponse.class)
       ))
-  @ApiResponse(responseCode = "400", description = "Bad request")
-  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
-  @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
+      "malformed syntax in the request body.")
+  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
+      "it from fulfilling the request.")
   public Response searchMetadata(@NotNull @Valid String metadataRecordId) {
     try {
       var results = metadataService.searchMetadata(metadataRecordId);
@@ -246,50 +197,6 @@ public class FairwareWorkbenchResource {
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }
   }
-
-//  @POST
-//  @Operation(
-//      summary = "")
-//  @Path("/metadata/report")
-//  @Consumes(MediaType.APPLICATION_JSON)
-//  @Produces(MediaType.APPLICATION_JSON)
-//  @Tag(name = "Metadata")
-//  @RequestBody(description = "", required = true,
-//      content = @Content(
-//          schema = @Schema(implementation = EvaluateMetadataRequest.class),
-//          examples = {
-//              @ExampleObject(value = "")
-//          }
-//      ))
-//  @ApiResponse(
-//      responseCode = "200",
-//      description = "OK",
-//      content = @Content(
-//          schema = @Schema(implementation = EvaluateMetadataResponse.class),
-//          examples = {
-//              @ExampleObject(value = "")
-//          }
-//      ))
-//  @ApiResponse(responseCode = "400", description = "Bad request")
-//  @ApiResponse(responseCode = "422", description = "Unprocessable entity")
-//  @ApiResponse(responseCode = "500", description = "Internal Server Error")
-//  public Response evaluationReport(@NotNull @Valid EvaluationReportRequest request) {
-//    try {
-//      // Evaluate record by record
-//      var evaluationResponses = request.getEvaluateMetadataRequests()
-//          .stream()
-//          .map(this::getEvaluateMetadataResponse)
-//          .collect(ImmutableList.toImmutableList());
-//      var report = metadataService.generateEvaluationReport(evaluationResponses);
-//      return Response.ok(report).build();
-//    } catch (BadRequestException e) {
-//      logger.error(e.getMessage());
-//      return Response.status(Response.Status.BAD_REQUEST).build();
-//    } catch (HttpException | IOException e) {
-//      logger.error(e.getMessage());
-//      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
-//    }
-//  }
 
   private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
       throws IOException, HttpException, BadRequestException {
