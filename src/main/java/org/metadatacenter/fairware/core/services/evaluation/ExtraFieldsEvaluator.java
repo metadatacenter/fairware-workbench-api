@@ -113,15 +113,10 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       logger.warn("Couldn't retrieve ontology acronym", bioportalTerm);
       Optional.empty();
     }
-    String definition = "";
-    if (bioportalTerm.getDefinition() != null && bioportalTerm.getDefinition().size() > 0) {
-      definition = bioportalTerm.getDefinition().get(0).toString();
-    }
     return Optional.of(
         SuggestedOntologyTerm.create(
             bioportalTerm.getId(),
             bioportalTerm.getPrefLabel(),
-            bioportalTerm.getLinks().getOntology(),
-            definition));
+            bioportalTerm.getLinks().getOntology()));
   }
 }

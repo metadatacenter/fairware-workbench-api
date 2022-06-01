@@ -45,8 +45,7 @@ public class ValueFromOntologyChecker {
           .map(bpClass -> SuggestedOntologyTerm.create(
               bpClass.getId(),
               bpClass.getPrefLabel(),
-              ontology,
-              String.valueOf(bpClass.getDefinition().stream().findFirst().get()))).get();
+              ontology)).get();
       var report = EvaluationReportItem.create(
           GeneralUtil.generateFullPathDotNotation(metadataField),
           MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM),
