@@ -170,6 +170,7 @@ public class FairwareWorkbenchResource {
   @POST
   @Operation(summary = "Search for a publicly-available, DOI-associated metadata record.")
   @Path("/metadata/search")
+  @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
   @RequestBody(description = "A list of DOI strings", required = true,
