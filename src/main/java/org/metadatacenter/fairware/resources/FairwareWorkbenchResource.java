@@ -1,6 +1,8 @@
 package org.metadatacenter.fairware.resources;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,10 +13,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
+import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
 import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.util.CedarUtil;
@@ -32,6 +36,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -168,16 +173,16 @@ public class FairwareWorkbenchResource {
   @Path("/metadata/search")
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A DOI string", required = true,
+  @RequestBody(description = "A list of DOI strings", required = true,
       content = @Content(
-          schema = @Schema(implementation = String.class),
+          schema = @Schema(implementation = List.class),
           examples = {
-              @ExampleObject(value = "10.5061/dryad.rm2n805")
+              @ExampleObject(value = "[\"10.5061/dryad.rm2n805\",\"10.4230/lipics.iclp.2011.16\"]")
           }
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "Response showing the metadata record that is associated with the given DOI string",
+      description = "Response showing the metadata records that are associated with the given DOI strings",
       content = @Content(
           schema = @Schema(implementation = EvaluateMetadataResponse.class)
       ))
@@ -185,9 +190,9 @@ public class FairwareWorkbenchResource {
       "malformed syntax in the request body.")
   @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
       "it from fulfilling the request.")
-  public Response searchMetadata(@NotNull @Valid String metadataRecordId) {
+  public Response searchMetadata(@NotNull @Valid ImmutableList<String> metadataRecordIds) {
     try {
-      var results = metadataService.searchMetadata(metadataRecordId);
+      var results = metadataService.searchMetadata(metadataRecordIds);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());

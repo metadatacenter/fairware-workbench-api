@@ -4,8 +4,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Map;
 
 @AutoValue
 public abstract class SearchMetadataItem {
