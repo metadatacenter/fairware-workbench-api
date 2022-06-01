@@ -37,25 +37,19 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
 
   private BioportalService bioportalService;
   private CoreConfig coreConfig;
-  private BioportalConfig bioportalConfig;
 
-  private ExtraFieldsEvaluator() {
-    // disabled constructor, never called
-  }
-
-  public ExtraFieldsEvaluator(BioportalService bioportalService, CoreConfig coreConfig, BioportalConfig bioportalConfig) {
+  public ExtraFieldsEvaluator(BioportalService bioportalService, CoreConfig coreConfig) {
     this.bioportalService = bioportalService;
     this.coreConfig = coreConfig;
-    this.bioportalConfig = bioportalConfig;
   }
 
   @Override
-  public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> mfMap,
+  public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldMap,
                                                      ImmutableMap<String, TemplateField> templateFieldMap,
                                                      List<FieldAlignment> fieldAlignments)
       throws HttpException, IOException {
 
-    List<MetadataFieldInfo> nonMatchedFields = getNonMatchedMetadataFields(fieldAlignments, mfMap);
+    List<MetadataFieldInfo> nonMatchedFields = getNonMatchedMetadataFields(fieldAlignments, metadataFieldMap);
     List<EvaluationReportItem> reportItems = new ArrayList<>();
 
     // Use BioPortal to find top matching ontology terms
@@ -119,7 +113,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       logger.warn("Couldn't retrieve ontology acronym", bioportalTerm);
       Optional.empty();
     }
-    String definition = null;
+    String definition = "";
     if (bioportalTerm.getDefinition() != null && bioportalTerm.getDefinition().size() > 0) {
       definition = bioportalTerm.getDefinition().get(0).toString();
     }

@@ -26,6 +26,7 @@ import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
+import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
@@ -43,6 +44,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -61,6 +63,7 @@ public class MetadataService {
   private final MetadataContentExtractor metadataContentExtractor;
   private final RequiredValuesEvaluator requiredValuesEvaluator;
   private final OptionalValuesEvaluator optionalValuesEvaluator;
+  private final ExtraFieldsEvaluator extraFieldsEvaluator;
   private final ValueTypeEvaluator valueTypeEvaluator;
   private final ControlledTermEvaluator controlledTermEvaluator;
 
@@ -72,6 +75,7 @@ public class MetadataService {
                          @Nonnull MetadataContentExtractor metadataContentExtractor,
                          @Nonnull RequiredValuesEvaluator requiredValuesEvaluator,
                          @Nonnull OptionalValuesEvaluator optionalValuesEvaluator,
+                         @Nonnull ExtraFieldsEvaluator extraFieldsEvaluator,
                          @Nonnull ValueTypeEvaluator valueTypeEvaluator,
                          @Nonnull ControlledTermEvaluator controlledTermEvaluator) {
     this.cedarService = checkNotNull(cedarService);
@@ -82,6 +86,7 @@ public class MetadataService {
     this.metadataContentExtractor = checkNotNull(metadataContentExtractor);
     this.requiredValuesEvaluator = checkNotNull(requiredValuesEvaluator);
     this.optionalValuesEvaluator = checkNotNull(optionalValuesEvaluator);
+    this.extraFieldsEvaluator = checkNotNull(extraFieldsEvaluator);
     this.valueTypeEvaluator = checkNotNull(valueTypeEvaluator);
     this.controlledTermEvaluator = checkNotNull(controlledTermEvaluator);
   }
@@ -177,6 +182,13 @@ public class MetadataService {
         templateFieldMap,
         fieldAlignments);
     reportItems.addAll(optionalValuesReports);
+
+    // Check missing template fields
+    var missingFieldsReports = extraFieldsEvaluator.evaluateMetadata(
+        metadataFieldInfoMap,
+        templateFieldMap,
+        fieldAlignments);
+    reportItems.addAll(missingFieldsReports);
 
     // Check value types
     var valueTypeReports = valueTypeEvaluator.evaluateMetadata(

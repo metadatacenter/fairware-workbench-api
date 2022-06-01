@@ -9,6 +9,8 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
+import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
@@ -20,6 +22,7 @@ import org.metadatacenter.fairware.core.services.citation.DataCiteService;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.DateTimeValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.DateValueChecker;
+import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.NumberValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
@@ -86,8 +89,11 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     // TODO: Use Dagger for dependency injection
     var requestHandler = new HttpRequestHandler(objectMapper);
     var cedarTemplateFieldsExtractor = new CedarTemplateFieldsExtractor();
-    var cedarService = new CedarService(configuration.getCedarConfig(), objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-    var bioportalService = new BioportalService(configuration.getBioportalConfig());
+    var coreConfig = configuration.getCoreConfig();
+    var cedarConfig = configuration.getCedarConfig();
+    var bioportalConfig = configuration.getBioportalConfig();
+    var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
+    var bioportalService = new BioportalService(bioportalConfig);
     var templateService = new TemplateService(cedarService);
     var citationServiceProviders = ImmutableList.<CitationServiceProvider>of(
         new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
@@ -104,16 +110,18 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var timeValueChecker = new TimeValueChecker();
     var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker,
         dateTimeValueChecker, dateValueChecker, timeValueChecker);
+    var extraFieldsEvaluator = new ExtraFieldsEvaluator(bioportalService, coreConfig);
     var valueFromOntologyChecker = new ValueFromOntologyChecker(bioportalService);
     var controlledTermEvaluator = new ControlledTermEvaluator(valueFromOntologyChecker);
     var metadataService = new MetadataService(cedarService,
         bioportalService,
         citationService,
         configuration.getCoreConfig(),
-        configuration.getBioportalConfig(),
+        bioportalConfig,
         metadataContentExtractor,
         requiredValuesEvaluator,
         optionalValuesEvaluator,
+        extraFieldsEvaluator,
         valueTypeEvaluator,
         controlledTermEvaluator);
     final var fairwareWorkbenchResource = new FairwareWorkbenchResource(templateService, metadataService);

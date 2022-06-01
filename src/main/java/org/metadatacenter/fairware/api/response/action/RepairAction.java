@@ -45,18 +45,15 @@ public abstract class RepairAction {
   @Nonnull
   @JsonProperty(VALUE_SUGGESTION)
   public Optional<String> getValueSuggestion() {
-    var valueSuggestion = "";
     switch (getKind()) {
       case REPLACE_METADATA_VALUE_WITH_ONTOLOGY_TERM:
-        valueSuggestion = replaceMetadataValueWithOntologyTerm().getUri();
-        break;
+        return Optional.of(replaceMetadataValueWithOntologyTerm().getUri());
       case REPLACE_FIELD_NAME_WITH_ONTOLOGY_TERM:
-        valueSuggestion = replaceFieldNameWithOntologyTerm().stream()
-            .map(SuggestedOntologyTerm::getLabel)
-            .collect(Collectors.joining(", "));
-        break;
+        return replaceFieldNameWithOntologyTerm().stream()
+            .findFirst()
+            .map(SuggestedOntologyTerm::getLabel);
     }
-    return (!valueSuggestion.isEmpty()) ? Optional.of(valueSuggestion) : Optional.empty();
+    return Optional.empty();
   }
 
   @Nonnull
