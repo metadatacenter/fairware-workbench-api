@@ -30,7 +30,7 @@ public class NumberValueChecker {
         } catch (ParseException e) {
           var report = EvaluationReportItem.create(
               GeneralUtil.generateFullPathDotNotation(metadataField),
-              MetadataIssue.create(IssueType.UNABLE_PARSE_STRING_TO_NUMBER),
+              MetadataIssue.create(IssueType.INVALID_NUMBER_FORMAT),
               RepairAction.ofEnterCorrectValue());
           return Optional.of(report);
         }
