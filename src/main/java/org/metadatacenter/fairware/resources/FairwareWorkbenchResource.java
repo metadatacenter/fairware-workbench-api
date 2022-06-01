@@ -18,7 +18,6 @@ import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
-import org.metadatacenter.fairware.api.response.evaluationReport.EvaluationReportResponse;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.util.CedarUtil;
@@ -198,6 +197,45 @@ public class FairwareWorkbenchResource {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (Exception e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+    }
+  }
+
+  @POST
+  @Operation(summary = "Evaluate the metadata in batch and produce the summary report.")
+  @Path("/metadata/report")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Tag(name = "Metadata")
+  @RequestBody(description = "A list of metadata record and its associated template to evaluate.", required = true,
+      content = @Content(
+          schema = @Schema(implementation = EvaluateMetadataRequest.class)
+      ))
+  @ApiResponse(
+      responseCode = "200",
+      description = "Response showing the the evaluation summary report.",
+      content = @Content(
+          schema = @Schema(implementation = EvaluateMetadataResponse.class)
+      ))
+  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
+      "malformed syntax in the request body.")
+  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
+      "it from fulfilling the request.")
+  public Response evaluationReport(@NotNull @Valid EvaluationReportRequest request) {
+    try {
+      // Evaluate record by record
+      var evaluationResponses = Lists.<EvaluateMetadataResponse>newArrayList();
+      for (var evaluationRequest : request.getEvaluateMetadataRequests()) {
+        var evaluationResponse = getEvaluateMetadataResponse(evaluationRequest);
+        evaluationResponses.add(evaluationResponse);
+      }
+      var report = metadataService.generateEvaluationReport(ImmutableList.copyOf(evaluationResponses));
+      return Response.ok(report).build();
+    } catch (BadRequestException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (HttpException | IOException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }

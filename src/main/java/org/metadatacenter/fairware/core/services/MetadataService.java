@@ -319,7 +319,7 @@ public class MetadataService {
       // Add to the map the info about the fields with missing values
       for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReport().getAllIssueReports()) {
         var fieldPath = fieldEvaluationResult.getMetadataFieldPath();
-        var key = templateId + fieldPath;
+        var key = templateId + "#" + fieldPath;
         var issueType = fieldEvaluationResult.getMetadataIssue().getIssueType();
         if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {
           var existingFieldReport = fieldReportMap.get(key);
@@ -336,7 +336,7 @@ public class MetadataService {
     int completeFieldsCount = 0;
     int fieldsWithMissingRequiredCount = 0;
     int fieldsWithMissingOptionalCount = 0;
-    var fieldReports = ImmutableList.copyOf(fieldReportMap.values());
+    var fieldReports = Lists.newArrayList(fieldReportMap.values());
     for (var fieldReport : fieldReports) {
       if (fieldReport.getMissingRequiredValuesCount() > 0) {
         fieldsWithMissingRequiredCount++;
