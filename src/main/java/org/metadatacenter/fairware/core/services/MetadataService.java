@@ -24,6 +24,7 @@ import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
+import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
@@ -60,6 +61,7 @@ public class MetadataService {
   private final RequiredValuesEvaluator requiredValuesEvaluator;
   private final OptionalValuesEvaluator optionalValuesEvaluator;
   private final ValueTypeEvaluator valueTypeEvaluator;
+  private final ControlledTermEvaluator controlledTermEvaluator;
 
   public MetadataService(@Nonnull CedarService cedarService,
                          @Nonnull BioportalService bioportalService,
@@ -69,7 +71,8 @@ public class MetadataService {
                          @Nonnull MetadataContentExtractor metadataContentExtractor,
                          @Nonnull RequiredValuesEvaluator requiredValuesEvaluator,
                          @Nonnull OptionalValuesEvaluator optionalValuesEvaluator,
-                         @Nonnull ValueTypeEvaluator valueTypeEvaluator) {
+                         @Nonnull ValueTypeEvaluator valueTypeEvaluator,
+                         @Nonnull ControlledTermEvaluator controlledTermEvaluator) {
     this.cedarService = checkNotNull(cedarService);
     this.bioportalService = checkNotNull(bioportalService);
     this.citationService = checkNotNull(citationService);
@@ -79,6 +82,7 @@ public class MetadataService {
     this.requiredValuesEvaluator = checkNotNull(requiredValuesEvaluator);
     this.optionalValuesEvaluator = checkNotNull(optionalValuesEvaluator);
     this.valueTypeEvaluator = checkNotNull(valueTypeEvaluator);
+    this.controlledTermEvaluator = checkNotNull(controlledTermEvaluator);
   }
 
   /**
@@ -179,6 +183,13 @@ public class MetadataService {
         templateFieldMap,
         fieldAlignments);
     reportItems.addAll(valueTypeReports);
+
+    // Check controlled terms
+    var controlledTermReports = controlledTermEvaluator.evaluateMetadata(
+        metadataFieldInfoMap,
+        templateFieldMap,
+        fieldAlignments);
+    reportItems.addAll(controlledTermReports);
 
     var metadataRecordName = Optional.<String>empty();
     if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {

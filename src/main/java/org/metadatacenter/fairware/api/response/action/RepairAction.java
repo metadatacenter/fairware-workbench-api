@@ -24,6 +24,10 @@ public abstract class RepairAction {
     return AutoOneOf_RepairAction.enterNumberTypeValue(value);
   }
 
+  public static RepairAction ofReplaceMetadataValueWithOntologyTerm(@Nonnull SuggestedOntologyTerm ontologyTerm) {
+    return AutoOneOf_RepairAction.replaceMetadataValueWithOntologyTerm(ontologyTerm);
+  }
+
   public static RepairAction ofReplaceFieldNameWithOntologyTerm(@Nonnull List<SuggestedOntologyTerm> suggestedOntologyTerms) {
     return AutoOneOf_RepairAction.replaceFieldNameWithOntologyTerm(suggestedOntologyTerms);
   }
@@ -44,6 +48,9 @@ public abstract class RepairAction {
   public abstract Number enterNumberTypeValue();
 
   @Nonnull
+  public abstract SuggestedOntologyTerm replaceMetadataValueWithOntologyTerm();
+
+  @Nonnull
   public abstract List<SuggestedOntologyTerm> replaceFieldNameWithOntologyTerm();
 
   public enum Kind {
@@ -51,6 +58,7 @@ public abstract class RepairAction {
     ENTER_CORRECT_VALUE,
     ENTER_STRING_TYPE_VALUE,
     ENTER_NUMBER_TYPE_VALUE,
+    REPLACE_METADATA_VALUE_WITH_ONTOLOGY_TERM,
     REPLACE_FIELD_NAME_WITH_ONTOLOGY_TERM
   }
 }

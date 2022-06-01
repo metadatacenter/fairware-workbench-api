@@ -17,6 +17,7 @@ import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.DateTimeValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.DateValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.NumberValueChecker;
@@ -24,6 +25,7 @@ import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvalua
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.StringValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.TimeValueChecker;
+import org.metadatacenter.fairware.core.services.evaluation.ValueFromOntologyChecker;
 import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
@@ -35,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.DispatcherType;
-import java.sql.Time;
 import java.util.EnumSet;
 
 public class FairwareWorkbenchApiApplication extends Application<FairwareWorkbenchApiConfiguration> {
@@ -103,6 +104,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var timeValueChecker = new TimeValueChecker();
     var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker,
         dateTimeValueChecker, dateValueChecker, timeValueChecker);
+    var valueFromOntologyChecker = new ValueFromOntologyChecker(bioportalService);
+    var controlledTermEvaluator = new ControlledTermEvaluator(valueFromOntologyChecker);
     var metadataService = new MetadataService(cedarService,
         bioportalService,
         citationService,
@@ -111,7 +114,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
         metadataContentExtractor,
         requiredValuesEvaluator,
         optionalValuesEvaluator,
-        valueTypeEvaluator);
+        valueTypeEvaluator,
+        controlledTermEvaluator);
     final var fairwareWorkbenchResource = new FairwareWorkbenchResource(templateService, metadataService);
     environment.jersey().register(fairwareWorkbenchResource);
   }

@@ -35,13 +35,22 @@ public class BioportalService {
    * Search for ontology classes
    */
   public BpPagedResults<BpClass> search(String q) throws IOException, HttpException {
-    return search(q, 0, bioportalConfig.getPageSize());
+    return search(q, null, 0, bioportalConfig.getPageSize());
   }
 
-  public BpPagedResults<BpClass> search(String q, int page, int pageSize) throws IOException, HttpException {
+  public BpPagedResults<BpClass> search(String q, String ontology) throws IOException, HttpException {
+    return search(q, ontology, 0, bioportalConfig.getPageSize());
+  }
+
+  public BpPagedResults<BpClass> search(String q, String ontology, int page, int pageSize) throws IOException, HttpException {
 
     q = GeneralUtil.encodeIfNeeded(q);
     StringBuilder urlSb = new StringBuilder(bioportalConfig.getSearchUrl()).append("?q=" + q);
+
+    // Include the ontology selection
+    if (ontology != null) {
+      urlSb.append("&ontologies=").append(ontology);
+    }
 
     // Include additional information
     urlSb.append("&include=prefLabel,definition");
