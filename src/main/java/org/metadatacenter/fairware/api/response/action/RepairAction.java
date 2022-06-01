@@ -1,12 +1,18 @@
 package org.metadatacenter.fairware.api.response.action;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoOneOf;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AutoOneOf(RepairAction.Kind.class)
 public abstract class RepairAction {
+
+  private static final String REPAIR_COMMAND = "repairCommand";
+  private static final String VALUE_SUGGESTION = "valueSuggestion";
 
   public static RepairAction ofEnterMissingValue() {
     return AutoOneOf_RepairAction.enterMissingValue();
@@ -33,7 +39,25 @@ public abstract class RepairAction {
   }
 
   @Nonnull
+  @JsonProperty(REPAIR_COMMAND)
   public abstract Kind getKind();
+
+  @Nonnull
+  @JsonProperty(VALUE_SUGGESTION)
+  public Optional<String> getValueSuggestion() {
+    var valueSuggestion = "";
+    switch (getKind()) {
+      case REPLACE_METADATA_VALUE_WITH_ONTOLOGY_TERM:
+        valueSuggestion = replaceMetadataValueWithOntologyTerm().getUri();
+        break;
+      case REPLACE_FIELD_NAME_WITH_ONTOLOGY_TERM:
+        valueSuggestion = replaceFieldNameWithOntologyTerm().stream()
+            .map(SuggestedOntologyTerm::getLabel)
+            .collect(Collectors.joining(", "));
+        break;
+    }
+    return (!valueSuggestion.isEmpty()) ? Optional.of(valueSuggestion) : Optional.empty();
+  }
 
   @Nonnull
   public abstract void enterMissingValue();
