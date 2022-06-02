@@ -63,7 +63,22 @@ public class FairwareWorkbenchResource {
   @Tag(name = "Templates")
   @RequestBody(description = "A JSON object containing the metadata record", required = true,
       content = @Content(
-          schema = @Schema(implementation = RecommendTemplatesRequest.class)
+          schema = @Schema(implementation = RecommendTemplatesRequest.class),
+          examples = {
+              @ExampleObject(value = "{" +
+                  "\"metadataRecord\": {" +
+                    "\"biosample_accession\": \"1234\"," +
+                    "\"organism\": \"Homo sapiens\"," +
+                    "\"disease\": \"Diabetes\"," +
+                    "\"tissue\": \"liver\"," +
+                    "\"platform\": \"Illumina\"," +
+                    "\"cell_line\": \"\"," +
+                    "\"cell_type\": \"\"," +
+                    "\"sex\": \"male\"," +
+                    "\"age\": \"52 yo\"" +
+                    "}" +
+                  "}")
+          }
       ))
   @ApiResponse(
       responseCode = "200",
@@ -100,7 +115,23 @@ public class FairwareWorkbenchResource {
       "The template fields are collected from the CEDAR template and the metadata fields are collected from " +
       "the input metadata record.", required = true,
       content = @Content(
-          schema = @Schema(implementation = AlignMetadataRequest.class)
+          schema = @Schema(implementation = AlignMetadataRequest.class),
+          examples = {
+              @ExampleObject(value = "{" +
+                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                  "\"metadataRecord\": {" +
+                    "\"biosample_accession\": \"1234\"," +
+                    "\"organism\": \"Homo sapiens\"," +
+                    "\"disease\": \"Diabetes\"," +
+                    "\"tissue\": \"liver\"," +
+                    "\"platform\": \"Illumina\"," +
+                    "\"cell_line\": \"\"," +
+                    "\"cell_type\": \"\"," +
+                    "\"sex\": \"male\"," +
+                    "\"age\": \"52 yo\"" +
+                    "}" +
+                  "}")
+          }
       ))
   @ApiResponse(
       responseCode = "200",
@@ -139,7 +170,23 @@ public class FairwareWorkbenchResource {
   @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2a) CEDAR template instance id or " +
       "2b) metadata record object", required = true,
       content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataRequest.class)
+          schema = @Schema(implementation = EvaluateMetadataRequest.class),
+          examples = {
+              @ExampleObject(value = "{" +
+                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                    "\"metadataRecord\": {" +
+                    "\"biosample_accession\": \"1234\"," +
+                    "\"organism\": \"Homo sapiens\"," +
+                    "\"disease\": \"Diabetes\"," +
+                    "\"tissue\": \"liver\"," +
+                    "\"platform\": \"Illumina\"," +
+                    "\"cell_line\": \"\"," +
+                    "\"cell_type\": \"\"," +
+                    "\"sex\": \"male\"," +
+                    "\"age\": \"52 yo\"" +
+                    "}" +
+                  "}")
+          }
       ))
   @ApiResponse(
       responseCode = "200",
@@ -211,7 +258,38 @@ public class FairwareWorkbenchResource {
   @Tag(name = "Metadata")
   @RequestBody(description = "A list of metadata record and its associated template to evaluate.", required = true,
       content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataRequest.class)
+          schema = @Schema(implementation = EvaluateMetadataRequest.class),
+          examples = {
+              @ExampleObject(value = "{" +
+                    "\"metadataList\": [{" +
+                      "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                      "\"metadataRecord\": {" +
+                        "\"biosample_accession\": \"1234\"," +
+                        "\"organism\": \"Homo sapiens\"," +
+                        "\"disease\": \"Diabetes\"," +
+                        "\"tissue\": \"liver\"," +
+                        "\"platform\": \"Illumina\"," +
+                        "\"cell_line\": \"\"," +
+                        "\"cell_type\": \"\"," +
+                        "\"sex\": \"male\"," +
+                        "\"age\": \"52 yo\"" +
+                      "}" +
+                    "}, {" +
+                      "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                      "\"metadataRecord\": {" +
+                        "\"biosample_accession\": \"1235\"," +
+                        "\"organism\": \"Homo sapiens\"," +
+                        "\"disease\": \"Melanoma\"," +
+                        "\"tissue\": \"skin\"," +
+                        "\"platform\": \"Illumina\"," +
+                        "\"cell_line\": \"\"," +
+                        "\"cell_type\": \"\"," +
+                        "\"sex\": \"\"," +
+                        "\"age\": 35" +
+                      "}" +
+                    "}]" +
+                  "}")
+          }
       ))
   @ApiResponse(
       responseCode = "200",
