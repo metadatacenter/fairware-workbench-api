@@ -3,9 +3,7 @@ package org.metadatacenter.fairware.api.request;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.metadatacenter.fairware.api.shared.FieldAlignment;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
