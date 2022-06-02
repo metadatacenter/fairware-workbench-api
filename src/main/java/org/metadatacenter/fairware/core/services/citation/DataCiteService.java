@@ -1,10 +1,8 @@
 package org.metadatacenter.fairware.core.services.citation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableMap;
-import org.apache.http.HttpException;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
@@ -25,7 +23,7 @@ public class DataCiteService implements CitationServiceProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(DataCiteService.class);
   private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new GuavaModule());
-  private static final Pattern pattern = Pattern.compile("^.*(10\\.[A-Za-z0-9.\\/-]+).*$");
+  private static final Pattern doiPattern = Pattern.compile("^.*(10\\.[A-Za-z0-9.\\/-]+).*$");
 
   private final DataCiteConfig dataCiteConfig;
 
@@ -35,11 +33,11 @@ public class DataCiteService implements CitationServiceProvider {
 
   @Override
   public boolean isCompatible(@Nonnull String metadataRecordId) {
-    return pattern.matcher(metadataRecordId).find();
+    return doiPattern.matcher(metadataRecordId).find();
   }
 
   private Optional<String> extractDoi(String inputString) {
-    var matcher = pattern.matcher(inputString);
+    var matcher = doiPattern.matcher(inputString);
     if (matcher.find()) {
       var doi = matcher.group(1);
       return Optional.of(doi);
@@ -61,12 +59,11 @@ public class DataCiteService implements CitationServiceProvider {
       logger.info("Response code: " + statusCode);
       switch (statusCode) {
         case HttpStatus.SC_OK:
-          var result = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
-          var attributes = result.get("data").get("attributes");
-          var metadataRecord =
-              objectMapper.convertValue(attributes, new TypeReference<ImmutableMap<String, Object>>() {
-              });
-          return metadataRecord;
+          var metadata = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
+          var content = metadata.get("data").get("attributes");
+          var mapType = objectMapper.getTypeFactory().constructMapType(ImmutableMap.class, String.class, Object.class);
+          var metadataContent = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
+          return metadataContent;
         case HttpStatus.SC_NOT_FOUND:
           throw new FileNotFoundException(String.format("Unable to retrieve DataCite DOI metadata: %s", url));
         default:
