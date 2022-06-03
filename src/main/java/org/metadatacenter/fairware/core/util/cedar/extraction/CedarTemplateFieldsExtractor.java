@@ -104,12 +104,22 @@ public class CedarTemplateFieldsExtractor {
     if (allowMultipleValues) {
       fieldNode = fieldNode.get(JSON_SCHEMA_ITEMS);
     }
-    return TemplateField.ofValueField(
-        FieldSpecification.ofValueField(
-            getName(fieldNode), getPrefLabel(fieldNode),
-            getValueType(fieldNode), isRequired(fieldNode),
-            allowMultipleValues, getValueConstraints(fieldNode),
-            parentField));
+    var valueType = getValueType(fieldNode);
+    switch (valueType) {
+      case DATE_TIME:
+        return TemplateField.ofValueField(
+            FieldSpecification.ofDateTimeField(
+                getName(fieldNode), getPrefLabel(fieldNode),
+                isRequired(fieldNode), allowMultipleValues,
+                getDateTimeFormat(fieldNode), parentField));
+      default:
+        return TemplateField.ofValueField(
+            FieldSpecification.ofValueField(
+                getName(fieldNode), getPrefLabel(fieldNode),
+                getValueType(fieldNode), isRequired(fieldNode),
+                allowMultipleValues, getValueConstraints(fieldNode),
+                parentField));
+    }
   }
 
   private String getName(JsonNode node) {
@@ -185,5 +195,19 @@ public class CedarTemplateFieldsExtractor {
     return collector.isEmpty()
         ? Optional.empty()
         : Optional.of(ImmutableList.copyOf(collector));
+  }
+
+  private String getDateTimeFormat(JsonNode node) {
+    var temporalGranularity = node.get("_ui").get("temporalGranularity").asText();
+    if ("second".equals(temporalGranularity)) {
+      return "yyyy-MM-dd[[ ]['T']]hh:mm:ss[[]['Z']";
+    } else if ("decimalSecond".equals(temporalGranularity)) {
+      return "yyyy-MM-dd[[ ]['T']]hh:mm:ss.SSS[[]['Z']";
+    } else if ("minute".equals(temporalGranularity)) {
+      return "yyyy-MM-dd[[ ]['T']]hh:mm[[]['Z']";
+    } else if ("hour".equals(temporalGranularity)) {
+      return "yyyy-MM-dd[[ ]['T']]hh[[]['Z']";
+    }
+    throw new IllegalArgumentException("Unknown temporal granularity from CEDAR template: " + temporalGranularity);
   }
 }

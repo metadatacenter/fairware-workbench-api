@@ -4,6 +4,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Optional;
 
 @AutoValue
@@ -16,9 +17,10 @@ public abstract class FieldSpecification {
                                           boolean isRequired,
                                           boolean allowMultipleValues,
                                           @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
+                                          @Nullable String nullableValueFormat,
                                           @Nonnull Optional<TemplateField> parentField) {
     return new AutoValue_FieldSpecification(name, prefLabel, valueType, isRequired, allowMultipleValues,
-        valueConstraints, parentField);
+        valueConstraints, nullableValueFormat, parentField);
   }
 
   @Nonnull
@@ -27,7 +29,7 @@ public abstract class FieldSpecification {
                                                  boolean allowMultipleValues,
                                                  @Nonnull Optional<TemplateField> parentField) {
     return create(name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
-        Optional.empty(), parentField);
+        Optional.empty(), null, parentField);
   }
 
   @Nonnull
@@ -39,7 +41,18 @@ public abstract class FieldSpecification {
                                                 @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                 @Nonnull Optional<TemplateField> parentField) {
     return create(name, prefLabel, valueType, isRequired, allowMultipleValues,
-        valueConstraints, parentField);
+        valueConstraints, null, parentField);
+  }
+
+  @Nonnull
+  public static FieldSpecification ofDateTimeField(@Nonnull String name,
+                                                   @Nonnull Optional<String> prefLabel,
+                                                   boolean isRequired,
+                                                   boolean allowMultipleValues,
+                                                   @Nonnull String valueFormat,
+                                                   @Nonnull Optional<TemplateField> parentField) {
+    return create(name, prefLabel, ValueType.DATE_TIME, isRequired, allowMultipleValues,
+        Optional.empty(), valueFormat, parentField);
   }
 
   @Nonnull
@@ -57,6 +70,14 @@ public abstract class FieldSpecification {
 
   @Nonnull
   public abstract Optional<ImmutableList<ValueConstraint>> getValueConstraints();
+
+  @Nullable
+  public abstract String getNullableValueFormat();
+
+  @Nonnull
+  public Optional<String> getValueFormat() {
+    return Optional.ofNullable(getNullableValueFormat());
+  }
 
   @Nonnull
   public abstract Optional<TemplateField> getParentField();
