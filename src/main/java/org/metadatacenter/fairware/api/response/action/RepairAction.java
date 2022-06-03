@@ -6,7 +6,6 @@ import com.google.auto.value.AutoOneOf;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @AutoOneOf(RepairAction.Kind.class)
 public abstract class RepairAction {
@@ -30,12 +29,12 @@ public abstract class RepairAction {
     return AutoOneOf_RepairAction.enterNumberTypeValue(value);
   }
 
-  public static RepairAction ofReplaceMetadataValueWithOntologyTerm(@Nonnull SuggestedOntologyTerm ontologyTerm) {
-    return AutoOneOf_RepairAction.replaceMetadataValueWithOntologyTerm(ontologyTerm);
+  public static RepairAction ofReplaceMetadataValueWithStandardizedValue(@Nonnull SuggestedOntologyTerm ontologyTerm) {
+    return AutoOneOf_RepairAction.replaceMetadataValueWithStandardizedValue(ontologyTerm);
   }
 
-  public static RepairAction ofReplaceFieldNameWithOntologyTerm(@Nonnull List<SuggestedOntologyTerm> suggestedOntologyTerms) {
-    return AutoOneOf_RepairAction.replaceFieldNameWithOntologyTerm(suggestedOntologyTerms);
+  public static RepairAction ofReplaceMetadataFieldWithStandardizedName(@Nonnull List<SuggestedOntologyTerm> suggestedOntologyTerms) {
+    return AutoOneOf_RepairAction.replaceMetadataFieldWithStandardizedName(suggestedOntologyTerms);
   }
 
   @Nonnull
@@ -46,10 +45,10 @@ public abstract class RepairAction {
   @JsonProperty(VALUE_SUGGESTION)
   public Optional<String> getValueSuggestion() {
     switch (getKind()) {
-      case REPLACE_METADATA_VALUE_WITH_ONTOLOGY_TERM:
-        return Optional.of(replaceMetadataValueWithOntologyTerm().getUri());
-      case REPLACE_FIELD_NAME_WITH_ONTOLOGY_TERM:
-        return replaceFieldNameWithOntologyTerm().stream()
+      case REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE:
+        return Optional.of(replaceMetadataValueWithStandardizedValue().getUri());
+      case REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME:
+        return replaceMetadataFieldWithStandardizedName().stream()
             .findFirst()
             .map(SuggestedOntologyTerm::getLabel);
     }
@@ -69,17 +68,17 @@ public abstract class RepairAction {
   public abstract Number enterNumberTypeValue();
 
   @Nonnull
-  public abstract SuggestedOntologyTerm replaceMetadataValueWithOntologyTerm();
+  public abstract SuggestedOntologyTerm replaceMetadataValueWithStandardizedValue();
 
   @Nonnull
-  public abstract List<SuggestedOntologyTerm> replaceFieldNameWithOntologyTerm();
+  public abstract List<SuggestedOntologyTerm> replaceMetadataFieldWithStandardizedName();
 
   public enum Kind {
     ENTER_MISSING_VALUE,
     ENTER_CORRECT_VALUE,
     ENTER_STRING_TYPE_VALUE,
     ENTER_NUMBER_TYPE_VALUE,
-    REPLACE_METADATA_VALUE_WITH_ONTOLOGY_TERM,
-    REPLACE_FIELD_NAME_WITH_ONTOLOGY_TERM
+    REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE,
+    REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME
   }
 }

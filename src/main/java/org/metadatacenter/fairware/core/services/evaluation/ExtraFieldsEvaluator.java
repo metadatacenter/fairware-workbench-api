@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
@@ -9,7 +10,6 @@ import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
-import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
@@ -54,24 +54,31 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
 
     // Use BioPortal to find top matching ontology terms
     for (MetadataFieldInfo mf : nonMatchedFields) {
-
-      BpPagedResults<BpClass> results = bioportalService.search(mf.getName());
+      var metadataFieldName = mf.getName();
+      BpPagedResults<BpClass> results = bioportalService.search(metadataFieldName);
       List<SuggestedOntologyTerm> suggestedTerms = new ArrayList<>();
-      if (results.getCollection().size() > 0) {
-        for (BpClass c : results.getCollection()) {
-          if (bpClassToSuggestedTerm(c).isPresent()) {
-            suggestedTerms.add(bpClassToSuggestedTerm(c).get());
+      for (BpClass c : results.getCollection()) {
+        var suggestedOntologyTerm = createSuggestedOntologyTerm(c);
+        if (suggestedOntologyTerm.isPresent()) {
+          var suggestedFieldName = suggestedOntologyTerm.get().getLabel();
+          if (metadataFieldName.equals(suggestedFieldName)) {
+            suggestedTerms = Lists.<SuggestedOntologyTerm>newArrayList();
+            break;
+          } else {
+            suggestedTerms.add(suggestedOntologyTerm.get());
           }
           if (suggestedTerms.size() == coreConfig.getTermSuggestionsListSize()) {
             break; // Exit when reaching default size
           }
         }
       }
-      reportItems.add(
-          EvaluationReportItem.create(
-              GeneralUtil.generateFullPathDotNotation(mf),
-              MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE),
-              RepairAction.ofReplaceFieldNameWithOntologyTerm(suggestedTerms)));
+      if (!suggestedTerms.isEmpty()) {
+        reportItems.add(
+            EvaluationReportItem.create(
+                GeneralUtil.generateFullPathDotNotation(mf),
+                MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE),
+                RepairAction.ofReplaceMetadataFieldWithStandardizedName(suggestedTerms)));
+      }
     }
     return reportItems;
   }
@@ -100,18 +107,18 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
     return result;
   }
 
-  private Optional<SuggestedOntologyTerm> bpClassToSuggestedTerm(BpClass bioportalTerm) {
+  private Optional<SuggestedOntologyTerm> createSuggestedOntologyTerm(BpClass bioportalTerm) {
     if (bioportalTerm.getId() == null) {
       logger.warn("Couldn't retrieve class id", bioportalTerm);
-      Optional.empty();
+      return Optional.empty();
     }
     if (bioportalTerm.getPrefLabel() == null) {
       logger.warn("Couldn't retrieve preferred label", bioportalTerm);
-      Optional.empty();
+      return Optional.empty();
     }
     if (bioportalTerm.getLinks() == null || bioportalTerm.getLinks().getOntology() == null) {
       logger.warn("Couldn't retrieve ontology acronym", bioportalTerm);
-      Optional.empty();
+      return Optional.empty();
     }
     return Optional.of(
         SuggestedOntologyTerm.create(

@@ -51,7 +51,7 @@ public class ValueFromOntologyChecker {
         var report = EvaluationReportItem.create(
             GeneralUtil.generateFullPathDotNotation(metadataField),
             MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM),
-            RepairAction.ofReplaceMetadataValueWithOntologyTerm(firstOntologyTerm));
+            RepairAction.ofReplaceMetadataValueWithStandardizedValue(firstOntologyTerm));
         return Optional.of(report);
       }
     }
