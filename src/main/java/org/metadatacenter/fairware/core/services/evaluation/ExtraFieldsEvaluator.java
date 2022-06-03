@@ -61,7 +61,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
         var suggestedOntologyTerm = createSuggestedOntologyTerm(c);
         if (suggestedOntologyTerm.isPresent()) {
           var suggestedFieldName = suggestedOntologyTerm.get().getLabel();
-          if (metadataFieldName.equals(suggestedFieldName)) {
+          if (metadataFieldName.equalsIgnoreCase(suggestedFieldName)) {
             suggestedTerms = Lists.<SuggestedOntologyTerm>newArrayList();
             break;
           } else {
