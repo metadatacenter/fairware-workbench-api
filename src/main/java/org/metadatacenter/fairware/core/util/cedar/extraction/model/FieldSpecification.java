@@ -56,6 +56,17 @@ public abstract class FieldSpecification {
   }
 
   @Nonnull
+  public static FieldSpecification ofDateField(@Nonnull String name,
+                                               @Nonnull Optional<String> prefLabel,
+                                               boolean isRequired,
+                                               boolean allowMultipleValues,
+                                               @Nonnull String valueFormat,
+                                               @Nonnull Optional<TemplateField> parentField) {
+    return create(name, prefLabel, ValueType.DATE, isRequired, allowMultipleValues,
+        Optional.empty(), valueFormat, parentField);
+  }
+
+  @Nonnull
   public abstract String getName();
 
   @Nonnull
