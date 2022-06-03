@@ -49,22 +49,24 @@ public class MapBasedMetadataContentExtractor {
         result.addAll(innerResult);
       } else if (metadataValue instanceof List) { // Array of homogenous values
         var valueList = ((List) metadataValue);
-        var firstValue = valueList.get(0);
-        if (firstValue instanceof Map) { // Array of objects
-          for (Object o : valueList) {
-            var innerPath = Lists.newArrayList(currentPath);
-            innerPath.add(metadataField);
-            var innerResult = generateInfoFieldsFromMetadata(
-                (Map<String, Object>) o,
-                innerPath);
-            result.addAll(innerResult);
+        if (!valueList.isEmpty()) {
+          var firstValue = valueList.get(0);
+          if (firstValue instanceof Map) { // Array of objects
+            for (Object o : valueList) {
+              var innerPath = Lists.newArrayList(currentPath);
+              innerPath.add(metadataField);
+              var innerResult = generateInfoFieldsFromMetadata(
+                  (Map<String, Object>) o,
+                  innerPath);
+              result.addAll(innerResult);
+            }
+          } else {
+            result.add(MetadataFieldInfo.create(metadataField,
+                Optional.empty(),
+                ImmutableList.copyOf(currentPath),
+                Optional.of(valueList),
+                Optional.empty()));
           }
-        } else {
-          result.add(MetadataFieldInfo.create(metadataField,
-              Optional.empty(),
-              ImmutableList.copyOf(currentPath),
-              Optional.of(valueList),
-              Optional.empty()));
         }
       }
     }
