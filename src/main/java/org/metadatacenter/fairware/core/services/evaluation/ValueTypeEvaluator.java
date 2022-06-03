@@ -45,23 +45,23 @@ public class ValueTypeEvaluator implements IMetadataEvaluator {
           && templateFieldMap.containsKey(fieldAlignment.getTemplateFieldPath())) {
         var metadataFieldInfo = metadataFieldInfoMap.get(fieldAlignment.getMetadataFieldPath());
         var templateField = templateFieldMap.get(fieldAlignment.getTemplateFieldPath());
-        var templateFieldSpecification = templateField.valueField();
-        var valueType = templateFieldSpecification.getValueType();
+        var fieldSpecification = templateField.valueField();
+        var valueType = fieldSpecification.getValueType();
         switch (valueType) {
           case STRING:
-            stringValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            stringValueChecker.checkValue(metadataFieldInfo, fieldSpecification).ifPresent(reportItems::add);
             break;
           case NUMBER:
-            numberValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            numberValueChecker.checkValue(metadataFieldInfo, fieldSpecification).ifPresent(reportItems::add);
             break;
           case DATE_TIME:
-            dateTimeValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            dateTimeValueChecker.checkValue(metadataFieldInfo, fieldSpecification).ifPresent(reportItems::add);
             break;
           case DATE:
-            dateValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            dateValueChecker.checkValue(metadataFieldInfo, fieldSpecification).ifPresent(reportItems::add);
             break;
           case TIME:
-            timeValueChecker.checkValue(metadataFieldInfo).ifPresent(reportItems::add);
+            timeValueChecker.checkValue(metadataFieldInfo, fieldSpecification).ifPresent(reportItems::add);
             break;
         }
       }
