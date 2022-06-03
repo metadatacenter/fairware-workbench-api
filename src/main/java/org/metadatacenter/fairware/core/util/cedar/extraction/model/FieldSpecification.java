@@ -67,6 +67,17 @@ public abstract class FieldSpecification {
   }
 
   @Nonnull
+  public static FieldSpecification ofTimeField(@Nonnull String name,
+                                               @Nonnull Optional<String> prefLabel,
+                                               boolean isRequired,
+                                               boolean allowMultipleValues,
+                                               @Nonnull String valueFormat,
+                                               @Nonnull Optional<TemplateField> parentField) {
+    return create(name, prefLabel, ValueType.TIME, isRequired, allowMultipleValues,
+        Optional.empty(), valueFormat, parentField);
+  }
+
+  @Nonnull
   public abstract String getName();
 
   @Nonnull

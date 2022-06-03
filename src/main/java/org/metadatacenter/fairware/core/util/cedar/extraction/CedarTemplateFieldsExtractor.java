@@ -118,6 +118,12 @@ public class CedarTemplateFieldsExtractor {
                 getName(fieldNode), getPrefLabel(fieldNode),
                 isRequired(fieldNode), allowMultipleValues,
                 getDateFormat(fieldNode), parentField));
+      case TIME:
+        return TemplateField.ofValueField(
+            FieldSpecification.ofTimeField(
+                getName(fieldNode), getPrefLabel(fieldNode),
+                isRequired(fieldNode), allowMultipleValues,
+                getTimeFormat(fieldNode), parentField));
       default:
         return TemplateField.ofValueField(
             FieldSpecification.ofValueField(
@@ -225,6 +231,20 @@ public class CedarTemplateFieldsExtractor {
       return "yyyy-MM";
     } else if ("year".equals(temporalGranularity)) {
       return "yyyy";
+    }
+    throw new IllegalArgumentException("Unknown temporal granularity from CEDAR template: " + temporalGranularity);
+  }
+
+  private String getTimeFormat(JsonNode node) {
+    var temporalGranularity = node.get("_ui").get("temporalGranularity").asText();
+    if ("second".equals(temporalGranularity)) {
+      return "hh:mm:ss";
+    } else if ("decimalSecond".equals(temporalGranularity)) {
+      return "hh:mm:ss.SSS";
+    } else if ("minute".equals(temporalGranularity)) {
+      return "hh:mm";
+    } else if ("hour".equals(temporalGranularity)) {
+      return "hh";
     }
     throw new IllegalArgumentException("Unknown temporal granularity from CEDAR template: " + temporalGranularity);
   }
