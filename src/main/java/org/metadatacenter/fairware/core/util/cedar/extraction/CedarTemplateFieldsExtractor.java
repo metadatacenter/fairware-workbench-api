@@ -211,14 +211,23 @@ public class CedarTemplateFieldsExtractor {
 
   private String getDateTimeFormat(JsonNode node) {
     var temporalGranularity = node.get("_ui").get("temporalGranularity").asText();
+    var inputTimeFormat = node.get("_ui").get("inputTimeFormat").asText();
     if ("second".equals(temporalGranularity)) {
-      return "yyyy-MM-dd[[ ]['T']]hh:mm:ss[[]['Z']";
+      return ("12h".equals(inputTimeFormat))
+          ? "yyyy-MM-dd[[ ]['T']]hh:mm:ss[[]['Z']"
+          : "yyyy-MM-dd[[ ]['T']]HH:mm:ss[[]['Z']";
     } else if ("decimalSecond".equals(temporalGranularity)) {
-      return "yyyy-MM-dd[[ ]['T']]hh:mm:ss.SSS[[]['Z']";
+      return ("12h".equals(inputTimeFormat))
+          ? "yyyy-MM-dd[[ ]['T']]hh:mm:ss.SSS[[]['Z']"
+          : "yyyy-MM-dd[[ ]['T']]HH:mm:ss.SSS[[]['Z']";
     } else if ("minute".equals(temporalGranularity)) {
-      return "yyyy-MM-dd[[ ]['T']]hh:mm[[]['Z']";
+      return ("12h".equals(inputTimeFormat))
+          ? "yyyy-MM-dd[[ ]['T']]hh:mm[[]['Z']"
+          : "yyyy-MM-dd[[ ]['T']]HH:mm[[]['Z']";
     } else if ("hour".equals(temporalGranularity)) {
-      return "yyyy-MM-dd[[ ]['T']]hh[[]['Z']";
+      return ("12h".equals(inputTimeFormat))
+          ? "yyyy-MM-dd[[ ]['T']]hh[[]['Z']"
+          : "yyyy-MM-dd[[ ]['T']]HH[[]['Z']";
     }
     throw new IllegalArgumentException("Unknown temporal granularity from CEDAR template: " + temporalGranularity);
   }
@@ -237,14 +246,23 @@ public class CedarTemplateFieldsExtractor {
 
   private String getTimeFormat(JsonNode node) {
     var temporalGranularity = node.get("_ui").get("temporalGranularity").asText();
+    var inputTimeFormat = node.get("_ui").get("inputTimeFormat").asText();
     if ("second".equals(temporalGranularity)) {
-      return "hh:mm:ss";
+      return ("12h".equals(inputTimeFormat))
+          ? "hh:mm:ss"
+          : "HH:mm:ss";
     } else if ("decimalSecond".equals(temporalGranularity)) {
-      return "hh:mm:ss.SSS";
+      return ("12h".equals(inputTimeFormat))
+          ? "hh:mm:ss.SSS"
+          : "HH:mm:ss.SSS";
     } else if ("minute".equals(temporalGranularity)) {
-      return "hh:mm";
+      return ("12h".equals(inputTimeFormat))
+          ? "hh:mm"
+          : "HH:mm";
     } else if ("hour".equals(temporalGranularity)) {
-      return "hh";
+      return ("12h".equals(inputTimeFormat))
+          ? "hh"
+          : "HH";
     }
     throw new IllegalArgumentException("Unknown temporal granularity from CEDAR template: " + temporalGranularity);
   }
