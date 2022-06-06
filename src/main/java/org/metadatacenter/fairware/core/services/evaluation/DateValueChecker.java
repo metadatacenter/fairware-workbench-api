@@ -35,7 +35,7 @@ public class DateValueChecker {
               RepairAction.ofEnterCorrectValue());
           return Optional.of(report);
         }
-      } else {
+      } else if (value instanceof Number || value instanceof Boolean) {
         var report = EvaluationReportItem.create(
             MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),

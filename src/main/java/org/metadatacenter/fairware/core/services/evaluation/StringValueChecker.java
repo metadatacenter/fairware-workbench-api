@@ -19,7 +19,7 @@ public class StringValueChecker {
     var possibleValue = metadataField.getValue();
     if (possibleValue.isPresent()) {
       var value = possibleValue.get();
-      if (!(value instanceof String)) {
+      if (value instanceof Number || value instanceof Boolean) {
         var report = EvaluationReportItem.create(
             MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),

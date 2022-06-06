@@ -21,7 +21,7 @@ public class NumberValueChecker {
     var possibleValue = metadataField.getValue();
     if (possibleValue.isPresent()) {
       var value = possibleValue.get();
-      if (value instanceof String) {
+      if (value instanceof String || value instanceof Boolean) {
         try {
           var number = attemptToParseValueToNumber(value);
           var report = EvaluationReportItem.create(

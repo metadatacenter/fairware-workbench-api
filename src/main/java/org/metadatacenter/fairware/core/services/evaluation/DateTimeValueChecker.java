@@ -11,6 +11,8 @@ import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFiel
 import javax.annotation.Nonnull;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class DateTimeValueChecker {
@@ -35,7 +37,7 @@ public class DateTimeValueChecker {
               RepairAction.ofEnterCorrectValue());
           return Optional.of(report);
         }
-      } else {
+      } else if (value instanceof Number || value instanceof Boolean) {
         var report = EvaluationReportItem.create(
             MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
