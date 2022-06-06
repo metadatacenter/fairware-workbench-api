@@ -11,20 +11,14 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class EvaluationReportItem {
 
-  private static final String ISSUE_LOCATION = "issueLocation";
   private static final String ISSUE_DETAILS = "issueDetails";
   private static final String REPAIR_ACTION = "repairAction";
 
   @JsonCreator
-  public static EvaluationReportItem create(@Nonnull @JsonProperty(ISSUE_LOCATION) String metadataFieldPath,
-                                            @Nonnull @JsonProperty(ISSUE_DETAILS) MetadataIssue metadataIssue,
+  public static EvaluationReportItem create(@Nonnull @JsonProperty(ISSUE_DETAILS) MetadataIssue metadataIssue,
                                             @Nonnull @JsonProperty(REPAIR_ACTION) RepairAction repairAction) {
-    return new AutoValue_EvaluationReportItem(metadataFieldPath, metadataIssue, repairAction);
+    return new AutoValue_EvaluationReportItem(metadataIssue, repairAction);
   }
-
-  @Nonnull
-  @JsonProperty(ISSUE_LOCATION)
-  public abstract String getMetadataFieldPath();
 
   @Nonnull
   @JsonProperty(ISSUE_DETAILS)

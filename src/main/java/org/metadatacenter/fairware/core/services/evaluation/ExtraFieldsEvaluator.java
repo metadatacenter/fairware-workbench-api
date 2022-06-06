@@ -75,8 +75,9 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       if (!suggestedTerms.isEmpty()) {
         reportItems.add(
             EvaluationReportItem.create(
-                GeneralUtil.generateFullPathDotNotation(mf),
-                MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE),
+                MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE,
+                    GeneralUtil.generateFullPathDotNotation(mf),
+                    null),
                 RepairAction.ofReplaceMetadataFieldWithStandardizedName(suggestedTerms)));
       }
     }

@@ -49,8 +49,9 @@ public class ValueFromOntologyChecker {
                 bpClass.getPrefLabel(),
                 ontology)).get();
         var report = EvaluationReportItem.create(
-            GeneralUtil.generateFullPathDotNotation(metadataField),
-            MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM),
+            MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
+                GeneralUtil.generateFullPathDotNotation(metadataField),
+                valueString),
             RepairAction.ofReplaceMetadataValueWithStandardizedValue(firstOntologyTerm));
         return Optional.of(report);
       }

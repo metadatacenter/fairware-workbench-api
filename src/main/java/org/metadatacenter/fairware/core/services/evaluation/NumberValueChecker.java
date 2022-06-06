@@ -25,14 +25,16 @@ public class NumberValueChecker {
         try {
           var number = attemptToParseValueToNumber(value);
           var report = EvaluationReportItem.create(
-              GeneralUtil.generateFullPathDotNotation(metadataField),
-              MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION),
+              MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
+                  GeneralUtil.generateFullPathDotNotation(metadataField),
+                  value),
               RepairAction.ofEnterNumberTypeValue(number));
           return Optional.of(report);
         } catch (ParseException e) {
           var report = EvaluationReportItem.create(
-              GeneralUtil.generateFullPathDotNotation(metadataField),
-              MetadataIssue.create(IssueType.INVALID_NUMBER_FORMAT),
+              MetadataIssue.create(IssueType.INVALID_NUMBER_FORMAT,
+                  GeneralUtil.generateFullPathDotNotation(metadataField),
+                  value),
               RepairAction.ofEnterCorrectValue());
           return Optional.of(report);
         }

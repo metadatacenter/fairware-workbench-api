@@ -30,15 +30,17 @@ public class DateTimeValueChecker {
           attemptToParseValueToDateTime(String.valueOf(value), fieldSpecification.getValueFormat().get());
         } catch (DateTimeParseException e) {
           var report = EvaluationReportItem.create(
-              GeneralUtil.generateFullPathDotNotation(metadataField),
-              MetadataIssue.create(IssueType.INVALID_DATE_TIME_FORMAT),
+              MetadataIssue.create(IssueType.INVALID_DATE_TIME_FORMAT,
+                  GeneralUtil.generateFullPathDotNotation(metadataField),
+                  value),
               RepairAction.ofEnterCorrectValue());
           return Optional.of(report);
         }
       } else {
         var report = EvaluationReportItem.create(
-            GeneralUtil.generateFullPathDotNotation(metadataField),
-            MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION),
+            MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
+                GeneralUtil.generateFullPathDotNotation(metadataField),
+                value),
             RepairAction.ofEnterCorrectValue());
         return Optional.of(report);
       }

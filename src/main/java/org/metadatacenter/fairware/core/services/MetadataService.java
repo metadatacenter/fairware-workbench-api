@@ -330,7 +330,7 @@ public class MetadataService {
       }
       // Add to the map the info about the fields with missing values
       for (var fieldEvaluationResult : recordEvaluationResult.getEvaluationReport().getAllIssueReports()) {
-        var fieldPath = fieldEvaluationResult.getMetadataFieldPath();
+        var fieldPath = fieldEvaluationResult.getMetadataIssue().getIssueLocation();
         var key = templateId + "#" + fieldPath;
         var issueType = fieldEvaluationResult.getMetadataIssue().getIssueType();
         if (issueType.equals(IssueType.MISSING_REQUIRED_VALUE)) {

@@ -31,8 +31,9 @@ public class OptionalValuesEvaluator implements IMetadataEvaluator {
           if (!fieldValue.isPresent() || fieldValue.get().toString().isEmpty()) {
             reportItems.add(
                 EvaluationReportItem.create(
-                    fieldAlignment.getMetadataFieldPath(),
-                    MetadataIssue.create(IssueType.MISSING_OPTIONAL_VALUE),
+                    MetadataIssue.create(IssueType.MISSING_OPTIONAL_VALUE,
+                        fieldAlignment.getMetadataFieldPath(),
+                        ""),
                     RepairAction.ofEnterMissingValue()));
           }
         }
