@@ -4,7 +4,8 @@ public enum IssueType {
 
   MISSING_REQUIRED_VALUE("Missing required value"),
   MISSING_OPTIONAL_VALUE("Missing optional value"),
-  INVALID_VALUE_REPRESENTATION("Invalid value representation in JSON document"),
+  EXPECTING_INPUT_STRING("Expecting input string"),
+  EXPECTING_INPUT_NUMBER("Expecting input number"),
   INVALID_DATE_TIME_FORMAT("Invalid date-time format"),
   INVALID_DATE_FORMAT("Invalid date format"),
   INVALID_TIME_FORMAT("Invalid time format"),

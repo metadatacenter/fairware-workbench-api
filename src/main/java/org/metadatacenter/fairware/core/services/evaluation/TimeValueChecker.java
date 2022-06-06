@@ -37,7 +37,7 @@ public class TimeValueChecker {
         }
       } else {
         var report = EvaluationReportItem.create(
-            MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
+            MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
                 value),
             RepairAction.ofEnterCorrectValue());

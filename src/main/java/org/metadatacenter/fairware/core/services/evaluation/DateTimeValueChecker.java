@@ -9,7 +9,6 @@ import org.metadatacenter.fairware.core.util.cedar.extraction.model.FieldSpecifi
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
 import javax.annotation.Nonnull;
-import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class DateTimeValueChecker {
         }
       } else {
         var report = EvaluationReportItem.create(
-            MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
+            MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
                 value),
             RepairAction.ofEnterCorrectValue());

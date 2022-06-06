@@ -25,7 +25,7 @@ public class NumberValueChecker {
         try {
           var number = attemptToParseValueToNumber(value);
           var report = EvaluationReportItem.create(
-              MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
+              MetadataIssue.create(IssueType.EXPECTING_INPUT_NUMBER,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   value),
               RepairAction.ofEnterNumberValue(number));

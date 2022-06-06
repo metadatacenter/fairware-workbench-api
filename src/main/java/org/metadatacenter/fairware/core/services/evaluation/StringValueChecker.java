@@ -21,7 +21,7 @@ public class StringValueChecker {
       var value = possibleValue.get();
       if (!(value instanceof String)) {
         var report = EvaluationReportItem.create(
-            MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
+            MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
                 value),
             RepairAction.ofEnterStringValue(String.valueOf(value)));
