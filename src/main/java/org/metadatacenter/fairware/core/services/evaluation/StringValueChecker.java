@@ -24,7 +24,7 @@ public class StringValueChecker {
             MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
                 value),
-            RepairAction.ofEnterStringTypeValue(String.valueOf(value)));
+            RepairAction.ofEnterStringValue(String.valueOf(value)));
         return Optional.of(report);
       }
     }

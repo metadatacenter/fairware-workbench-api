@@ -28,7 +28,7 @@ public class NumberValueChecker {
               MetadataIssue.create(IssueType.INVALID_VALUE_REPRESENTATION,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   value),
-              RepairAction.ofEnterNumberTypeValue(number));
+              RepairAction.ofEnterNumberValue(number));
           return Optional.of(report);
         } catch (ParseException e) {
           var report = EvaluationReportItem.create(

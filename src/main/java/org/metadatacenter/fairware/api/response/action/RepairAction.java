@@ -21,12 +21,12 @@ public abstract class RepairAction {
     return AutoOneOf_RepairAction.enterCorrectValue();
   }
 
-  public static RepairAction ofEnterStringTypeValue(@Nonnull String value) {
-    return AutoOneOf_RepairAction.enterStringTypeValue(value);
+  public static RepairAction ofEnterStringValue(@Nonnull String value) {
+    return AutoOneOf_RepairAction.enterStringValue(value);
   }
 
-  public static RepairAction ofEnterNumberTypeValue(@Nonnull Number value) {
-    return AutoOneOf_RepairAction.enterNumberTypeValue(value);
+  public static RepairAction ofEnterNumberValue(@Nonnull Number value) {
+    return AutoOneOf_RepairAction.enterNumberValue(value);
   }
 
   public static RepairAction ofReplaceMetadataValueWithStandardizedValue(@Nonnull SuggestedOntologyTerm ontologyTerm) {
@@ -62,10 +62,10 @@ public abstract class RepairAction {
   public abstract void enterCorrectValue();
 
   @Nonnull
-  public abstract String enterStringTypeValue();
+  public abstract String enterStringValue();
 
   @Nonnull
-  public abstract Number enterNumberTypeValue();
+  public abstract Number enterNumberValue();
 
   @Nonnull
   public abstract SuggestedOntologyTerm replaceMetadataValueWithStandardizedValue();
@@ -76,8 +76,8 @@ public abstract class RepairAction {
   public enum Kind {
     ENTER_MISSING_VALUE,
     ENTER_CORRECT_VALUE,
-    ENTER_STRING_TYPE_VALUE,
-    ENTER_NUMBER_TYPE_VALUE,
+    ENTER_STRING_VALUE,
+    ENTER_NUMBER_VALUE,
     REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE,
     REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME
   }
