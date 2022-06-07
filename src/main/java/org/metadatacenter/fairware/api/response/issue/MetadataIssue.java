@@ -5,7 +5,6 @@ import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 @AutoValue
 public abstract class MetadataIssue {
@@ -15,8 +14,8 @@ public abstract class MetadataIssue {
   private static final String ISSUE_LOCATION = "issueLocation";
   private static final String VALUE = "value";
 
-  public static MetadataIssue create(@Nonnull @JsonProperty(ISSUE_TYPE) IssueType issueType,
-                                     @Nonnull @JsonProperty(ISSUE_LOCATION) String issueLocation,
+  public static MetadataIssue create(@Nonnull IssueType issueType,
+                                     @Nonnull String issueLocation,
                                      @Nullable Object value) {
     return new AutoValue_MetadataIssue(issueType, issueLocation, value);
   }
