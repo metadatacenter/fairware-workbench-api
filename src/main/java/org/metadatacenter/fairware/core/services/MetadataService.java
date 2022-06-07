@@ -210,8 +210,10 @@ public class MetadataService {
     }
     var templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
     var templateFieldPaths = templateFields.stream()
-        .map(TemplateField::getJsonPath)
-        .collect(ImmutableList.toImmutableList());
+        .collect(collectingAndThen(
+            toMap(TemplateField::getJsonPath,
+                field -> field.valueField().getJsonValueType()),
+            ImmutableMap::copyOf));
 
     return EvaluateMetadataResponse.create(metadataRecordId,
         metadataRecordName,
@@ -313,7 +315,7 @@ public class MetadataService {
       var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
       var templateId = metadataSpecification.getTemplateId();
       // Add to the map all the fields, and assume that they don't have any missing values
-      for (var templateFieldName : metadataSpecification.getTemplateFieldNames()) {
+      for (var templateFieldName : metadataSpecification.getTemplateFieldNames().keySet()) {
         var key = templateId + "#" + templateFieldName;
         if (!fieldReportMap.containsKey(key)) {
           fieldReportMap.put(key, FieldReport.create(templateFieldName,

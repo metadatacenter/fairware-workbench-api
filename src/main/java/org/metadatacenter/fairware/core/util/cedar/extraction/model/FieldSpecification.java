@@ -86,6 +86,23 @@ public abstract class FieldSpecification {
   @Nonnull
   public abstract ValueType getValueType();
 
+  @Nonnull
+  public String getJsonValueType() {
+    switch (getValueType()) {
+      case STRING:
+      case DATE_TIME:
+      case DATE:
+      case TIME:
+        return "string";
+      case NUMBER:
+        return "number";
+      case OBJECT:
+        return "object";
+      default:
+        return "string";
+    }
+  }
+
   public abstract boolean isRequired();
 
   public abstract boolean allowMultipleValues();

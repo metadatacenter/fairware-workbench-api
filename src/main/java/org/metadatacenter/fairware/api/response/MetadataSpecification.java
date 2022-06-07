@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +20,7 @@ public abstract class MetadataSpecification {
   @JsonCreator
   public static MetadataSpecification create(@Nonnull @JsonProperty(TEMPLATE_ID) String templateId,
                                              @Nonnull @JsonProperty(TEMPLATE_NAME) String templateName,
-                                             @Nonnull @JsonProperty(TEMPLATE_FIELD_NAMES) ImmutableList<String> templateFieldNames) {
+                                             @Nonnull @JsonProperty(TEMPLATE_FIELD_NAMES) ImmutableMap<String, String> templateFieldNames) {
     return new AutoValue_MetadataSpecification(templateId, templateName, templateFieldNames);
   }
 
@@ -39,5 +40,5 @@ public abstract class MetadataSpecification {
 
   @Nonnull
   @JsonProperty(TEMPLATE_FIELD_NAMES)
-  public abstract ImmutableList<String> getTemplateFieldNames();
+  public abstract ImmutableMap<String, String> getTemplateFieldNames();
 }
