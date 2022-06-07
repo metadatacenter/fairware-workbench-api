@@ -40,7 +40,7 @@ public class DateValueChecker {
             MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
                 value),
-            RepairAction.ofEnterCorrectValue());
+            RepairAction.ofEnterStringValue(String.valueOf(value)));
         return Optional.of(report);
       }
     }
