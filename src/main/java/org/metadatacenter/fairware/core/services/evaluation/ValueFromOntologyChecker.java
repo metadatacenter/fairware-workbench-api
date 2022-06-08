@@ -1,11 +1,13 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.action.SuggestedOntologyTerm;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
+import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
@@ -18,9 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ValueFromOntologyChecker {
 
+  private final CoreConfig coreConfig;
   private final BioportalService bioportalService;
 
-  public ValueFromOntologyChecker(@Nonnull BioportalService bioportalService) {
+  public ValueFromOntologyChecker(@Nonnull CoreConfig coreConfig,
+                                  @Nonnull BioportalService bioportalService) {
+    this.coreConfig = checkNotNull(coreConfig);
     this.bioportalService = checkNotNull(bioportalService);
   }
 
@@ -43,16 +48,18 @@ public class ValueFromOntologyChecker {
         if (results.getTotalCount() == 0) {
           return Optional.empty();
         } else {
-          var firstOntologyTerm = results.getCollection().stream().findFirst()
+          var suggestedTerms = results.getCollection().stream()
+              .limit(coreConfig.getTermSuggestionsListSize())
               .map(bpClass -> SuggestedOntologyTerm.create(
                   bpClass.getId(),
                   bpClass.getPrefLabel(),
-                  ontology)).get();
+                  ontology))
+              .collect(ImmutableList.toImmutableList());
           var report = EvaluationReportItem.create(
               MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   valueString),
-              RepairAction.ofReplaceMetadataValueWithStandardizedValue(firstOntologyTerm));
+              RepairAction.ofReplaceMetadataValueWithStandardizedValue(suggestedTerms));
           return Optional.of(report);
         }
       }

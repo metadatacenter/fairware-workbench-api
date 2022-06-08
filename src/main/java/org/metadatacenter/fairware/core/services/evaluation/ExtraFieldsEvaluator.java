@@ -1,5 +1,6 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.http.HttpException;
@@ -72,14 +73,13 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
           }
         }
       }
-      if (!suggestedTerms.isEmpty()) {
-        reportItems.add(
-            EvaluationReportItem.create(
-                MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE,
-                    GeneralUtil.generateFullPathDotNotation(mf),
-                    null),
-                RepairAction.ofReplaceMetadataFieldWithStandardizedName(suggestedTerms)));
-      }
+      reportItems.add(
+          EvaluationReportItem.create(
+              MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE,
+                  GeneralUtil.generateFullPathDotNotation(mf),
+                  null),
+              RepairAction.ofReplaceMetadataFieldWithStandardizedName(
+                  ImmutableList.copyOf(suggestedTerms))));
     }
     return reportItems;
   }

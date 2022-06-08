@@ -10,8 +10,6 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
-import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
@@ -116,7 +114,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker,
         dateTimeValueChecker, dateValueChecker, timeValueChecker);
     var extraFieldsEvaluator = new ExtraFieldsEvaluator(bioportalService, coreConfig);
-    var valueFromOntologyChecker = new ValueFromOntologyChecker(bioportalService);
+    var valueFromOntologyChecker = new ValueFromOntologyChecker(coreConfig, bioportalService);
     var controlledTermEvaluator = new ControlledTermEvaluator(valueFromOntologyChecker);
     var metadataService = new MetadataService(cedarService,
         bioportalService,
