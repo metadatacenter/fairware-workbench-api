@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -44,7 +45,7 @@ public class BioportalService {
 
   public BpPagedResults<BpClass> search(String q, String ontology, int page, int pageSize) throws IOException, HttpException {
 
-    q = GeneralUtil.encodeIfNeeded(q);
+    q = URLEncoder.encode(q, "UTF-8");
     StringBuilder urlSb = new StringBuilder(bioportalConfig.getSearchUrl()).append("?q=" + q);
 
     // Include the ontology selection
