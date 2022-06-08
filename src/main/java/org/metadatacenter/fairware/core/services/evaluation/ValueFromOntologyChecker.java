@@ -37,23 +37,24 @@ public class ValueFromOntologyChecker {
             var prefLabelString = prefLabel.get();
             if (!prefLabelString.isEmpty()) {
               results = bioportalService.search(prefLabelString, ontology);
-              if (results.getTotalCount() == 0) {
-                return Optional.empty();
-              }
             }
           }
         }
-        var firstOntologyTerm = results.getCollection().stream().findFirst()
-            .map(bpClass -> SuggestedOntologyTerm.create(
-                bpClass.getId(),
-                bpClass.getPrefLabel(),
-                ontology)).get();
-        var report = EvaluationReportItem.create(
-            MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
-                GeneralUtil.generateFullPathDotNotation(metadataField),
-                valueString),
-            RepairAction.ofReplaceMetadataValueWithStandardizedValue(firstOntologyTerm));
-        return Optional.of(report);
+        if (results.getTotalCount() == 0) {
+          return Optional.empty();
+        } else {
+          var firstOntologyTerm = results.getCollection().stream().findFirst()
+              .map(bpClass -> SuggestedOntologyTerm.create(
+                  bpClass.getId(),
+                  bpClass.getPrefLabel(),
+                  ontology)).get();
+          var report = EvaluationReportItem.create(
+              MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
+                  GeneralUtil.generateFullPathDotNotation(metadataField),
+                  valueString),
+              RepairAction.ofReplaceMetadataValueWithStandardizedValue(firstOntologyTerm));
+          return Optional.of(report);
+        }
       }
     }
     return Optional.empty();
