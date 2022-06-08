@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import in.vectorpro.dropwizard.swagger.SwaggerBundle;
@@ -15,6 +16,8 @@ import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
+import org.metadatacenter.fairware.core.services.biosample.BioSampleDataParser;
+import org.metadatacenter.fairware.core.services.biosample.BioSampleService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
@@ -46,6 +49,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
 
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchApiApplication.class);
   private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new GuavaModule());
+  private static final XmlMapper xmlMapper = new XmlMapper();
 
   public static void main(final String[] args) throws Exception {
     logger.info("Starting FAIRware Workbench API");
@@ -96,7 +100,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var bioportalService = new BioportalService(bioportalConfig);
     var templateService = new TemplateService(cedarService);
     var citationServiceProviders = ImmutableList.<CitationServiceProvider>of(
-        new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()));
+        new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()),
+        new BioSampleService(configuration.getMetadataServicesConfig().getNcbi(), new BioSampleDataParser(xmlMapper)));
     var citationService = new CitationService(citationServiceProviders);
     var mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
     var cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
