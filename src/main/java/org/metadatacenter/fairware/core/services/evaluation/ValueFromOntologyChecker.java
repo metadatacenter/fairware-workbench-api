@@ -52,7 +52,7 @@ public class ValueFromOntologyChecker {
       if (results.getTotalCount() > 0) {
         var suggestionSize = coreConfig.getTermSuggestionsListSize();
         var suggestedTerms = collectTopSuggestions(results, suggestionSize, ontologyAcronym);
-        if (suggestedTerms.stream().noneMatch((term) -> valueString.equals(term.getLabel()))) {
+        if (suggestedTerms.stream().noneMatch((term) -> valueString.equalsIgnoreCase(term.getLabel()))) {
           var report = EvaluationReportItem.create(
               MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
