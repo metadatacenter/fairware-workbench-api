@@ -51,9 +51,9 @@ public class BioSampleService implements CitationServiceProvider {
         var metadataContent = bioSampleDataParser.parseToMap(responseText);
         return metadataContent;
       case HttpStatus.SC_NOT_FOUND:
-        throw new FileNotFoundException(String.format("Unable to retrieve DataCite DOI metadata: %s", url));
+        throw new FileNotFoundException(String.format("Unable to retrieve BioSample metadata: %s", url));
       default:
-        throw new IOException(String.format("DataCite API error: %s", response.getStatusLine()));
+        throw new IOException(String.format("BioSample API error: %s", response.getStatusLine()));
     }
   }
 
