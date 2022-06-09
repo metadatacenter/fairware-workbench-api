@@ -9,6 +9,8 @@ import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
+import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
+import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
@@ -30,31 +32,27 @@ public class ValueFromOntologyChecker {
   }
 
   public Optional<EvaluationReportItem> checkValueAgainstOntology(@Nonnull MetadataFieldInfo metadataField,
-                                                                  @Nonnull String ontology) throws IOException, HttpException {
+                                                                  @Nonnull String ontologyAcronym) throws IOException, HttpException {
     Optional<Object> value = metadataField.getValue();
     if (value.isPresent()) {
       var valueString = String.valueOf(value.get());
-      if (!valueString.isEmpty()) {
-        var results = bioportalService.search(valueString, ontology);
-        if (results.getTotalCount() == 0) {
-          Optional<String> prefLabel = metadataField.getPrefLabel();
-          if (prefLabel.isPresent()) {
-            var prefLabelString = prefLabel.get();
-            if (!prefLabelString.isEmpty()) {
-              results = bioportalService.search(prefLabelString, ontology);
-            }
+      if (valueString.isEmpty()) {
+        return Optional.empty();
+      }
+      var results = bioportalService.search(valueString, ontologyAcronym);
+      if (results.getTotalCount() == 0) {
+        Optional<String> prefLabel = metadataField.getPrefLabel();
+        if (prefLabel.isPresent()) {
+          var prefLabelString = prefLabel.get();
+          if (!prefLabelString.isEmpty()) {
+            results = bioportalService.search(prefLabelString, ontologyAcronym);
           }
         }
-        if (results.getTotalCount() == 0) {
-          return Optional.empty();
-        } else {
-          var suggestedTerms = results.getCollection().stream()
-              .limit(coreConfig.getTermSuggestionsListSize())
-              .map(bpClass -> SuggestedOntologyTerm.create(
-                  bpClass.getId(),
-                  bpClass.getPrefLabel(),
-                  ontology))
-              .collect(ImmutableList.toImmutableList());
+      }
+      if (results.getTotalCount() > 0) {
+        var suggestionSize = coreConfig.getTermSuggestionsListSize();
+        var suggestedTerms = collectTopSuggestions(results, suggestionSize, ontologyAcronym);
+        if (suggestedTerms.stream().noneMatch((term) -> valueString.equals(term.getLabel()))) {
           var report = EvaluationReportItem.create(
               MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
@@ -65,5 +63,17 @@ public class ValueFromOntologyChecker {
       }
     }
     return Optional.empty();
+  }
+
+  private ImmutableList<SuggestedOntologyTerm> collectTopSuggestions(BpPagedResults<BpClass> results,
+                                                                     int suggestionSize,
+                                                                     String ontologyAcronym) {
+    return results.getCollection().stream()
+        .limit(suggestionSize)
+        .map(bpClass -> SuggestedOntologyTerm.create(
+            bpClass.getId(),
+            bpClass.getPrefLabel(),
+            ontologyAcronym))
+        .collect(ImmutableList.toImmutableList());
   }
 }
