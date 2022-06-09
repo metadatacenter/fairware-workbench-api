@@ -47,7 +47,7 @@ public abstract class RepairAction {
     switch (getKind()) {
       case REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE:
         var valueSuggestions = replaceMetadataValueWithStandardizedValue().stream()
-            .map(SuggestedOntologyTerm::getUri)
+            .map(SuggestedOntologyTerm::getLabel)
             .collect(ImmutableList.toImmutableList());
         return valueSuggestions.isEmpty() ? Optional.empty() : Optional.of(valueSuggestions);
       case REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME:
