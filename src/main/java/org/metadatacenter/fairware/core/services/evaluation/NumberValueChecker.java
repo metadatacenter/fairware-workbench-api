@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.services.evaluation;
 
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
+import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
@@ -25,14 +26,18 @@ public class NumberValueChecker {
         try {
           var number = attemptToParseValueToNumber(value);
           var report = EvaluationReportItem.create(
-              MetadataIssue.create(IssueType.EXPECTING_INPUT_NUMBER,
+              MetadataIssue.create(
+                  IssueCategory.VALUE_ERROR,
+                  IssueType.EXPECTING_INPUT_NUMBER,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   value),
               RepairAction.ofEnterNumberValue(number));
           return Optional.of(report);
         } catch (ParseException e) {
           var report = EvaluationReportItem.create(
-              MetadataIssue.create(IssueType.INVALID_NUMBER_FORMAT,
+              MetadataIssue.create(
+                  IssueCategory.VALUE_ERROR,
+                  IssueType.INVALID_NUMBER_FORMAT,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   value),
               RepairAction.ofEnterCorrectValue());

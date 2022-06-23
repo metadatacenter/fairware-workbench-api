@@ -2,6 +2,7 @@ package org.metadatacenter.fairware.core.services.evaluation;
 
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
+import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
@@ -29,7 +30,9 @@ public class DateValueChecker {
           attemptToParseValueToDate(String.valueOf(value), fieldSpecification.getValueFormat().get());
         } catch (DateTimeParseException e) {
           var report = EvaluationReportItem.create(
-              MetadataIssue.create(IssueType.INVALID_DATE_FORMAT,
+              MetadataIssue.create(
+                  IssueCategory.VALUE_ERROR,
+                  IssueType.INVALID_DATE_FORMAT,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   value),
               RepairAction.ofEnterCorrectValue());
@@ -37,7 +40,9 @@ public class DateValueChecker {
         }
       } else if (value instanceof Number || value instanceof Boolean) {
         var report = EvaluationReportItem.create(
-            MetadataIssue.create(IssueType.EXPECTING_INPUT_STRING,
+            MetadataIssue.create(
+                IssueCategory.VALUE_ERROR,
+                IssueType.EXPECTING_INPUT_STRING,
                 GeneralUtil.generateFullPathDotNotation(metadataField),
                 value),
             RepairAction.ofEnterStringValue(String.valueOf(value)));

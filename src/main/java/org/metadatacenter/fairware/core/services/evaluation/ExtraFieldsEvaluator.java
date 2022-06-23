@@ -7,6 +7,7 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.action.SuggestedOntologyTerm;
+import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
@@ -56,6 +57,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
     // Use BioPortal to find top matching ontology terms
     for (MetadataFieldInfo mf : nonMatchedFields) {
       var metadataFieldName = mf.getName();
+      var metadataFieldValue = mf.getValue().get();
       BpPagedResults<BpClass> results = bioportalService.search(metadataFieldName);
       List<SuggestedOntologyTerm> suggestedTerms = new ArrayList<>();
       for (BpClass c : results.getCollection()) {
@@ -75,9 +77,11 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       }
       reportItems.add(
           EvaluationReportItem.create(
-              MetadataIssue.create(IssueType.FIELD_NOT_FOUND_IN_TEMPLATE,
+              MetadataIssue.create(
+                  IssueCategory.FIELD_ERROR,
+                  IssueType.FIELD_NOT_FOUND_IN_TEMPLATE,
                   GeneralUtil.generateFullPathDotNotation(mf),
-                  null),
+                  metadataFieldValue.toString()),
               RepairAction.ofReplaceMetadataFieldWithStandardizedName(
                   ImmutableList.copyOf(suggestedTerms))));
     }

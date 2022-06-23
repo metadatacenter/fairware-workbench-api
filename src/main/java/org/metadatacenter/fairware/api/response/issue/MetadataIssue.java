@@ -9,16 +9,22 @@ import javax.annotation.Nullable;
 @AutoValue
 public abstract class MetadataIssue {
 
+  private static final String ISSUE_CATEGORY = "issueCategory";
   private static final String ISSUE_TYPE = "issueType";
   private static final String ISSUE_LEVEL = "issueLevel";
   private static final String ISSUE_LOCATION = "issueLocation";
   private static final String VALUE = "value";
 
-  public static MetadataIssue create(@Nonnull IssueType issueType,
+  public static MetadataIssue create(@Nonnull IssueCategory issueCategory,
+                                     @Nonnull IssueType issueType,
                                      @Nonnull String issueLocation,
                                      @Nullable Object value) {
-    return new AutoValue_MetadataIssue(issueType, issueLocation, value);
+    return new AutoValue_MetadataIssue(issueCategory, issueType, issueLocation, value);
   }
+
+  @Nonnull
+  @JsonProperty(ISSUE_CATEGORY)
+  public abstract IssueCategory getIssueCategory();
 
   @Nonnull
   @JsonProperty(ISSUE_TYPE)

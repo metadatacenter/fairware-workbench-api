@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
+import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
@@ -31,7 +32,9 @@ public class OptionalValuesEvaluator implements IMetadataEvaluator {
           if (!fieldValue.isPresent() || fieldValue.get().toString().isEmpty()) {
             reportItems.add(
                 EvaluationReportItem.create(
-                    MetadataIssue.create(IssueType.MISSING_OPTIONAL_VALUE,
+                    MetadataIssue.create(
+                        IssueCategory.VALUE_ERROR,
+                        IssueType.MISSING_OPTIONAL_VALUE,
                         fieldAlignment.getMetadataFieldPath(),
                         ""),
                     RepairAction.ofEnterMissingValue()));

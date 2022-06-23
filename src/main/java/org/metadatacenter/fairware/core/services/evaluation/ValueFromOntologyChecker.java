@@ -5,6 +5,7 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.action.SuggestedOntologyTerm;
+import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
 import org.metadatacenter.fairware.config.CoreConfig;
@@ -54,7 +55,9 @@ public class ValueFromOntologyChecker {
         var suggestedTerms = collectTopSuggestions(results, suggestionSize, ontologyAcronym);
         if (suggestedTerms.stream().noneMatch((term) -> valueString.equalsIgnoreCase(term.getLabel()))) {
           var report = EvaluationReportItem.create(
-              MetadataIssue.create(IssueType.VALUE_NOT_ONTOLOGY_TERM,
+              MetadataIssue.create(
+                  IssueCategory.VALUE_ERROR,
+                  IssueType.VALUE_NOT_ONTOLOGY_TERM,
                   GeneralUtil.generateFullPathDotNotation(metadataField),
                   valueString),
               RepairAction.ofReplaceMetadataValueWithStandardizedValue(suggestedTerms));
