@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.search.MetadataIndex;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
@@ -23,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.SCHEMA_ORG_NAME;
 
 public class CedarService {
 
@@ -56,9 +59,9 @@ public class CedarService {
     var response = requestHandler.execute(request);
     switch (response.getStatusLine().getStatusCode()) {
       case HttpStatus.SC_OK:
-        return objectMapper.readValue(
-            response.getEntity().getContent(),
-            ImmutableMap.class);
+        var content = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
+        var mapType = objectMapper.getTypeFactory().constructMapType(ImmutableMap.class, String.class, Object.class);
+        return objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
       case HttpStatus.SC_NOT_FOUND:
         throw new FileNotFoundException(format(
             "Couldn't find CEDAR template (ID = %s). Cause: %s",
@@ -85,28 +88,31 @@ public class CedarService {
   }
 
   /**
-   * Find CEDAR template instance by its identifier.
+   * Get the metadata record from CEDAR given its identifier.
    *
-   * @param id the template instance identifier
-   * @return a CEDAR instance
+   * @param cedarTemplateInstanceId the CEDAR template instance identifier.
+   * @return a {@link MetadataIndex} of the CEDAR template instance.
    */
   @Nonnull
-  public ImmutableMap<String, Object> retrieveMetadataById(String id) throws IOException {
-    var url = getTemplateInstanceUrl(id);
+  public MetadataIndex getMetadataIndexByCedarId(String cedarTemplateInstanceId) throws IOException {
+    var url = getTemplateInstanceUrl(cedarTemplateInstanceId);
     var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
     var response = requestHandler.execute(request);
     switch (response.getStatusLine().getStatusCode()) {
       case HttpStatus.SC_OK:
-        var content = response.getEntity().getContent();
-        return objectMapper.readValue(content, ImmutableMap.class);
+        var content = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
+        var mapType = objectMapper.getTypeFactory().constructMapType(ImmutableMap.class, String.class, Object.class);
+        var metadataRecord = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
+        var metadataName = (String) metadataRecord.getOrDefault(SCHEMA_ORG_NAME, "");
+        return MetadataIndex.create(cedarTemplateInstanceId, metadataName, metadataRecord);
       case HttpStatus.SC_NOT_FOUND:
         throw new FileNotFoundException(format(
             "Couldn't find CEDAR template instance (ID = %s). Cause: %s",
-            id, response.getStatusLine()));
+            cedarTemplateInstanceId, response.getStatusLine()));
       default:
         throw new BadRequestException(format(
             "Error retrieving template instance (ID = %s). Cause: %s",
-            id, response.getStatusLine()));
+            cedarTemplateInstanceId, response.getStatusLine()));
     }
   }
 

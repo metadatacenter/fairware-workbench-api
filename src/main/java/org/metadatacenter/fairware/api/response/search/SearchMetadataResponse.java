@@ -10,15 +10,30 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class SearchMetadataResponse {
 
-  private static final String METADATA_RECORD = "metadataRecord";
+  private static final String METADATA_INDEX = "metadataIndex";
 
   @Nonnull
   @JsonCreator
-  public static SearchMetadataResponse create(@Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
-    return new AutoValue_SearchMetadataResponse(metadataRecord);
+  public static SearchMetadataResponse create(@Nonnull @JsonProperty(METADATA_INDEX) MetadataIndex metadataIndex) {
+    return new AutoValue_SearchMetadataResponse(metadataIndex);
   }
 
   @Nonnull
-  @JsonProperty(METADATA_RECORD)
-  public abstract ImmutableMap<String, Object> getMetadataRecord();
+  @JsonProperty(METADATA_INDEX)
+  public abstract MetadataIndex getMetadataIndex();
+
+  @Nonnull
+  public String getMetadataRecordId() {
+    return getMetadataIndex().getMetadataRecordId();
+  }
+
+  @Nonnull
+  public String getMetadataRecordName() {
+    return getMetadataIndex().getMetadataRecordName();
+  }
+
+  @Nonnull
+  public ImmutableMap<String, Object> getMetadataRecord() {
+    return getMetadataIndex().getMetadataRecord();
+  }
 }

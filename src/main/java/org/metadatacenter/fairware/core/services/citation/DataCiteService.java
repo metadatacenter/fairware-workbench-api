@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
+import org.metadatacenter.fairware.api.response.search.MetadataIndex;
 import org.metadatacenter.fairware.config.citationServices.datacite.DataCiteConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class DataCiteService implements CitationServiceProvider {
 
   @Override
   @Nonnull
-  public ImmutableMap<String, Object> retrieveMetadata(String metadataRecordId) throws IOException {
+  public MetadataIndex getMetadataIndex(String metadataRecordId) throws IOException {
     var doi = extractDoi(metadataRecordId);
     if (doi.isPresent()) {
       logger.info("Retrieving DataCite DOI metadata: " + doi.get());
@@ -62,8 +63,9 @@ public class DataCiteService implements CitationServiceProvider {
           var metadata = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
           var content = metadata.get("data").get("attributes");
           var mapType = objectMapper.getTypeFactory().constructMapType(ImmutableMap.class, String.class, Object.class);
-          var metadataContent = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
-          return metadataContent;
+          var metadataRecord = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
+          var metadataName = content.get("titles").get(0).get("title").asText();
+          return MetadataIndex.create(metadataRecordId, metadataName, metadataRecord);
         case HttpStatus.SC_NOT_FOUND:
           throw new FileNotFoundException(String.format("Unable to retrieve DataCite DOI metadata: %s", url));
         default:

@@ -1,7 +1,7 @@
 package org.metadatacenter.fairware.core.services.citation;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import org.metadatacenter.fairware.api.response.search.MetadataIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +22,10 @@ public class CitationService {
   }
 
   @Nonnull
-  public ImmutableMap<String, Object> retrieveMetadataById(String metadataRecordId) throws IOException {
+  public MetadataIndex getMetadataIndexById(String metadataRecordId) throws IOException {
     for (var citationServiceProvider : citationServiceProviders) {
       if (citationServiceProvider.isCompatible(metadataRecordId)) {
-        return citationServiceProvider.retrieveMetadata(metadataRecordId);
+        return citationServiceProvider.getMetadataIndex(metadataRecordId);
       }
     }
     throw new BadRequestException("Metadata record is not yet supported to handle: " + metadataRecordId);

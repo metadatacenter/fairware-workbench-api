@@ -18,6 +18,7 @@ import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.util.CedarUtil;
@@ -92,7 +93,6 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
       "it from fulfilling the request.")
   public Response recommendTemplates(@NotNull @Valid RecommendTemplatesRequest request) {
-
     try {
       RecommendTemplatesResponse recommendations = templateService.recommendCedarTemplates(request.getMetadataRecord());
       return Response.ok(recommendations).build();
@@ -130,9 +130,8 @@ public class FairwareWorkbenchResource {
   @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
       "it from fulfilling the request.")
   public Response recommendTemplatesByMetadataId(@NotNull @Valid String metadataRecordId) {
-
     try {
-      var metadataRecord = getMetadataRecordFromId(metadataRecordId);
+      var metadataRecord = getMetadataRecordById(metadataRecordId);
       var recommendations = templateService.recommendCedarTemplates(metadataRecord);
       return Response.ok(recommendations).build();
     } catch (BadRequestException e) {
@@ -270,7 +269,7 @@ public class FairwareWorkbenchResource {
       responseCode = "200",
       description = "Response showing the metadata records that are associated with the given DOI strings",
       content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataResponse.class)
+          schema = @Schema(implementation = SearchMetadataResponse.class)
       ))
   @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
       "malformed syntax in the request body.")
@@ -375,7 +374,7 @@ public class FairwareWorkbenchResource {
   private ImmutableMap<String, Object> getMetadataRecord(EvaluateMetadataRequest request) throws IOException {
     var metadataRecordId = request.getMetadataRecordId();
     if (metadataRecordId.isPresent()) {
-      return getMetadataRecordFromId(metadataRecordId.get());
+      return getMetadataRecordById(metadataRecordId.get());
     }
     var metadataRecord = request.getMetadataRecord();
     if (!metadataRecord.isPresent()) {
@@ -397,7 +396,7 @@ public class FairwareWorkbenchResource {
   }
 
   /* Helper functions */
-  public ImmutableMap<String, Object> getMetadataRecordFromId(String metadataRecordId) throws IOException {
+  public ImmutableMap<String, Object> getMetadataRecordById(String metadataRecordId) throws IOException {
     return metadataService.searchMetadata(metadataRecordId).getMetadataRecord();
   }
 

@@ -17,6 +17,7 @@ import org.metadatacenter.fairware.api.response.evaluationReport.RecordReport;
 import org.metadatacenter.fairware.api.response.evaluationReport.RecordsCompletenessReport;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
 import org.metadatacenter.fairware.api.response.search.BatchSearchMetadataResponse;
+import org.metadatacenter.fairware.api.response.search.MetadataIndex;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
@@ -44,7 +45,6 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -229,17 +229,17 @@ public class MetadataService {
    * @return A batch search metadata response object
    */
   public BatchSearchMetadataResponse searchMetadata(ImmutableList<String> metadataRecordIds) throws IOException {
-    var metadataRecords = Lists.<ImmutableMap<String, Object>>newArrayList();
+    var metadataIndexes = Lists.<MetadataIndex>newArrayList();
     for (var metadataRecordId : metadataRecordIds) {
-      var metadataRecord = ImmutableMap.<String, Object>of();
+      var metadataIndex = (MetadataIndex) null;
       if (CedarUtil.isCedarTemplateInstanceId(metadataRecordId)) {
-        metadataRecord = cedarService.retrieveMetadataById(metadataRecordId);
+        metadataIndex = cedarService.getMetadataIndexByCedarId(metadataRecordId);
       } else {
-        metadataRecord = citationService.retrieveMetadataById(metadataRecordId);
+        metadataIndex = citationService.getMetadataIndexById(metadataRecordId);
       }
-      metadataRecords.add(metadataRecord);
+      metadataIndexes.add(metadataIndex);
     }
-    return BatchSearchMetadataResponse.create(ImmutableList.copyOf(metadataRecords));
+    return BatchSearchMetadataResponse.create(ImmutableList.copyOf(metadataIndexes));
   }
 
   /**
@@ -249,11 +249,11 @@ public class MetadataService {
    * @return A search metadata response object
    */
   public SearchMetadataResponse searchMetadata(String metadataRecordId) throws IOException {
-    var metadataRecord = ImmutableMap.<String, Object>of();
+    var metadataRecord = (MetadataIndex) null;
     if (CedarUtil.isCedarTemplateInstanceId(metadataRecordId)) {
-      metadataRecord = cedarService.retrieveMetadataById(metadataRecordId);
+      metadataRecord = cedarService.getMetadataIndexByCedarId(metadataRecordId);
     } else {
-      metadataRecord = citationService.retrieveMetadataById(metadataRecordId);
+      metadataRecord = citationService.getMetadataIndexById(metadataRecordId);
     }
     return SearchMetadataResponse.create(metadataRecord);
   }

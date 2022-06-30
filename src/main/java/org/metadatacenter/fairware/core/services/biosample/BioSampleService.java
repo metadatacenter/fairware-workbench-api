@@ -1,9 +1,9 @@
 package org.metadatacenter.fairware.core.services.biosample;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
+import org.metadatacenter.fairware.api.response.search.MetadataIndex;
 import org.metadatacenter.fairware.config.citationServices.NcbiConfig;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ public class BioSampleService implements CitationServiceProvider {
 
   @Nonnull
   @Override
-  public ImmutableMap<String, Object> retrieveMetadata(@Nonnull String metadataRecordId) throws IOException {
+  public MetadataIndex getMetadataIndex(@Nonnull String metadataRecordId) throws IOException {
     logger.info("Retrieving BioSample metadata: " + metadataRecordId);
     var url = getFetchUrl(metadataRecordId);
     var request = Request.Get(url);
@@ -48,8 +48,9 @@ public class BioSampleService implements CitationServiceProvider {
     switch (statusCode) {
       case HttpStatus.SC_OK:
         var responseText = new String(EntityUtils.toByteArray(response.getEntity()));
-        var metadataContent = bioSampleDataParser.parseToMap(responseText);
-        return metadataContent;
+        var metadataRecord = bioSampleDataParser.parseToMap(responseText);
+        var metadataName = metadataRecordId;
+        return MetadataIndex.create(metadataRecordId, metadataName, metadataRecord);
       case HttpStatus.SC_NOT_FOUND:
         throw new FileNotFoundException(String.format("Unable to retrieve BioSample metadata: %s", url));
       default:

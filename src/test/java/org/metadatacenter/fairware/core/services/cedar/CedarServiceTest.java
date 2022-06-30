@@ -29,7 +29,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,23 +65,6 @@ class CedarServiceTest {
     when(response.getStatusLine()).thenReturn(statusLine);
   }
 
-  @Test
-  public void shouldFindTemplate() throws IOException {
-    var expected = ImmutableMap.of("title", "Lorem Ipsum", "id", "123");
-
-    when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
-    when(requestHandler.execute(request)).thenReturn(response);
-    mockInputStreamResponse();
-    when(objectMapper.readValue(any(InputStream.class), eq(ImmutableMap.class))).thenReturn(expected);
-    when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-
-    var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-    var output = cedarService.findTemplate("123");
-
-    verify(objectMapper, times(1)).readValue(any(InputStream.class), eq(ImmutableMap.class));
-    assertThat(output, equalTo(expected));
-  }
-
   private void mockInputStreamResponse() throws IOException {
     when(response.getEntity()).thenReturn(entity);
     when(entity.getContent()).thenReturn(inputStream);
@@ -117,23 +99,6 @@ class CedarServiceTest {
   }
 
   @Test
-  public void shouldFindTemplateInstance() throws IOException {
-    var expected = ImmutableMap.of("fname", "John", "lname", "Doe");
-
-    mockInputStreamResponse();
-    when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
-    when(requestHandler.execute(request)).thenReturn(response);
-    when(objectMapper.readValue(any(InputStream.class), eq(ImmutableMap.class))).thenReturn(expected);
-    when(statusLine.getStatusCode()).thenReturn(HttpStatus.SC_OK);
-
-    var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-    var output = cedarService.retrieveMetadataById("123");
-
-    verify(objectMapper, times(1)).readValue(any(InputStream.class), eq(ImmutableMap.class));
-    assertThat(output, equalTo(expected));
-  }
-
-  @Test
   public void shouldThrowFileNotFoundExceptionWhenTemplateInstanceNotFound() throws IOException {
     when(requestHandler.createGetRequest(anyString(), anyString())).thenReturn(request);
     when(requestHandler.execute(request)).thenReturn(response);
@@ -142,7 +107,7 @@ class CedarServiceTest {
 
     var thrown = Assertions.assertThrows(FileNotFoundException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-      cedarService.retrieveMetadataById("123");
+      cedarService.getMetadataIndexByCedarId("123");
     }, "FileNotFoundException was expected");
     assertThat(thrown.getMessage(), equalTo("Couldn't find CEDAR template instance (ID = 123). Cause: <404>"));
   }
@@ -156,7 +121,7 @@ class CedarServiceTest {
 
     var thrown = Assertions.assertThrows(BadRequestException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-      cedarService.retrieveMetadataById("123");
+      cedarService.getMetadataIndexByCedarId("123");
     }, "BadRequestException was expected");
     assertThat(thrown.getMessage(), equalTo("Error retrieving template instance (ID = 123). Cause: <502>"));
   }
