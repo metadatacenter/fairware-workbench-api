@@ -106,6 +106,45 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
+  @Operation(summary = "Search CEDAR templates that closely match with the metadata record given its identifier.")
+  @Path("/templates/recommend/id")
+  @Consumes(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Tag(name = "Templates")
+  @RequestBody(description = "A JSON object containing the metadata record", required = true,
+      content = @Content(
+          schema = @Schema(implementation = String.class),
+          examples = {
+              @ExampleObject(value = "SAMN01821557")
+          }
+      ))
+  @ApiResponse(
+      responseCode = "200",
+      description = "Response showing a list of recommended CEDAR templates sorted from the highest recommendation " +
+          "score to the lowest.",
+      content = @Content(
+          schema = @Schema(implementation = RecommendTemplatesResponse.class)
+      ))
+  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
+      "malformed syntax in the request body.")
+  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
+      "it from fulfilling the request.")
+  public Response recommendTemplatesByMetadataId(@NotNull @Valid String metadataRecordId) {
+
+    try {
+      var metadataRecord = getMetadataRecordFromId(metadataRecordId);
+      var recommendations = templateService.recommendCedarTemplates(metadataRecord);
+      return Response.ok(recommendations).build();
+    } catch (BadRequestException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.BAD_REQUEST).build();
+    } catch (IOException e) {
+      logger.error(e.getMessage());
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+    }
+  }
+
+  @POST
   @Operation(summary = "Align the metadata fields in the input metadata record with those in the CEDAR template.")
   @Path("/metadata/align")
   @Consumes(MediaType.APPLICATION_JSON)
