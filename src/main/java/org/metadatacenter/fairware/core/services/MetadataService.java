@@ -16,7 +16,6 @@ import org.metadatacenter.fairware.api.response.evaluationReport.FieldsCompleten
 import org.metadatacenter.fairware.api.response.evaluationReport.RecordReport;
 import org.metadatacenter.fairware.api.response.evaluationReport.RecordsCompletenessReport;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
-import org.metadatacenter.fairware.api.response.search.BatchSearchMetadataResponse;
 import org.metadatacenter.fairware.api.response.search.MetadataIndex;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
@@ -220,26 +219,6 @@ public class MetadataService {
         metadataRecord,
         MetadataSpecification.create(templateId, templateName, templateFieldPaths),
         EvaluationReport.create(ImmutableList.copyOf(reportItems), LocalDateTime.now()));
-  }
-
-  /**
-   * Retrieves in batch the metadata associated to the metadata identifier
-   *
-   * @param metadataRecordIds a list of metadata identifiers
-   * @return A batch search metadata response object
-   */
-  public BatchSearchMetadataResponse searchMetadata(ImmutableList<String> metadataRecordIds) throws IOException {
-    var metadataIndexes = Lists.<MetadataIndex>newArrayList();
-    for (var metadataRecordId : metadataRecordIds) {
-      var metadataIndex = (MetadataIndex) null;
-      if (CedarUtil.isCedarTemplateInstanceId(metadataRecordId)) {
-        metadataIndex = cedarService.getMetadataIndexByCedarId(metadataRecordId);
-      } else {
-        metadataIndex = citationService.getMetadataIndexById(metadataRecordId);
-      }
-      metadataIndexes.add(metadataIndex);
-    }
-    return BatchSearchMetadataResponse.create(ImmutableList.copyOf(metadataIndexes));
   }
 
   /**

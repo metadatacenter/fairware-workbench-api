@@ -253,21 +253,21 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(summary = "Search for a publicly-available, DOI-associated metadata record.")
+  @Operation(summary = "Search for a publicly-available metadata record.")
   @Path("/metadata/search")
-  @Consumes(MediaType.APPLICATION_JSON)
+  @Consumes(MediaType.TEXT_PLAIN)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A list of DOI strings", required = true,
+  @RequestBody(description = "A string of metadata indentifier", required = true,
       content = @Content(
-          schema = @Schema(implementation = List.class),
+          schema = @Schema(implementation = String.class),
           examples = {
-              @ExampleObject(value = "[\"10.5061/dryad.rm2n805\",\"10.4230/lipics.iclp.2011.16\"]")
+              @ExampleObject(value = "10.5061/dryad.rm2n805")
           }
       ))
   @ApiResponse(
       responseCode = "200",
-      description = "Response showing the metadata records that are associated with the given DOI strings",
+      description = "Response showing the metadata records that are associated with the given identifier.",
       content = @Content(
           schema = @Schema(implementation = SearchMetadataResponse.class)
       ))
@@ -275,9 +275,9 @@ public class FairwareWorkbenchResource {
       "malformed syntax in the request body.")
   @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
       "it from fulfilling the request.")
-  public Response searchMetadata(@NotNull @Valid ImmutableList<String> metadataRecordIds) {
+  public Response searchMetadata(@NotNull @Valid String metadataRecordId) {
     try {
-      var results = metadataService.searchMetadata(metadataRecordIds);
+      var results = metadataService.searchMetadata(metadataRecordId);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
