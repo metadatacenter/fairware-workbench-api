@@ -58,10 +58,10 @@ public class FairwareWorkbenchResource {
 
   @POST
   @Operation(summary = "Search CEDAR templates that closely match with the given metadata record.")
-  @Path("/templates/recommend")
+  @Path("/template/recommend")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  @Tag(name = "Templates")
+  @Tag(name = "Template")
   @RequestBody(description = "A JSON object containing the metadata record", required = true,
       content = @Content(
           schema = @Schema(implementation = RecommendTemplatesRequest.class),
@@ -107,10 +107,10 @@ public class FairwareWorkbenchResource {
 
   @POST
   @Operation(summary = "Search CEDAR templates that closely match with the metadata record given its identifier.")
-  @Path("/templates/recommend/id")
+  @Path("/template/recommend/id")
   @Consumes(MediaType.TEXT_PLAIN)
   @Produces(MediaType.APPLICATION_JSON)
-  @Tag(name = "Templates")
+  @Tag(name = "Template")
   @RequestBody(description = "A JSON object containing the metadata record", required = true,
       content = @Content(
           schema = @Schema(implementation = String.class),
