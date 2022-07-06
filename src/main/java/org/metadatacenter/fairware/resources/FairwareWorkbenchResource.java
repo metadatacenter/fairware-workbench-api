@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware.resources;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,6 +22,8 @@ import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.core.services.FairwareService;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
+import org.metadatacenter.fairware.shared.MetadataSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +40,8 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toMap;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -129,8 +134,17 @@ public class FairwareWorkbenchResource {
     try {
       var metadata = metadataService.getMetadataById(request.getMetadataId());
       var template = templateService.getCedarTemplateById(request.getTemplateId());
+      var metadataSpecification = MetadataSpecification.create(template.getId(), template.getName(),
+          template.getFields().stream()
+              .collect(collectingAndThen(
+                  toMap(TemplateField::getName, templateField -> templateField.valueField().getJsonValueType()),
+                  ImmutableMap::copyOf))
+      );
       var fieldAlignments = fairwareService.alignMetadata(metadata, template);
-      AlignMetadataResponse results = AlignMetadataResponse.create(AlignmentReport.create(fieldAlignments));
+      AlignMetadataResponse results = AlignMetadataResponse.create(
+          metadata,
+          metadataSpecification,
+          AlignmentReport.create(fieldAlignments));
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
