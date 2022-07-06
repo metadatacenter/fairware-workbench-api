@@ -15,6 +15,7 @@ import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
 import org.metadatacenter.fairware.api.response.alignment.AlignMetadataResponse;
+import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
@@ -125,7 +126,7 @@ public class FairwareWorkbenchResource {
       var fieldAlignments = metadataService.alignMetadata(
           request.getTemplateId(),
           request.getMetadataId());
-      AlignMetadataResponse results = AlignMetadataResponse.create(fieldAlignments);
+      AlignMetadataResponse results = AlignMetadataResponse.create(AlignmentReport.create(fieldAlignments));
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());

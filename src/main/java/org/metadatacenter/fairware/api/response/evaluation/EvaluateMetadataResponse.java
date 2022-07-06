@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
+import org.metadatacenter.fairware.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.shared.MetadataSpecification;
 
 import javax.annotation.Nonnull;
@@ -11,38 +14,31 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class EvaluateMetadataResponse {
 
-  private static final String METADATA_ID = "metadataId";
-  private static final String METADATA_NAME = "metadataName";
-  private static final String METADATA_RECORD = "metadataRecord";
+  private static final String METADATA = "metadata";
   private static final String METADATA_SPECIFICATION = "metadataSpecification";
+  private static final String ALIGNMENT_REPORT = "alignmentReport";
   private static final String EVALUATION_REPORT = "evaluationReport";
 
   @Nonnull
   @JsonCreator
-  public static EvaluateMetadataResponse create(@Nonnull @JsonProperty(METADATA_ID) String metadataId,
-                                                @Nonnull @JsonProperty(METADATA_NAME) String metadataName,
-                                                @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord,
+  public static EvaluateMetadataResponse create(@Nonnull @JsonProperty(METADATA) Metadata metadata,
                                                 @Nonnull @JsonProperty(METADATA_SPECIFICATION) MetadataSpecification metadataSpecification,
+                                                @Nonnull @JsonProperty(ALIGNMENT_REPORT) AlignmentReport alignmentReport,
                                                 @Nonnull @JsonProperty(EVALUATION_REPORT) EvaluationReport evaluationReport) {
-    return new AutoValue_EvaluateMetadataResponse(metadataId, metadataName, metadataRecord,
-        metadataSpecification, evaluationReport);
+    return new AutoValue_EvaluateMetadataResponse(metadata, metadataSpecification, alignmentReport, evaluationReport);
   }
 
   @Nonnull
-  @JsonProperty(METADATA_ID)
-  public abstract String getMetadataId();
-
-  @Nonnull
-  @JsonProperty(METADATA_NAME)
-  public abstract String getMetadataName();
-
-  @Nonnull
-  @JsonProperty(METADATA_RECORD)
-  public abstract ImmutableMap<String, Object> getMetadataRecord();
+  @JsonProperty(METADATA)
+  public abstract Metadata getMetadata();
 
   @Nonnull
   @JsonProperty(METADATA_SPECIFICATION)
   public abstract MetadataSpecification getMetadataSpecification();
+
+  @Nonnull
+  @JsonProperty(ALIGNMENT_REPORT)
+  public abstract AlignmentReport getAlignmentReport();
 
   @Nonnull
   @JsonProperty(EVALUATION_REPORT)

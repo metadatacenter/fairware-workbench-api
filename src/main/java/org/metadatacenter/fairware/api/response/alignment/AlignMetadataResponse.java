@@ -11,19 +11,20 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class AlignMetadataResponse {
 
-  private static final String FIELD_ALIGNMENTS = "fieldAlignments";
+  private static final String ALIGNMENT_REPORT = "alignmentReport";
 
   @Nonnull
-  public static AlignMetadataResponse create(@Nonnull @JsonProperty(FIELD_ALIGNMENTS) ImmutableList<FieldAlignment> fieldAlignments) {
-    return new AutoValue_AlignMetadataResponse(fieldAlignments);
+  public static AlignMetadataResponse create(@Nonnull @JsonProperty(ALIGNMENT_REPORT) AlignmentReport alignmentReport) {
+    return new AutoValue_AlignMetadataResponse(alignmentReport);
   }
 
   @Nonnull
-  @JsonProperty(FIELD_ALIGNMENTS)
-  public abstract ImmutableList<FieldAlignment> getFieldAlignments();
+  @JsonProperty(ALIGNMENT_REPORT)
+  public abstract AlignmentReport getAlignmentReport();
 
+  @Nonnull
   @JsonIgnore
-  public int getTotalCount() {
-    return getFieldAlignments().size();
+  public ImmutableList<FieldAlignment> getFieldAlignments() {
+    return getAlignmentReport().getFieldAlignments();
   }
 }
