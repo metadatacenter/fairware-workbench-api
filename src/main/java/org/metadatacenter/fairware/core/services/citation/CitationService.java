@@ -1,7 +1,7 @@
 package org.metadatacenter.fairware.core.services.citation;
 
 import com.google.common.collect.ImmutableList;
-import org.metadatacenter.fairware.shared.MetadataIndex;
+import org.metadatacenter.fairware.shared.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ public class CitationService {
   }
 
   @Nonnull
-  public MetadataIndex getMetadataIndexById(String metadataRecordId) throws IOException {
+  public Metadata getMetadataIndexById(String metadataRecordId) throws IOException {
     for (var citationServiceProvider : citationServiceProviders) {
       if (citationServiceProvider.isCompatible(metadataRecordId)) {
         return citationServiceProvider.getMetadataIndex(metadataRecordId);

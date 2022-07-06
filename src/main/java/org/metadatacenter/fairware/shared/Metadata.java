@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import javax.annotation.Nonnull;
 
 @AutoValue
-public abstract class MetadataIndex {
+public abstract class Metadata {
 
   private final static String METADATA_RECORD_ID = "metadataRecordId";
   private final static String METADATA_RECORD_NAME = "metadataRecordName";
@@ -18,11 +18,11 @@ public abstract class MetadataIndex {
 
   @Nonnull
   @JsonCreator
-  public static MetadataIndex create(@Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId,
-                                     @Nonnull @JsonProperty(METADATA_RECORD_NAME) String metadataRecordName,
-                                     @Nonnull @JsonProperty(METADATA_FIELDS) ImmutableSet<String> metadataFields,
-                                     @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
-    return new AutoValue_MetadataIndex(metadataRecordId, metadataRecordName, metadataFields, metadataRecord);
+  public static Metadata create(@Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId,
+                                @Nonnull @JsonProperty(METADATA_RECORD_NAME) String metadataRecordName,
+                                @Nonnull @JsonProperty(METADATA_FIELDS) ImmutableSet<String> metadataFields,
+                                @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
+    return new AutoValue_Metadata(metadataRecordId, metadataRecordName, metadataFields, metadataRecord);
   }
 
   @Nonnull
