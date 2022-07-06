@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import org.metadatacenter.fairware.shared.MetadataIndex;
 
 import javax.annotation.Nonnull;
 

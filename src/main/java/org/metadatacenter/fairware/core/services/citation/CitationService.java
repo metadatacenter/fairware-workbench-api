@@ -1,7 +1,7 @@
 package org.metadatacenter.fairware.core.services.citation;
 
 import com.google.common.collect.ImmutableList;
-import org.metadatacenter.fairware.api.response.search.MetadataIndex;
+import org.metadatacenter.fairware.shared.MetadataIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
-import org.metadatacenter.fairware.api.response.MetadataSpecification;
+import org.metadatacenter.fairware.shared.MetadataSpecification;
 
 import javax.annotation.Nonnull;
 

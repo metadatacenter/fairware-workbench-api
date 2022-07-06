@@ -1,6 +1,6 @@
 package org.metadatacenter.fairware.core.services.citation;
 
-import org.metadatacenter.fairware.api.response.search.MetadataIndex;
+import org.metadatacenter.fairware.shared.MetadataIndex;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
