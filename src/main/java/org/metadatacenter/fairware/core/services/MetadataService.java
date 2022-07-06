@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.core.services.citation;
+package org.metadatacenter.fairware.core.services;
 
 import com.google.common.collect.ImmutableList;
 import org.metadatacenter.fairware.shared.Metadata;
@@ -11,13 +11,13 @@ import java.io.IOException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class CitationService {
+public class MetadataService {
 
-  private static final Logger logger = LoggerFactory.getLogger(CitationService.class);
+  private static final Logger logger = LoggerFactory.getLogger(MetadataService.class);
 
-  private final ImmutableList<CitationServiceProvider> citationServiceProviders;
+  private final ImmutableList<MetadataServiceProvider> citationServiceProviders;
 
-  public CitationService(@Nonnull ImmutableList<CitationServiceProvider> citationServiceProviders) {
+  public MetadataService(@Nonnull ImmutableList<MetadataServiceProvider> citationServiceProviders) {
     this.citationServiceProviders = checkNotNull(citationServiceProviders);
   }
 

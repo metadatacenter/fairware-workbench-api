@@ -21,7 +21,6 @@ import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
 import org.metadatacenter.fairware.constants.CedarModelConstants;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
-import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
@@ -56,7 +55,7 @@ public class FairwareService {
 
   private final CedarService cedarService;
   private final BioportalService bioportalService;
-  private final CitationService citationService;
+  private final MetadataService citationService;
   private final CoreConfig coreConfig;
   private final BioportalConfig bioportalConfig;
   private final MetadataContentExtractor metadataContentExtractor;
@@ -68,7 +67,7 @@ public class FairwareService {
 
   public FairwareService(@Nonnull CedarService cedarService,
                          @Nonnull BioportalService bioportalService,
-                         @Nonnull CitationService citationService,
+                         @Nonnull MetadataService citationService,
                          @Nonnull CoreConfig coreConfig,
                          @Nonnull BioportalConfig bioportalConfig,
                          @Nonnull MetadataContentExtractor metadataContentExtractor,

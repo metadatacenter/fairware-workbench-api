@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
-import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
+import org.metadatacenter.fairware.core.services.MetadataServiceProvider;
 import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.config.citationServices.datacite.DataCiteConfig;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class DataCiteService implements CitationServiceProvider {
+public class DataCiteService implements MetadataServiceProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(DataCiteService.class);
   private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new GuavaModule());

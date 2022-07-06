@@ -5,7 +5,7 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
 import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.config.citationServices.NcbiConfig;
-import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
+import org.metadatacenter.fairware.core.services.MetadataServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class BioSampleService implements CitationServiceProvider {
+public class BioSampleService implements MetadataServiceProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(BioSampleService.class);
 

@@ -1,11 +1,11 @@
-package org.metadatacenter.fairware.core.services.citation;
+package org.metadatacenter.fairware.core.services;
 
 import org.metadatacenter.fairware.shared.Metadata;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
 
-public interface CitationServiceProvider {
+public interface MetadataServiceProvider {
 
   boolean isCompatible(@Nonnull String metadataId);
 
