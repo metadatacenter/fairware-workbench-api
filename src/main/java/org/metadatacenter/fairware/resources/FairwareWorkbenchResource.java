@@ -103,7 +103,7 @@ public class FairwareWorkbenchResource {
           schema = @Schema(implementation = AlignMetadataRequest.class),
           examples = {
               @ExampleObject(value = "{" +
-                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                  "\"templateId\": \"https://repo.metadatacenter.org/templates/db57119c-7860-4569-a3c0-2ced0e0364d1\"," +
                   "\"metadataRecordId\": \"SAMN01821557\""
               )
           }

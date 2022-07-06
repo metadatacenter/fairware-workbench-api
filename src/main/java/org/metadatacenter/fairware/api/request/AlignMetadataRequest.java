@@ -11,13 +11,13 @@ import javax.annotation.Nonnull;
 public abstract class AlignMetadataRequest {
 
   private static final String TEMPLATE_ID = "templateId";
-  private static final String METADATA_RECORD = "metadataRecord";
+  private static final String METADATA_RECORD_ID = "metadataRecordId";
 
   @Nonnull
   @JsonCreator
   public static AlignMetadataRequest create(@Nonnull @JsonProperty(TEMPLATE_ID) String templateId,
-                                            @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
-    return new AutoValue_AlignMetadataRequest(templateId, metadataRecord);
+                                            @Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId) {
+    return new AutoValue_AlignMetadataRequest(templateId, metadataRecordId);
   }
 
   @Nonnull
@@ -25,6 +25,6 @@ public abstract class AlignMetadataRequest {
   public abstract String getTemplateId();
 
   @Nonnull
-  @JsonProperty(METADATA_RECORD)
-  public abstract ImmutableMap<String, Object> getMetadataRecord();
+  @JsonProperty(METADATA_RECORD_ID)
+  public abstract String getMetadataRecordId();
 }
