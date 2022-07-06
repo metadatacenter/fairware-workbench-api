@@ -1,6 +1,7 @@
 package org.metadatacenter.fairware.api.response.search;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
@@ -23,16 +24,19 @@ public abstract class SearchMetadataResponse {
   public abstract MetadataIndex getMetadataIndex();
 
   @Nonnull
+  @JsonIgnore
   public String getMetadataRecordId() {
     return getMetadataIndex().getMetadataRecordId();
   }
 
   @Nonnull
+  @JsonIgnore
   public String getMetadataRecordName() {
     return getMetadataIndex().getMetadataRecordName();
   }
 
   @Nonnull
+  @JsonIgnore
   public ImmutableMap<String, Object> getMetadataRecord() {
     return getMetadataIndex().getMetadataRecord();
   }
