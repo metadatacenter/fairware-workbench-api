@@ -1,6 +1,6 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
-import org.metadatacenter.fairware.api.response.EvaluationReportItem;
+import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;
@@ -12,8 +12,6 @@ import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFiel
 import javax.annotation.Nonnull;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 public class DateTimeValueChecker {

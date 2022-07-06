@@ -1,15 +1,12 @@
-package org.metadatacenter.fairware.api.response;
+package org.metadatacenter.fairware.api.response.evaluation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.metadatacenter.fairware.api.response.MetadataSpecification;
 
 import javax.annotation.Nonnull;
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 @AutoValue
 public abstract class EvaluateMetadataResponse {

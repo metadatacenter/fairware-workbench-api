@@ -1,6 +1,6 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
-import org.metadatacenter.fairware.api.response.EvaluationReportItem;
+import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.issue.IssueCategory;
 import org.metadatacenter.fairware.api.response.issue.IssueType;

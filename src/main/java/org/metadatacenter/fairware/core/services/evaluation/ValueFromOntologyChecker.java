@@ -2,7 +2,7 @@ package org.metadatacenter.fairware.core.services.evaluation;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.http.HttpException;
-import org.metadatacenter.fairware.api.response.EvaluationReportItem;
+import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
 import org.metadatacenter.fairware.api.response.action.RepairAction;
 import org.metadatacenter.fairware.api.response.action.SuggestedOntologyTerm;
 import org.metadatacenter.fairware.api.response.issue.IssueCategory;

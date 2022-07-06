@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.api.response;
+package org.metadatacenter.fairware.api.response.evaluation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

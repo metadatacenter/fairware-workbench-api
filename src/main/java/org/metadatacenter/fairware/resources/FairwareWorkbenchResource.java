@@ -15,7 +15,7 @@ import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
 import org.metadatacenter.fairware.api.response.alignment.AlignMetadataResponse;
-import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
+import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.core.services.MetadataService;
