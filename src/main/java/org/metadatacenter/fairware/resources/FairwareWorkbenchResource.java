@@ -38,6 +38,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -215,7 +216,7 @@ public class FairwareWorkbenchResource {
       responseCode = "200",
       description = "Response showing the metadata records that are associated with the given identifier.",
       content = @Content(
-          schema = @Schema(implementation = SearchMetadataResponse.class)
+          schema = @Schema(implementation = Map.class)
       ))
   @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
       "malformed syntax in the request body.")
@@ -224,8 +225,8 @@ public class FairwareWorkbenchResource {
   public Response searchMetadata(@NotNull @Valid String metadataId) {
     try {
       var metadata = metadataService.getMetadataById(metadataId);
-      var result = SearchMetadataResponse.create(metadata);
-      return Response.ok(result).build();
+      var metadataRecord = metadata.getMetadataRecord();
+      return Response.ok(metadataRecord).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
