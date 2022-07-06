@@ -1,9 +1,8 @@
-package org.metadatacenter.fairware.api.response.evaluationReport;
+package org.metadatacenter.fairware.api.response.report;
 
 import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 @AutoValue
 public abstract class RecordReport {

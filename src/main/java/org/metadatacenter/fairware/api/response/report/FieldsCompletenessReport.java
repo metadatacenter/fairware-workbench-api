@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.api.response.evaluationReport;
+package org.metadatacenter.fairware.api.response.report;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
