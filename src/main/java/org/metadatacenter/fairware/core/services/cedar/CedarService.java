@@ -5,8 +5,8 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-import org.metadatacenter.fairware.api.response.RecommendTemplatesResponse;
-import org.metadatacenter.fairware.api.response.search.MetadataIndex;
+import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
@@ -91,10 +91,10 @@ public class CedarService {
    * Get the metadata record from CEDAR given its identifier.
    *
    * @param cedarTemplateInstanceId the CEDAR template instance identifier.
-   * @return a {@link MetadataIndex} of the CEDAR template instance.
+   * @return a {@link Metadata} of the CEDAR template instance.
    */
   @Nonnull
-  public MetadataIndex getMetadataIndexByCedarId(String cedarTemplateInstanceId) throws IOException {
+  public Metadata getMetadataById(String cedarTemplateInstanceId) throws IOException {
     var url = getTemplateInstanceUrl(cedarTemplateInstanceId);
     var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
     var response = requestHandler.execute(request);
@@ -104,7 +104,8 @@ public class CedarService {
         var mapType = objectMapper.getTypeFactory().constructMapType(ImmutableMap.class, String.class, Object.class);
         var metadataRecord = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
         var metadataName = (String) metadataRecord.getOrDefault(SCHEMA_ORG_NAME, "");
-        return MetadataIndex.create(cedarTemplateInstanceId, metadataName, metadataRecord);
+        var metadataFields = metadataRecord.keySet(); // TODO: Support nested fields
+        return Metadata.create(cedarTemplateInstanceId, metadataName, metadataFields, metadataRecord);
       case HttpStatus.SC_NOT_FOUND:
         throw new FileNotFoundException(format(
             "Couldn't find CEDAR template instance (ID = %s). Cause: %s",

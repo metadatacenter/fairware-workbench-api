@@ -3,7 +3,7 @@ package org.metadatacenter.fairware.core.services.biosample;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
-import org.metadatacenter.fairware.api.response.search.MetadataIndex;
+import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.config.citationServices.NcbiConfig;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
 import org.slf4j.Logger;
@@ -32,15 +32,15 @@ public class BioSampleService implements CitationServiceProvider {
   }
 
   @Override
-  public boolean isCompatible(@Nonnull String metadataRecordId) {
-    return bioSampleIdPattern.matcher(metadataRecordId).find();
+  public boolean isCompatible(@Nonnull String metadataId) {
+    return bioSampleIdPattern.matcher(metadataId).find();
   }
 
   @Nonnull
   @Override
-  public MetadataIndex getMetadataIndex(@Nonnull String metadataRecordId) throws IOException {
-    logger.info("Retrieving BioSample metadata: " + metadataRecordId);
-    var url = getFetchUrl(metadataRecordId);
+  public Metadata getMetadataById(@Nonnull String metadataId) throws IOException {
+    logger.info("Retrieving BioSample metadata: " + metadataId);
+    var url = getFetchUrl(metadataId);
     var request = Request.Get(url);
     var response = request.execute().returnResponse();
     var statusCode = response.getStatusLine().getStatusCode();
@@ -49,8 +49,9 @@ public class BioSampleService implements CitationServiceProvider {
       case HttpStatus.SC_OK:
         var responseText = new String(EntityUtils.toByteArray(response.getEntity()));
         var metadataRecord = bioSampleDataParser.parseToMap(responseText);
-        var metadataName = metadataRecordId;
-        return MetadataIndex.create(metadataRecordId, metadataName, metadataRecord);
+        var metadataName = metadataId;
+        var metadataFields = metadataRecord.keySet();  // TODO: Support nested fields
+        return Metadata.create(metadataId, metadataName, metadataFields, metadataRecord);
       case HttpStatus.SC_NOT_FOUND:
         throw new FileNotFoundException(String.format("Unable to retrieve BioSample metadata: %s", url));
       default:
@@ -58,11 +59,11 @@ public class BioSampleService implements CitationServiceProvider {
     }
   }
 
-  private String getFetchUrl(String metadataRecordId) {
+  private String getFetchUrl(String metadataId) {
     var sb = new StringBuilder();
     sb.append(ncbiConfig.getRootUrl());
     sb.append("?db=biosample");
-    sb.append("&id=").append(metadataRecordId);
+    sb.append("&id=").append(metadataId);
     return sb.toString();
   }
 }

@@ -19,7 +19,7 @@ import org.metadatacenter.fairware.core.services.biosample.BioSampleService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.citation.CitationService;
 import org.metadatacenter.fairware.core.services.citation.CitationServiceProvider;
-import org.metadatacenter.fairware.core.services.citation.DataCiteService;
+import org.metadatacenter.fairware.core.services.datacite.DataCiteService;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.DateTimeValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.DateValueChecker;
