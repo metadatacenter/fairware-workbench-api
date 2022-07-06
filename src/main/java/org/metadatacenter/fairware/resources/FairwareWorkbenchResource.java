@@ -18,10 +18,10 @@ import org.metadatacenter.fairware.api.response.alignment.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.FairwareService;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
-import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.shared.MetadataSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,18 +134,8 @@ public class FairwareWorkbenchResource {
     try {
       var metadata = metadataService.getMetadataById(request.getMetadataId());
       var template = templateService.getCedarTemplateById(request.getTemplateId());
-      var metadataSpecification = MetadataSpecification.create(template.getId(), template.getName(),
-          template.getFields().stream()
-              .collect(collectingAndThen(
-                  toMap(CedarTemplateField::getName, templateField -> templateField.valueField().getJsonValueType()),
-                  ImmutableMap::copyOf))
-      );
-      var fieldAlignments = fairwareService.alignMetadata(metadata, template);
-      AlignMetadataResponse results = AlignMetadataResponse.create(
-          metadata,
-          metadataSpecification,
-          AlignmentReport.create(fieldAlignments));
-      return Response.ok(results).build();
+      var alignments = fairwareService.alignMetadata(metadata, template);
+      return Response.ok(alignments).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -195,6 +185,18 @@ public class FairwareWorkbenchResource {
     } catch (IOException | HttpException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
+    }
+  }
+
+  private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
+      throws IOException, HttpException, BadRequestException {
+    var metadata = metadataService.getMetadataById(request.getMetadataId());
+    var template = templateService.getCedarTemplateById(request.getTemplateId());
+    var fieldAlignments = request.getFieldAlignments();
+    if (fieldAlignments == null) {
+      return fairwareService.evaluateMetadata(metadata, template);
+    } else {
+      return fairwareService.evaluateMetadata(metadata, template, fieldAlignments);
     }
   }
 
@@ -303,13 +305,5 @@ public class FairwareWorkbenchResource {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }
-  }
-
-  private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
-      throws IOException, HttpException, BadRequestException {
-    var metadata = metadataService.getMetadataById(request.getMetadataId());
-    var template = templateService.getCedarTemplateById(request.getTemplateId());
-    var fieldAlignments = fairwareService.alignMetadata(metadata, template);
-    return fairwareService.evaluateMetadata(metadata, template, fieldAlignments);
   }
 }

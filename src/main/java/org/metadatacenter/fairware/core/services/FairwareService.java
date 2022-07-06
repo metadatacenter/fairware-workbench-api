@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpException;
+import org.metadatacenter.fairware.api.response.alignment.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReport;
@@ -16,6 +17,7 @@ import org.metadatacenter.fairware.api.response.report.FieldsCompletenessReport;
 import org.metadatacenter.fairware.api.response.report.RecordReport;
 import org.metadatacenter.fairware.api.response.report.RecordsCompletenessReport;
 import org.metadatacenter.fairware.config.CoreConfig;
+import org.metadatacenter.fairware.core.domain.CedarTemplate;
 import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
@@ -26,7 +28,6 @@ import org.metadatacenter.fairware.core.util.FieldsAlignmentUtil;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
-import org.metadatacenter.fairware.core.domain.CedarTemplate;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.shared.IssueType;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -72,12 +74,26 @@ public class FairwareService {
     this.controlledTermEvaluator = checkNotNull(controlledTermEvaluator);
   }
 
+  public AlignMetadataResponse alignMetadata(Metadata metadata, CedarTemplate template) throws IOException, HttpException {
+    var fieldAlignments = findFieldAlignments(metadata, template);
+    return AlignMetadataResponse.create(
+        metadata,
+        MetadataSpecification.create(
+            template.getId(),
+            template.getName(),
+            template.getFields().stream()
+                .collect(collectingAndThen(
+                    toMap(CedarTemplateField::getJsonPath,
+                        templateField -> templateField.valueField().getJsonValueType()),
+                    ImmutableMap::copyOf))),
+        AlignmentReport.create(fieldAlignments));
+  }
+
   /**
    * This method finds an alignment between the fields in a metadata record and a given CEDAR template. It makes use
    * of the Hungarian algorithm to ensure that the alignment is optimal.
    */
-  public ImmutableList<FieldAlignment> alignMetadata(Metadata metadata, CedarTemplate template)
-      throws IOException, HttpException {
+  private ImmutableList<FieldAlignment> findFieldAlignments(Metadata metadata, CedarTemplate template) throws IOException {
     var metadataRecord = metadata.getMetadataRecord();
     var templateFields = template.getFields();
     // Extract metadata fields from the metadata record
@@ -100,19 +116,23 @@ public class FairwareService {
         }
       }
     }
-
     // Apply a similarity filter to discard any correspondences under a threshold
     similarityMatrix = FieldsAlignmentUtil.filterBySimilarity(similarityMatrix, coreConfig.getSimilarityThreshold());
 
     var hungarianAlgorithm = new HungarianAlgorithm(FieldsAlignmentUtil.translateMatrix(similarityMatrix));
     var optimalAlignment = hungarianAlgorithm.execute();
-
     var fieldAlignments =
         FieldsAlignmentUtil.generateFieldAlignments(metadataFields,
             templateFields,
             similarityMatrix,
             optimalAlignment);
     return ImmutableList.copyOf(fieldAlignments);
+  }
+
+  public EvaluateMetadataResponse evaluateMetadata(@Nonnull Metadata metadata,
+                                                   @Nonnull CedarTemplate template) throws HttpException, IOException {
+    var fieldAlignments = findFieldAlignments(metadata, template);
+    return evaluateMetadata(metadata, template, fieldAlignments);
   }
 
   public EvaluateMetadataResponse evaluateMetadata(@Nonnull Metadata metadata,
@@ -134,12 +154,7 @@ public class FairwareService {
       metadataFieldInfoMap.put(key, metadataFieldInfo);
     }
 
-    // Use the alignments to apply the template constraints against each metadata field
     var reportItems = Lists.<EvaluationReportItem>newArrayList();
-    // Use an automatically-generated alignment if one has not been provided
-    if (fieldAlignments.size() == 0) {
-      fieldAlignments = alignMetadata(metadata, template);
-    }
 
     // Check missing required values
     var requiredValuesReports = requiredValuesEvaluator.evaluateMetadata(
