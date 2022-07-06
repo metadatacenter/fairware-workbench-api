@@ -1,13 +1,13 @@
-package org.metadatacenter.fairware.api.response;
+package org.metadatacenter.fairware.api.response.alignment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import org.metadatacenter.fairware.api.response.AutoValue_AlignMetadataResponse;
 import org.metadatacenter.fairware.api.shared.FieldAlignment;
 
 import javax.annotation.Nonnull;
-import java.util.List;
 
 @AutoValue
 public abstract class AlignMetadataResponse {
