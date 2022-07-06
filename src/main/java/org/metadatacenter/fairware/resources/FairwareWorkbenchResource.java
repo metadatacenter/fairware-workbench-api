@@ -104,7 +104,7 @@ public class FairwareWorkbenchResource {
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                  "\"metadataRecordId\": \"SAMN06459514\""
+                  "\"metadataRecordId\": \"SAMN01821557\""
               )
           }
       ))
@@ -148,19 +148,9 @@ public class FairwareWorkbenchResource {
           schema = @Schema(implementation = EvaluateMetadataRequest.class),
           examples = {
               @ExampleObject(value = "{" +
-                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                  "\"metadataRecord\": {" +
-                  "\"biosample_accession\": \"1234\"," +
-                  "\"organism\": \"Homo sapiens\"," +
-                  "\"disease\": \"Diabetes\"," +
-                  "\"tissue\": \"liver\"," +
-                  "\"platform\": \"Illumina\"," +
-                  "\"cell_line\": \"\"," +
-                  "\"cell_type\": \"\"," +
-                  "\"sex\": \"male\"," +
-                  "\"age\": \"52 yo\"" +
-                  "}" +
-                  "}")
+                  "\"templateId\": \"https://repo.metadatacenter.org/templates/db57119c-7860-4569-a3c0-2ced0e0364d1\"," +
+                  "\"metadataRecordId\": \"SAMN01821557\""
+              )
           }
       ))
   @ApiResponse(
