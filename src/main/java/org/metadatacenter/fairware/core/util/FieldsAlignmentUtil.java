@@ -4,7 +4,7 @@ import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang3.StringUtils;
 import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class FieldsAlignmentUtil {
    * @param pathSimilarityWeight weight in the interval [0,1] assigned to the field path similarity
    * @return Similarity value in the range [0,1]
    */
-  public static double calculateSimilarity(MetadataFieldInfo metadataField, TemplateField templateField,
+  public static double calculateSimilarity(MetadataFieldInfo metadataField, CedarTemplateField templateField,
                                            double nameSimilarityWeight, double pathSimilarityWeight) {
 
     if (metadataField == null || templateField == null) {
@@ -99,7 +99,7 @@ public class FieldsAlignmentUtil {
    * @return a list of alignments between metadata and template fields, represented using the FieldAlignment class
    */
   public static List<FieldAlignment> generateFieldAlignments(List<MetadataFieldInfo> metadataFields,
-                                                             List<TemplateField> templateFields,
+                                                             List<CedarTemplateField> templateFields,
                                                              double[][] similarityMatrix,
                                                              int[] selectedAlignments) {
     List<FieldAlignment> alignments = new ArrayList<>();

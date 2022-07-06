@@ -9,7 +9,7 @@ import org.metadatacenter.fairware.shared.IssueType;
 import org.metadatacenter.fairware.shared.MetadataIssue;
 import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +18,7 @@ public class OptionalValuesEvaluator implements IMetadataEvaluator {
 
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldInfoMap,
-                                                     ImmutableMap<String, TemplateField> templateFieldMap,
+                                                     ImmutableMap<String, CedarTemplateField> templateFieldMap,
                                                      List<FieldAlignment> fieldAlignments) {
     var reportItems = Lists.<EvaluationReportItem>newArrayList();
     for (var fieldAlignment : fieldAlignments) {

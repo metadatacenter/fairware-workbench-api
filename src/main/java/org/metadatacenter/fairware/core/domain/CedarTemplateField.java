@@ -1,31 +1,31 @@
-package org.metadatacenter.fairware.core.util.cedar.extraction.model;
+package org.metadatacenter.fairware.core.domain;
 
 import com.google.auto.value.AutoOneOf;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
-@AutoOneOf(TemplateField.Kind.class)
-public abstract class TemplateField {
+@AutoOneOf(CedarTemplateField.Kind.class)
+public abstract class CedarTemplateField {
 
   @Nonnull
-  public static TemplateField ofValueField(@Nonnull FieldSpecification fieldSpecification) {
-    return AutoOneOf_TemplateField.valueField(fieldSpecification);
+  public static CedarTemplateField ofValueField(@Nonnull CedarTemplateFieldSpecification fieldSpecification) {
+    return AutoOneOf_CedarTemplateField.valueField(fieldSpecification);
   }
 
   @Nonnull
-  public static TemplateField ofObjectField(@Nonnull FieldSpecification fieldSpecification) {
-    return AutoOneOf_TemplateField.objectField(fieldSpecification);
+  public static CedarTemplateField ofObjectField(@Nonnull CedarTemplateFieldSpecification fieldSpecification) {
+    return AutoOneOf_CedarTemplateField.objectField(fieldSpecification);
   }
 
   @Nonnull
   public abstract Kind getKind();
 
   @Nonnull
-  public abstract FieldSpecification valueField();
+  public abstract CedarTemplateFieldSpecification valueField();
 
   @Nonnull
-  public abstract FieldSpecification objectField();
+  public abstract CedarTemplateFieldSpecification objectField();
 
   @Nonnull
   public String getName() {
@@ -72,7 +72,7 @@ public abstract class TemplateField {
     return sb.toString();
   }
 
-  private Optional<TemplateField> getParentField() {
+  private Optional<CedarTemplateField> getParentField() {
     switch (getKind()) {
       case VALUE_FIELD:
         return valueField().getParentField();

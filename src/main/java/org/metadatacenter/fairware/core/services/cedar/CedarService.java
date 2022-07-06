@@ -6,14 +6,14 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.core.domain.CedarTemplate;
+import org.metadatacenter.fairware.core.domain.CedarTemplateFieldsExtractor;
 import org.metadatacenter.fairware.core.services.MetadataServiceProvider;
 import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.constants.CedarConstants;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
-import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.CedarTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

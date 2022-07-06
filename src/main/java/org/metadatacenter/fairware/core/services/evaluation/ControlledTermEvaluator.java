@@ -7,7 +7,7 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
 import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class ControlledTermEvaluator implements IMetadataEvaluator {
 
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldsMap,
-                                                     ImmutableMap<String, TemplateField> templateFieldMap,
+                                                     ImmutableMap<String, CedarTemplateField> templateFieldMap,
                                                      List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
     var reportItems = Lists.<EvaluationReportItem>newArrayList();
     for (var fieldAlignment : fieldAlignments) {

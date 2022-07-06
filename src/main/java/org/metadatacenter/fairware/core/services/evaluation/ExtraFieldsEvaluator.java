@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.shared.RepairAction;
 import org.metadatacenter.fairware.shared.SuggestedOntologyTerm;
 import org.metadatacenter.fairware.shared.IssueCategory;
@@ -17,7 +18,6 @@ import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
 
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldMap,
-                                                     ImmutableMap<String, TemplateField> templateFieldMap,
+                                                     ImmutableMap<String, CedarTemplateField> templateFieldMap,
                                                      List<FieldAlignment> fieldAlignments)
       throws HttpException, IOException {
 

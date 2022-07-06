@@ -1,11 +1,10 @@
-package org.metadatacenter.fairware.core.util.cedar.extraction.model;
+package org.metadatacenter.fairware.core.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
 
 import javax.annotation.Nonnull;
 
@@ -22,6 +21,7 @@ public class CedarTemplate {
   private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new GuavaModule());
 
   private final ImmutableMap<String, Object> template;
+
   private final CedarTemplateFieldsExtractor templateFieldsExtractor;
 
   private JsonNode templateNode = null;
@@ -42,7 +42,7 @@ public class CedarTemplate {
     return templateNode.get(JSON_LD_ID).asText();
   }
 
-  public ImmutableList<TemplateField> getFields() {
+  public ImmutableList<CedarTemplateField> getFields() {
     var templateNode = getTemplateNode();
     return templateFieldsExtractor.extractFields(templateNode);
   }

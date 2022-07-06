@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -37,7 +37,7 @@ public class ValueTypeEvaluator implements IMetadataEvaluator {
 
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldInfoMap,
-                                                     ImmutableMap<String, TemplateField> templateFieldMap,
+                                                     ImmutableMap<String, CedarTemplateField> templateFieldMap,
                                                      List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
     var reportItems = Lists.<EvaluationReportItem>newArrayList();
     for (var fieldAlignment : fieldAlignments) {

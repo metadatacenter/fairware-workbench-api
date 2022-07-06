@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
+import org.metadatacenter.fairware.core.domain.CedarTemplateFieldsExtractor;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
-import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 

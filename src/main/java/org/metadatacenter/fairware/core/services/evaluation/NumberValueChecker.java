@@ -6,7 +6,7 @@ import org.metadatacenter.fairware.shared.IssueCategory;
 import org.metadatacenter.fairware.shared.IssueType;
 import org.metadatacenter.fairware.shared.MetadataIssue;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.FieldSpecification;
+import org.metadatacenter.fairware.core.domain.CedarTemplateFieldSpecification;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 
 import javax.annotation.Nonnull;
@@ -18,7 +18,7 @@ import java.util.Optional;
 public class NumberValueChecker {
 
   public Optional<EvaluationReportItem> checkValue(@Nonnull MetadataFieldInfo metadataField,
-                                                   @Nonnull FieldSpecification fieldSpecification) {
+                                                   @Nonnull CedarTemplateFieldSpecification fieldSpecification) {
     var possibleValue = metadataField.getValue();
     if (possibleValue.isPresent()) {
       var value = possibleValue.get();

@@ -3,7 +3,7 @@ package org.metadatacenter.fairware.core.services;
 import com.google.common.collect.ImmutableMap;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.CedarTemplate;
+import org.metadatacenter.fairware.core.domain.CedarTemplate;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;

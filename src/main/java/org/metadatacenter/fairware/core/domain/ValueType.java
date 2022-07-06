@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.core.util.cedar.extraction.model;
+package org.metadatacenter.fairware.core.domain;
 
 public enum ValueType {
   STRING,

@@ -32,7 +32,7 @@ import org.metadatacenter.fairware.core.services.evaluation.ValueFromOntologyChe
 import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
-import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateFieldsExtractor;
+import org.metadatacenter.fairware.core.domain.CedarTemplateFieldsExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.CedarTemplateInstanceContentExtractor;
 import org.metadatacenter.fairware.resources.CommonApiDocumentationResource;
 import org.metadatacenter.fairware.resources.FairwareWorkbenchResource;

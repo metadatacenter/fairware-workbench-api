@@ -1,13 +1,9 @@
-package org.metadatacenter.fairware.core.util.cedar.extraction;
+package org.metadatacenter.fairware.core.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.FieldSpecification;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.ValueConstraint;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.ValueType;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -44,12 +40,12 @@ public class CedarTemplateFieldsExtractor {
   }
 
   @Nonnull
-  public ImmutableList<TemplateField> extractFields(@Nonnull JsonNode templateNode) {
+  public ImmutableList<CedarTemplateField> extractFields(@Nonnull JsonNode templateNode) {
     return extractFieldsFromTemplate(templateNode);
   }
 
-  private ImmutableList<TemplateField> extractFieldsFromTemplate(JsonNode templateNode) {
-    var collector = Lists.<TemplateField>newArrayList();
+  private ImmutableList<CedarTemplateField> extractFieldsFromTemplate(JsonNode templateNode) {
+    var collector = Lists.<CedarTemplateField>newArrayList();
     var fieldNames = getFieldsFromTemplateOrElement(templateNode);
     var propertiesNode = templateNode.get("properties");
     for (var fieldName : fieldNames) {
@@ -73,16 +69,16 @@ public class CedarTemplateFieldsExtractor {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private ImmutableList<TemplateField> extractFieldsFromElement(JsonNode elementNode, Optional<TemplateField> parentField) {
+  private ImmutableList<CedarTemplateField> extractFieldsFromElement(JsonNode elementNode, Optional<CedarTemplateField> parentField) {
     var allowMultipleValues = elementNode.has(JSON_SCHEMA_ITEMS);
     if (allowMultipleValues) {
       elementNode = elementNode.get(JSON_SCHEMA_ITEMS);
     }
-    var collector = Lists.<TemplateField>newArrayList();
+    var collector = Lists.<CedarTemplateField>newArrayList();
     var fieldNames = getFieldsFromTemplateOrElement(elementNode);
     var propertiesNode = elementNode.get("properties");
-    var objectField = TemplateField.ofObjectField(
-        FieldSpecification.ofObjectField(
+    var objectField = CedarTemplateField.ofObjectField(
+        CedarTemplateFieldSpecification.ofObjectField(
             getName(elementNode), getPrefLabel(elementNode), allowMultipleValues, parentField));
     for (var fieldName : fieldNames) {
       var node = propertiesNode.get(fieldName);
@@ -99,7 +95,7 @@ public class CedarTemplateFieldsExtractor {
     return ImmutableList.copyOf(collector);
   }
 
-  private TemplateField getTemplateField(JsonNode fieldNode, Optional<TemplateField> parentField) {
+  private CedarTemplateField getTemplateField(JsonNode fieldNode, Optional<CedarTemplateField> parentField) {
     var allowMultipleValues = fieldNode.has(JSON_SCHEMA_ITEMS);
     if (allowMultipleValues) {
       fieldNode = fieldNode.get(JSON_SCHEMA_ITEMS);
@@ -107,26 +103,26 @@ public class CedarTemplateFieldsExtractor {
     var valueType = getValueType(fieldNode);
     switch (valueType) {
       case DATE_TIME:
-        return TemplateField.ofValueField(
-            FieldSpecification.ofDateTimeField(
+        return CedarTemplateField.ofValueField(
+            CedarTemplateFieldSpecification.ofDateTimeField(
                 getName(fieldNode), getPrefLabel(fieldNode),
                 isRequired(fieldNode), allowMultipleValues,
                 getDateTimeFormat(fieldNode), parentField));
       case DATE:
-        return TemplateField.ofValueField(
-            FieldSpecification.ofDateField(
+        return CedarTemplateField.ofValueField(
+            CedarTemplateFieldSpecification.ofDateField(
                 getName(fieldNode), getPrefLabel(fieldNode),
                 isRequired(fieldNode), allowMultipleValues,
                 getDateFormat(fieldNode), parentField));
       case TIME:
-        return TemplateField.ofValueField(
-            FieldSpecification.ofTimeField(
+        return CedarTemplateField.ofValueField(
+            CedarTemplateFieldSpecification.ofTimeField(
                 getName(fieldNode), getPrefLabel(fieldNode),
                 isRequired(fieldNode), allowMultipleValues,
                 getTimeFormat(fieldNode), parentField));
       default:
-        return TemplateField.ofValueField(
-            FieldSpecification.ofValueField(
+        return CedarTemplateField.ofValueField(
+            CedarTemplateFieldSpecification.ofValueField(
                 getName(fieldNode), getPrefLabel(fieldNode),
                 getValueType(fieldNode), isRequired(fieldNode),
                 allowMultipleValues, getValueConstraints(fieldNode),

@@ -16,6 +16,7 @@ import org.metadatacenter.fairware.api.response.report.FieldsCompletenessReport;
 import org.metadatacenter.fairware.api.response.report.RecordReport;
 import org.metadatacenter.fairware.api.response.report.RecordsCompletenessReport;
 import org.metadatacenter.fairware.config.CoreConfig;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
@@ -25,9 +26,8 @@ import org.metadatacenter.fairware.core.util.FieldsAlignmentUtil;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.CedarTemplate;
+import org.metadatacenter.fairware.core.domain.CedarTemplate;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
-import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.shared.IssueType;
 import org.metadatacenter.fairware.shared.Metadata;
@@ -119,9 +119,9 @@ public class FairwareService {
                                                    @Nonnull CedarTemplate template,
                                                    @Nonnull ImmutableList<FieldAlignment> fieldAlignments) throws HttpException, IOException {
     var templateFields = template.getFields();
-    var templateFieldMap = templateFields.<String, TemplateField>stream()
+    var templateFieldMap = templateFields.<String, CedarTemplateField>stream()
         .collect(collectingAndThen(
-            toMap(TemplateField::getJsonPath, templateField -> templateField),
+            toMap(CedarTemplateField::getJsonPath, templateField -> templateField),
             ImmutableMap::copyOf));
 
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
@@ -183,7 +183,7 @@ public class FairwareService {
     var templateName = template.getName();
     var templateFieldPaths = templateFields.stream()
         .collect(collectingAndThen(
-            toMap(TemplateField::getJsonPath,
+            toMap(CedarTemplateField::getJsonPath,
                 field -> field.valueField().getJsonValueType()),
             ImmutableMap::copyOf));
 

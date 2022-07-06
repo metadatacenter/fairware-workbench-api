@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
  * 4) An array of template fields
  */
 @AutoValue
+@Deprecated
 public abstract class TemplateNodeInfo {
 
   public static TemplateNodeInfo create(@JsonProperty("id") @Nonnull String id,

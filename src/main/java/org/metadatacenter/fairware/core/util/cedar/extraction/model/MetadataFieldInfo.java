@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 import java.util.Optional;
 
 @AutoValue
+@Deprecated
 public abstract class MetadataFieldInfo {
 
   @Nonnull
