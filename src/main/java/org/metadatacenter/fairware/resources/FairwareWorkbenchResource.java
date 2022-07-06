@@ -19,7 +19,7 @@ import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
-import org.metadatacenter.fairware.core.services.MetadataService;
+import org.metadatacenter.fairware.core.services.FairwareService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +45,10 @@ public class FairwareWorkbenchResource {
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchResource.class);
 
   private final TemplateService templateService;
-  private final MetadataService metadataService;
+  private final FairwareService metadataService;
 
   public FairwareWorkbenchResource(@Nonnull TemplateService templateService,
-                                   @Nonnull MetadataService metadataService) {
+                                   @Nonnull FairwareService metadataService) {
     this.templateService = checkNotNull(templateService);
     this.metadataService = checkNotNull(metadataService);
   }

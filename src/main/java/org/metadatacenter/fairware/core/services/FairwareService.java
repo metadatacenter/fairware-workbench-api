@@ -50,9 +50,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toMap;
 
-public class MetadataService {
+public class FairwareService {
 
-  private static final Logger logger = LoggerFactory.getLogger(MetadataService.class);
+  private static final Logger logger = LoggerFactory.getLogger(FairwareService.class);
 
   private final CedarService cedarService;
   private final BioportalService bioportalService;
@@ -66,7 +66,7 @@ public class MetadataService {
   private final ValueTypeEvaluator valueTypeEvaluator;
   private final ControlledTermEvaluator controlledTermEvaluator;
 
-  public MetadataService(@Nonnull CedarService cedarService,
+  public FairwareService(@Nonnull CedarService cedarService,
                          @Nonnull BioportalService bioportalService,
                          @Nonnull CitationService citationService,
                          @Nonnull CoreConfig coreConfig,

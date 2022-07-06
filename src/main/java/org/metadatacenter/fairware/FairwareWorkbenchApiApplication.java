@@ -11,7 +11,7 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
-import org.metadatacenter.fairware.core.services.MetadataService;
+import org.metadatacenter.fairware.core.services.FairwareService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.biosample.BioSampleDataParser;
@@ -116,7 +116,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var extraFieldsEvaluator = new ExtraFieldsEvaluator(bioportalService, coreConfig);
     var valueFromOntologyChecker = new ValueFromOntologyChecker(coreConfig, bioportalService);
     var controlledTermEvaluator = new ControlledTermEvaluator(valueFromOntologyChecker);
-    var metadataService = new MetadataService(cedarService,
+    var metadataService = new FairwareService(cedarService,
         bioportalService,
         citationService,
         configuration.getCoreConfig(),
