@@ -3,11 +3,11 @@ package org.metadatacenter.fairware.core.services.evaluation;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
-import org.metadatacenter.fairware.api.response.action.RepairAction;
-import org.metadatacenter.fairware.api.response.issue.IssueCategory;
-import org.metadatacenter.fairware.api.response.issue.IssueType;
-import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
-import org.metadatacenter.fairware.api.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.RepairAction;
+import org.metadatacenter.fairware.shared.IssueCategory;
+import org.metadatacenter.fairware.shared.IssueType;
+import org.metadatacenter.fairware.shared.MetadataIssue;
+import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 

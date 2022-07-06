@@ -3,8 +3,8 @@ package org.metadatacenter.fairware.api.response.evaluation;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import org.metadatacenter.fairware.api.response.action.RepairAction;
-import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
+import org.metadatacenter.fairware.shared.RepairAction;
+import org.metadatacenter.fairware.shared.MetadataIssue;
 
 import javax.annotation.Nonnull;
 

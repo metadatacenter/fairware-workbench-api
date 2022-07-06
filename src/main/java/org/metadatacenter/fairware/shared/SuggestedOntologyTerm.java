@@ -1,9 +1,8 @@
-package org.metadatacenter.fairware.api.response.action;
+package org.metadatacenter.fairware.shared;
 
 import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 @AutoValue
 public abstract class SuggestedOntologyTerm {

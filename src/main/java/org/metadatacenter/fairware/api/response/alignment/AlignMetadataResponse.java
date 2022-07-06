@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import org.metadatacenter.fairware.api.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.FieldAlignment;
 
 import javax.annotation.Nonnull;
 

@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.api.response.issue;
+package org.metadatacenter.fairware.shared;
 
 public enum IssueCategory {
 

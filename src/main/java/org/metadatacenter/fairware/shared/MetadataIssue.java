@@ -1,4 +1,4 @@
-package org.metadatacenter.fairware.api.response.issue;
+package org.metadatacenter.fairware.shared;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;

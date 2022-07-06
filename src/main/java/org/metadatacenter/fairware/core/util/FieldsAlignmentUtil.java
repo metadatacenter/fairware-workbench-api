@@ -2,7 +2,7 @@ package org.metadatacenter.fairware.core.util;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang3.StringUtils;
-import org.metadatacenter.fairware.api.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 

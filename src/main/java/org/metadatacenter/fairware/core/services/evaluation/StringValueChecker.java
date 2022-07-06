@@ -1,10 +1,10 @@
 package org.metadatacenter.fairware.core.services.evaluation;
 
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
-import org.metadatacenter.fairware.api.response.action.RepairAction;
-import org.metadatacenter.fairware.api.response.issue.IssueCategory;
-import org.metadatacenter.fairware.api.response.issue.IssueType;
-import org.metadatacenter.fairware.api.response.issue.MetadataIssue;
+import org.metadatacenter.fairware.shared.RepairAction;
+import org.metadatacenter.fairware.shared.IssueCategory;
+import org.metadatacenter.fairware.shared.IssueType;
+import org.metadatacenter.fairware.shared.MetadataIssue;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.FieldSpecification;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
