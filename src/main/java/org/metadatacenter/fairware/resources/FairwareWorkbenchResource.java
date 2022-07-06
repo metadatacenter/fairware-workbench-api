@@ -1,7 +1,6 @@
 package org.metadatacenter.fairware.resources;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,6 +19,7 @@ import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataRespo
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.core.services.FairwareService;
+import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +44,16 @@ public class FairwareWorkbenchResource {
 
   private static final Logger logger = LoggerFactory.getLogger(FairwareWorkbenchResource.class);
 
+  private final MetadataService metadataService;
   private final TemplateService templateService;
-  private final FairwareService metadataService;
+  private final FairwareService fairwareService;
 
-  public FairwareWorkbenchResource(@Nonnull TemplateService templateService,
-                                   @Nonnull FairwareService metadataService) {
-    this.templateService = checkNotNull(templateService);
+  public FairwareWorkbenchResource(@Nonnull MetadataService metadataService,
+                                   @Nonnull TemplateService templateService,
+                                   @Nonnull FairwareService fairwareService) {
     this.metadataService = checkNotNull(metadataService);
+    this.templateService = checkNotNull(templateService);
+    this.fairwareService = checkNotNull(fairwareService);
   }
 
   @POST
@@ -79,7 +82,8 @@ public class FairwareWorkbenchResource {
       "it from fulfilling the request.")
   public Response recommendTemplatesByMetadataId(@NotNull @Valid String metadataId) {
     try {
-      var metadataRecord = getMetadataRecordById(metadataId);
+      var metadata = metadataService.getMetadataById(metadataId);
+      var metadataRecord = metadata.getMetadataRecord();
       var recommendations = templateService.recommendCedarTemplates(metadataRecord);
       return Response.ok(recommendations).build();
     } catch (BadRequestException e) {
@@ -123,9 +127,9 @@ public class FairwareWorkbenchResource {
       "it from fulfilling the request.")
   public Response alignMetadata(@NotNull @Valid AlignMetadataRequest request) {
     try {
-      var fieldAlignments = metadataService.alignMetadata(
-          request.getTemplateId(),
-          request.getMetadataId());
+      var metadata = metadataService.getMetadataById(request.getMetadataId());
+      var template = templateService.getCedarTemplateById(request.getTemplateId());
+      var fieldAlignments = fairwareService.alignMetadata(metadata, template);
       AlignMetadataResponse results = AlignMetadataResponse.create(AlignmentReport.create(fieldAlignments));
       return Response.ok(results).build();
     } catch (BadRequestException e) {
@@ -205,8 +209,9 @@ public class FairwareWorkbenchResource {
       "it from fulfilling the request.")
   public Response searchMetadata(@NotNull @Valid String metadataId) {
     try {
-      var results = metadataService.searchMetadata(metadataId);
-      return Response.ok(results).build();
+      var metadata = metadataService.getMetadataById(metadataId);
+      var result = SearchMetadataResponse.create(metadata);
+      return Response.ok(result).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
@@ -275,7 +280,7 @@ public class FairwareWorkbenchResource {
         var evaluationResponse = getEvaluateMetadataResponse(evaluationRequest);
         evaluationResponses.add(evaluationResponse);
       }
-      var report = metadataService.generateEvaluationReport(ImmutableList.copyOf(evaluationResponses));
+      var report = fairwareService.generateEvaluationReport(ImmutableList.copyOf(evaluationResponses));
       return Response.ok(report).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
@@ -288,17 +293,9 @@ public class FairwareWorkbenchResource {
 
   private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
       throws IOException, HttpException, BadRequestException {
-    var metadataId = request.getMetadataId();
-    var templateId = request.getTemplateId();
-    var fieldAlignments = metadataService.alignMetadata(templateId, metadataId);
-    return metadataService.evaluateMetadata(
-        metadataId,
-        templateId,
-        fieldAlignments);
-  }
-
-  /* Helper functions */
-  public ImmutableMap<String, Object> getMetadataRecordById(String metadataId) throws IOException {
-    return metadataService.searchMetadata(metadataId).getMetadataRecord();
+    var metadata = metadataService.getMetadataById(request.getMetadataId());
+    var template = templateService.getCedarTemplateById(request.getTemplateId());
+    var fieldAlignments = fairwareService.alignMetadata(metadata, template);
+    return fairwareService.evaluateMetadata(metadata, template, fieldAlignments);
   }
 }

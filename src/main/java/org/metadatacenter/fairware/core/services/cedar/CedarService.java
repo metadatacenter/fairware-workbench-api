@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.core.services.MetadataServiceProvider;
+import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.config.cedar.CedarConfig;
 import org.metadatacenter.fairware.constants.CedarConstants;
@@ -27,7 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.SCHEMA_ORG_NAME;
 
-public class CedarService {
+public class CedarService implements MetadataServiceProvider {
 
   private static final Logger logger = LoggerFactory.getLogger(CedarService.class);
 
@@ -44,6 +46,11 @@ public class CedarService {
     this.objectMapper = checkNotNull(objectMapper);
     this.requestHandler = checkNotNull(requestHandler);
     this.cedarTemplateFieldsExtractor = checkNotNull(cedarTemplateFieldsExtractor);
+  }
+
+  @Override
+  public boolean isCompatible(@Nonnull String metadataId) {
+    return CedarUtil.isCedarTemplateInstanceId(metadataId);
   }
 
   /**
@@ -90,12 +97,13 @@ public class CedarService {
   /**
    * Get the metadata record from CEDAR given its identifier.
    *
-   * @param cedarTemplateInstanceId the CEDAR template instance identifier.
+   * @param metadataId the CEDAR template instance identifier.
    * @return a {@link Metadata} of the CEDAR template instance.
    */
   @Nonnull
-  public Metadata getMetadataById(String cedarTemplateInstanceId) throws IOException {
-    var url = getTemplateInstanceUrl(cedarTemplateInstanceId);
+  @Override
+  public Metadata getMetadataById(String metadataId) throws IOException {
+    var url = getTemplateInstanceUrl(metadataId);
     var request = requestHandler.createGetRequest(url, "apiKey " + cedarConfig.getApiKey());
     var response = requestHandler.execute(request);
     switch (response.getStatusLine().getStatusCode()) {
@@ -105,15 +113,15 @@ public class CedarService {
         var metadataRecord = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
         var metadataName = (String) metadataRecord.getOrDefault(SCHEMA_ORG_NAME, "");
         var metadataFields = metadataRecord.keySet(); // TODO: Support nested fields
-        return Metadata.create(cedarTemplateInstanceId, metadataName, metadataFields, metadataRecord);
+        return Metadata.create(metadataId, metadataName, metadataFields, metadataRecord);
       case HttpStatus.SC_NOT_FOUND:
         throw new FileNotFoundException(format(
             "Couldn't find CEDAR template instance (ID = %s). Cause: %s",
-            cedarTemplateInstanceId, response.getStatusLine()));
+            metadataId, response.getStatusLine()));
       default:
         throw new BadRequestException(format(
             "Error retrieving template instance (ID = %s). Cause: %s",
-            cedarTemplateInstanceId, response.getStatusLine()));
+            metadataId, response.getStatusLine()));
     }
   }
 

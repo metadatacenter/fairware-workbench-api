@@ -18,24 +18,24 @@ public abstract class Metadata {
 
   @Nonnull
   @JsonCreator
-  public static Metadata create(@Nonnull @JsonProperty(METADATA_ID) String metadataId,
-                                @Nonnull @JsonProperty(METADATA_NAME) String metadataName,
-                                @Nonnull @JsonProperty(METADATA_FIELDS) ImmutableSet<String> metadataFields,
+  public static Metadata create(@Nonnull @JsonProperty(METADATA_ID) String id,
+                                @Nonnull @JsonProperty(METADATA_NAME) String name,
+                                @Nonnull @JsonProperty(METADATA_FIELDS) ImmutableSet<String> fields,
                                 @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord) {
-    return new AutoValue_Metadata(metadataId, metadataName, metadataFields, metadataRecord);
+    return new AutoValue_Metadata(id, name, fields, metadataRecord);
   }
 
   @Nonnull
   @JsonProperty(METADATA_ID)
-  public abstract String getMetadataId();
+  public abstract String getId();
 
   @Nonnull
   @JsonProperty(METADATA_NAME)
-  public abstract String getMetadataName();
+  public abstract String getName();
 
   @Nonnull
   @JsonProperty(METADATA_FIELDS)
-  public abstract ImmutableSet<String> getMetadataFields();
+  public abstract ImmutableSet<String> getFields();
 
   @Nonnull
   @JsonProperty(METADATA_RECORD)

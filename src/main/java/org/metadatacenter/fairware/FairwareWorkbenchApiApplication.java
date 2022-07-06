@@ -10,15 +10,14 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.metadatacenter.fairware.core.services.FairwareService;
+import org.metadatacenter.fairware.core.services.HttpRequestHandler;
+import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.biosample.BioSampleDataParser;
 import org.metadatacenter.fairware.core.services.biosample.BioSampleService;
 import org.metadatacenter.fairware.core.services.cedar.CedarService;
-import org.metadatacenter.fairware.core.services.MetadataService;
-import org.metadatacenter.fairware.core.services.MetadataServiceProvider;
 import org.metadatacenter.fairware.core.services.datacite.DataCiteService;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.DateTimeValueChecker;
@@ -62,7 +61,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
   @Override
   public void initialize(final Bootstrap<FairwareWorkbenchApiConfiguration> bootstrap) {
     // Swagger initialization
-    bootstrap.addBundle(new SwaggerBundle<FairwareWorkbenchApiConfiguration>() {
+    bootstrap.addBundle(new SwaggerBundle<>() {
       @Override
       protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(FairwareWorkbenchApiConfiguration configuration) {
         return configuration.getSwaggerBundleConfiguration();
@@ -97,10 +96,11 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
     var bioportalService = new BioportalService(bioportalConfig);
     var templateService = new TemplateService(cedarService);
-    var citationServiceProviders = ImmutableList.<MetadataServiceProvider>of(
+    var citationServiceProviders = ImmutableList.of(
+        cedarService,
         new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()),
         new BioSampleService(configuration.getMetadataServicesConfig().getNcbi(), new BioSampleDataParser(xmlMapper)));
-    var citationService = new MetadataService(citationServiceProviders);
+    var metadataService = new MetadataService(citationServiceProviders);
     var mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
     var cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
     var metadataContentExtractor = new MetadataContentExtractor(mapBasedMetadataContentExtractor, cedarTemplateInstanceContentExtractor);
@@ -116,18 +116,15 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var extraFieldsEvaluator = new ExtraFieldsEvaluator(bioportalService, coreConfig);
     var valueFromOntologyChecker = new ValueFromOntologyChecker(coreConfig, bioportalService);
     var controlledTermEvaluator = new ControlledTermEvaluator(valueFromOntologyChecker);
-    var metadataService = new FairwareService(cedarService,
-        bioportalService,
-        citationService,
+    var fairwareService = new FairwareService(
         configuration.getCoreConfig(),
-        bioportalConfig,
         metadataContentExtractor,
         requiredValuesEvaluator,
         optionalValuesEvaluator,
         extraFieldsEvaluator,
         valueTypeEvaluator,
         controlledTermEvaluator);
-    final var fairwareWorkbenchResource = new FairwareWorkbenchResource(templateService, metadataService);
+    final var fairwareWorkbenchResource = new FairwareWorkbenchResource(metadataService, templateService, fairwareService);
     environment.jersey().register(fairwareWorkbenchResource);
   }
 }

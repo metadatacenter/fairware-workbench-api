@@ -27,13 +27,13 @@ public abstract class SearchMetadataResponse {
   @Nonnull
   @JsonIgnore
   public String getMetadataId() {
-    return getMetadata().getMetadataId();
+    return getMetadata().getId();
   }
 
   @Nonnull
   @JsonIgnore
   public String getMetadataName() {
-    return getMetadata().getMetadataName();
+    return getMetadata().getName();
   }
 
   @Nonnull

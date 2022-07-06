@@ -42,9 +42,13 @@ public class CedarTemplate {
     return templateNode.get(JSON_LD_ID).asText();
   }
 
-  public ImmutableList<TemplateField> getTemplateFields() {
+  public ImmutableList<TemplateField> getFields() {
     var templateNode = getTemplateNode();
     return templateFieldsExtractor.extractFields(templateNode);
+  }
+
+  public ImmutableMap<String, Object> asMap() {
+    return template;
   }
 
   private JsonNode getTemplateNode() {

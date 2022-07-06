@@ -15,22 +15,17 @@ import org.metadatacenter.fairware.api.response.report.FieldReport;
 import org.metadatacenter.fairware.api.response.report.FieldsCompletenessReport;
 import org.metadatacenter.fairware.api.response.report.RecordReport;
 import org.metadatacenter.fairware.api.response.report.RecordsCompletenessReport;
-import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.config.CoreConfig;
-import org.metadatacenter.fairware.config.bioportal.BioportalConfig;
-import org.metadatacenter.fairware.constants.CedarModelConstants;
-import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
-import org.metadatacenter.fairware.core.services.cedar.CedarService;
 import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
-import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.metadatacenter.fairware.core.util.FieldsAlignmentUtil;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
+import org.metadatacenter.fairware.core.util.cedar.extraction.model.CedarTemplate;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.TemplateField;
 import org.metadatacenter.fairware.shared.FieldAlignment;
@@ -53,11 +48,7 @@ public class FairwareService {
 
   private static final Logger logger = LoggerFactory.getLogger(FairwareService.class);
 
-  private final CedarService cedarService;
-  private final BioportalService bioportalService;
-  private final MetadataService citationService;
   private final CoreConfig coreConfig;
-  private final BioportalConfig bioportalConfig;
   private final MetadataContentExtractor metadataContentExtractor;
   private final RequiredValuesEvaluator requiredValuesEvaluator;
   private final OptionalValuesEvaluator optionalValuesEvaluator;
@@ -65,22 +56,14 @@ public class FairwareService {
   private final ValueTypeEvaluator valueTypeEvaluator;
   private final ControlledTermEvaluator controlledTermEvaluator;
 
-  public FairwareService(@Nonnull CedarService cedarService,
-                         @Nonnull BioportalService bioportalService,
-                         @Nonnull MetadataService citationService,
-                         @Nonnull CoreConfig coreConfig,
-                         @Nonnull BioportalConfig bioportalConfig,
+  public FairwareService(@Nonnull CoreConfig coreConfig,
                          @Nonnull MetadataContentExtractor metadataContentExtractor,
                          @Nonnull RequiredValuesEvaluator requiredValuesEvaluator,
                          @Nonnull OptionalValuesEvaluator optionalValuesEvaluator,
                          @Nonnull ExtraFieldsEvaluator extraFieldsEvaluator,
                          @Nonnull ValueTypeEvaluator valueTypeEvaluator,
                          @Nonnull ControlledTermEvaluator controlledTermEvaluator) {
-    this.cedarService = checkNotNull(cedarService);
-    this.bioportalService = checkNotNull(bioportalService);
-    this.citationService = checkNotNull(citationService);
     this.coreConfig = checkNotNull(coreConfig);
-    this.bioportalConfig = checkNotNull(bioportalConfig);
     this.metadataContentExtractor = checkNotNull(metadataContentExtractor);
     this.requiredValuesEvaluator = checkNotNull(requiredValuesEvaluator);
     this.optionalValuesEvaluator = checkNotNull(optionalValuesEvaluator);
@@ -92,23 +75,13 @@ public class FairwareService {
   /**
    * This method finds an alignment between the fields in a metadata record and a given CEDAR template. It makes use
    * of the Hungarian algorithm to ensure that the alignment is optimal.
-   *
-   * @param templateId CEDAR template identifier
-   * @param metadataId Input metadata identifier
-   * @return A list of alignments between fields in the metadata record and fields in the given template
-   * @throws IOException
-   * @throws HttpException
    */
-  public ImmutableList<FieldAlignment> alignMetadata(String templateId, String metadataId)
+  public ImmutableList<FieldAlignment> alignMetadata(Metadata metadata, CedarTemplate template)
       throws IOException, HttpException {
-    var template = cedarService.findTemplate(templateId);
-    var metadata = citationService.getMetadataById(metadataId);
     var metadataRecord = metadata.getMetadataRecord();
-
-    // Extract template nodes from the template. Keep fields only
-    var templateFields = cedarService.retrieveCedarTemplate(templateId).getTemplateFields();
+    var templateFields = template.getFields();
     // Extract metadata fields from the metadata record
-    var metadataFields = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    var metadataFields = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template.asMap());
 
     // Find alignments between metadata fields and template fields
     var maxDimension = Math.max(metadataFields.size(), templateFields.size()); // Relevant when the matrix is non-square
@@ -142,22 +115,19 @@ public class FairwareService {
     return ImmutableList.copyOf(fieldAlignments);
   }
 
-  public EvaluateMetadataResponse evaluateMetadata(@Nonnull String metadataId,
-                                                   @Nonnull String templateId,
+  public EvaluateMetadataResponse evaluateMetadata(@Nonnull Metadata metadata,
+                                                   @Nonnull CedarTemplate template,
                                                    @Nonnull ImmutableList<FieldAlignment> fieldAlignments) throws HttpException, IOException {
-    // Extract nodes from the template (limited to fields) and store them into a HashMap (tfMap)
-    var template = cedarService.findTemplate(templateId);
-    var templateFields = cedarService.retrieveCedarTemplate(templateId).getTemplateFields();
+    var templateFields = template.getFields();
     var templateFieldMap = templateFields.<String, TemplateField>stream()
         .collect(collectingAndThen(
             toMap(TemplateField::getJsonPath, templateField -> templateField),
             ImmutableMap::copyOf));
 
-    var metadata = citationService.getMetadataById(metadataId);
-    var metadataRecord = metadata.getMetadataRecord();
     // Extract metadata fields from the metadata record and store them into a Map too (mfMap)
-    var metadataFields = metadataRecord.keySet();  // TODO Support nested fields
-    var metadataFieldInfos = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template);
+    var metadataFields = metadata.getFields();
+    var metadataRecord = metadata.getMetadataRecord();
+    var metadataFieldInfos = metadataContentExtractor.extractMetadataFieldsInfo(metadataRecord, template.asMap());
     var metadataFieldInfoMap = Maps.<String, MetadataFieldInfo>newHashMap();
     for (var metadataFieldInfo : metadataFieldInfos) {
       var key = GeneralUtil.generateFullPathDotNotation(metadataFieldInfo);
@@ -168,7 +138,7 @@ public class FairwareService {
     var reportItems = Lists.<EvaluationReportItem>newArrayList();
     // Use an automatically-generated alignment if one has not been provided
     if (fieldAlignments.size() == 0) {
-      fieldAlignments = alignMetadata(templateId, metadataId);
+      fieldAlignments = alignMetadata(metadata, template);
     }
 
     // Check missing required values
@@ -206,11 +176,11 @@ public class FairwareService {
         fieldAlignments);
     reportItems.addAll(controlledTermReports);
 
-    var metadataName = "";
-    if (metadataRecord.containsKey(CedarModelConstants.SCHEMA_ORG_NAME)) {
-      metadataName = metadataRecord.get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
-    }
-    var templateName = cedarService.findTemplate(templateId).get(CedarModelConstants.SCHEMA_ORG_NAME).toString();
+    var metadataId = metadata.getId();
+    var metadataName = metadata.getName();
+
+    var templateId = template.getId();
+    var templateName = template.getName();
     var templateFieldPaths = templateFields.stream()
         .collect(collectingAndThen(
             toMap(TemplateField::getJsonPath,
@@ -222,22 +192,6 @@ public class FairwareService {
         MetadataSpecification.create(templateId, templateName, templateFieldPaths),
         AlignmentReport.create(ImmutableList.copyOf(fieldAlignments)),
         EvaluationReport.create(ImmutableList.copyOf(reportItems), LocalDateTime.now()));
-  }
-
-  /**
-   * Retrieves the metadata associated to the metadata identifier
-   *
-   * @param metadataId a metadata identifier
-   * @return A search metadata response object
-   */
-  public SearchMetadataResponse searchMetadata(String metadataId) throws IOException {
-    var metadataRecord = (Metadata) null;
-    if (CedarUtil.isCedarTemplateInstanceId(metadataId)) {
-      metadataRecord = cedarService.getMetadataById(metadataId);
-    } else {
-      metadataRecord = citationService.getMetadataById(metadataId);
-    }
-    return SearchMetadataResponse.create(metadataRecord);
   }
 
   public EvaluationReportResponse generateEvaluationReport(ImmutableList<EvaluateMetadataResponse> evaluationResults) {
@@ -259,8 +213,8 @@ public class FairwareService {
 
       var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
       int fieldsCount = metadataSpecification.getTemplateFields().size();
-      var recordReport = RecordReport.create(recordEvaluationResult.getMetadata().getMetadataId(),
-          recordEvaluationResult.getMetadata().getMetadataName(),
+      var recordReport = RecordReport.create(recordEvaluationResult.getMetadata().getId(),
+          recordEvaluationResult.getMetadata().getName(),
           metadataSpecification.getTemplateId(),
           metadataSpecification.getTemplateName(),
           fieldsCount,
