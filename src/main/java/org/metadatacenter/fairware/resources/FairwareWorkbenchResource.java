@@ -56,57 +56,8 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(summary = "Search CEDAR templates that closely match with the given metadata record.")
-  @Path("/template/recommend")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Tag(name = "Template")
-  @RequestBody(description = "A JSON object containing the metadata record", required = true,
-      content = @Content(
-          schema = @Schema(implementation = RecommendTemplatesRequest.class),
-          examples = {
-              @ExampleObject(value = "{" +
-                  "\"metadataRecord\": {" +
-                    "\"biosample_accession\": \"1234\"," +
-                    "\"organism\": \"Homo sapiens\"," +
-                    "\"disease\": \"Diabetes\"," +
-                    "\"tissue\": \"liver\"," +
-                    "\"platform\": \"Illumina\"," +
-                    "\"cell_line\": \"\"," +
-                    "\"cell_type\": \"\"," +
-                    "\"sex\": \"male\"," +
-                    "\"age\": \"52 yo\"" +
-                    "}" +
-                  "}")
-          }
-      ))
-  @ApiResponse(
-      responseCode = "200",
-      description = "Response showing a list of recommended CEDAR templates sorted from the highest recommendation " +
-          "score to the lowest.",
-      content = @Content(
-          schema = @Schema(implementation = RecommendTemplatesResponse.class)
-      ))
-  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
-      "malformed syntax in the request body.")
-  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
-      "it from fulfilling the request.")
-  public Response recommendTemplates(@NotNull @Valid RecommendTemplatesRequest request) {
-    try {
-      RecommendTemplatesResponse recommendations = templateService.recommendCedarTemplates(request.getMetadataRecord());
-      return Response.ok(recommendations).build();
-    } catch (BadRequestException e) {
-      logger.error(e.getMessage());
-      return Response.status(Response.Status.BAD_REQUEST).build();
-    } catch (IOException e) {
-      logger.error(e.getMessage());
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
-    }
-  }
-
-  @POST
   @Operation(summary = "Search CEDAR templates that closely match with the metadata record given its identifier.")
-  @Path("/template/recommend/id")
+  @Path("/template/recommend")
   @Consumes(MediaType.TEXT_PLAIN)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Template")
