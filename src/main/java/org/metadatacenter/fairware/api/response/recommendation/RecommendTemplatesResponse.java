@@ -1,14 +1,11 @@
-package org.metadatacenter.fairware.api.response;
+package org.metadatacenter.fairware.api.response.recommendation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import org.checkerframework.checker.units.qual.N;
 
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-import java.util.List;
 
 @AutoValue
 public abstract class RecommendTemplatesResponse {
