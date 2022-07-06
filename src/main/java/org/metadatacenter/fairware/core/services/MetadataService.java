@@ -255,7 +255,7 @@ public class MetadataService {
       }
 
       var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
-      int fieldsCount = metadataSpecification.getTemplateFieldNames().size();
+      int fieldsCount = metadataSpecification.getTemplateFields().size();
       var recordReport = RecordReport.create(recordEvaluationResult.getMetadataRecordId(),
           recordEvaluationResult.getMetadataRecordName(),
           metadataSpecification.getTemplateId(),
@@ -294,7 +294,7 @@ public class MetadataService {
       var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
       var templateId = metadataSpecification.getTemplateId();
       // Add to the map all the fields, and assume that they don't have any missing values
-      for (var templateFieldName : metadataSpecification.getTemplateFieldNames().keySet()) {
+      for (var templateFieldName : metadataSpecification.getTemplateFields().keySet()) {
         var key = templateId + "#" + templateFieldName;
         if (!fieldReportMap.containsKey(key)) {
           fieldReportMap.put(key, FieldReport.create(templateFieldName,
