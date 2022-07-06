@@ -409,9 +409,9 @@ public class FairwareWorkbenchResource {
     }
     // Second attempt is by getting it from the template recommendation service
     var recommendTemplatesResponse = templateService.recommendCedarTemplates(metadataRecord);
-    var candidateTemplates = recommendTemplatesResponse.getRecommendations();
+    var candidateTemplates = recommendTemplatesResponse.getTemplateRecommendations();
     if (!candidateTemplates.isEmpty()) {
-      var cedarId = candidateTemplates.get(0).getTemplateExtract().getCedarId();  // return top-ranked template
+      var cedarId = candidateTemplates.get(0).getResourceExtract().getCedarId();  // return top-ranked template
       return Optional.of(cedarId);
     }
     // Give up!

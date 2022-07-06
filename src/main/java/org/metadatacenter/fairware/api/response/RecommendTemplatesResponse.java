@@ -1,45 +1,39 @@
 package org.metadatacenter.fairware.api.response;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
+import org.checkerframework.checker.units.qual.N;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
-public class RecommendTemplatesResponse {
+@AutoValue
+public abstract class RecommendTemplatesResponse {
 
-  private long totalCount;
-  private RecommendTemplatesRequestSummary requestSummary;
-  List<TemplateRecommendation> recommendations;
+  private static final String TOTAL_COUNT = "totalCount";
+  private static final String REQUEST_SUMMARY = "requestSummary";
+  private static final String RECOMMENDATIONS = "recommendations";
 
-  public RecommendTemplatesResponse() {
+  @Nonnull
+  @JsonCreator
+  public static RecommendTemplatesResponse create(@JsonProperty(TOTAL_COUNT) long totalCount,
+                                                  @Nonnull @JsonProperty(REQUEST_SUMMARY) RecommendTemplatesRequestSummary requestSummary,
+                                                  @Nonnull @JsonProperty(RECOMMENDATIONS) ImmutableList<TemplateRecommendation> recommendations) {
+    return new AutoValue_RecommendTemplatesResponse(totalCount, requestSummary, recommendations);
   }
 
-  public RecommendTemplatesResponse(long totalCount, RecommendTemplatesRequestSummary requestSummary,
-                                    List<TemplateRecommendation> recommendations) {
-    this.totalCount = totalCount;
-    this.requestSummary = requestSummary;
-    this.recommendations = recommendations;
-  }
+  @JsonProperty(TOTAL_COUNT)
+  public abstract long getTotalCount();
 
-  public long getTotalCount() {
-    return totalCount;
-  }
+  @Nonnull
+  @JsonProperty(REQUEST_SUMMARY)
+  public abstract RecommendTemplatesRequestSummary getRequestSummary();
 
-  public void setTotalCount(long totalCount) {
-    this.totalCount = totalCount;
-  }
-
-  public RecommendTemplatesRequestSummary getRequestSummary() {
-    return requestSummary;
-  }
-
-  public void setRequestSummary(RecommendTemplatesRequestSummary requestSummary) {
-    this.requestSummary = requestSummary;
-  }
-
-  public List<TemplateRecommendation> getRecommendations() {
-    return recommendations;
-  }
-
-  public void setRecommendations(List<TemplateRecommendation> recommendations) {
-    this.recommendations = recommendations;
-  }
+  @Nonnull
+  @JsonProperty(RECOMMENDATIONS)
+  public abstract ImmutableList<TemplateRecommendation> getTemplateRecommendations();
 }
 

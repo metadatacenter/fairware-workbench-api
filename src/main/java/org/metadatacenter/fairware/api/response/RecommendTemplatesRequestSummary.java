@@ -1,17 +1,22 @@
 package org.metadatacenter.fairware.api.response;
 
-public class RecommendTemplatesRequestSummary {
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 
-  private int sourceFieldsCount;
+import javax.annotation.Nonnull;
 
-  public RecommendTemplatesRequestSummary() {
+@AutoValue
+public abstract class RecommendTemplatesRequestSummary {
+
+  private static final String SOURCE_FIELDS_COUNT = "sourceFieldsCount";
+
+  @Nonnull
+  @JsonCreator
+  public static RecommendTemplatesRequestSummary create(@JsonProperty(SOURCE_FIELDS_COUNT) int sourceFieldsCount) {
+    return new AutoValue_RecommendTemplatesRequestSummary(sourceFieldsCount);
   }
 
-  public RecommendTemplatesRequestSummary(int sourceFieldsCount) {
-    this.sourceFieldsCount = sourceFieldsCount;
-  }
-
-  public int getSourceFieldsCount() {
-    return sourceFieldsCount;
-  }
+  @JsonProperty(SOURCE_FIELDS_COUNT)
+  public abstract int getSourceFieldsCount();
 }

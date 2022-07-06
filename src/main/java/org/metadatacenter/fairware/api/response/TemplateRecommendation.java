@@ -1,58 +1,39 @@
 package org.metadatacenter.fairware.api.response;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.auto.value.AutoValue;
 
-public class TemplateRecommendation {
+import javax.annotation.Nonnull;
 
-  double recommendationScore;
-  int sourceFieldsMatched;
-  int targetFieldsCount;
-  TemplateExtract templateExtract;
+@AutoValue
+public abstract class TemplateRecommendation {
 
-  public TemplateRecommendation() {
+  private static final String RECOMMENDATION_SCORE = "recommendationScore";
+  private static final String SOURCE_FIELDS_MATCHED = "sourceFieldsMatched";
+  private static final String TARGET_FIELDS_COUNT = "targetFieldsCount";
+  private static final String RESOURCE_EXTRACT = "resourceExtract";
+
+  @Nonnull
+  @JsonCreator
+  public static TemplateRecommendation create(@JsonProperty(RECOMMENDATION_SCORE) double recommendationScore,
+                                              @JsonProperty(SOURCE_FIELDS_MATCHED) int sourceFieldsMatched,
+                                              @JsonProperty(TARGET_FIELDS_COUNT) int targetFieldsCount,
+                                              @Nonnull @JsonProperty(RESOURCE_EXTRACT) ResourceExtract resourceExtract) {
+    return new AutoValue_TemplateRecommendation(recommendationScore, sourceFieldsMatched, targetFieldsCount, resourceExtract);
   }
 
-  public TemplateRecommendation(double recommendationScore, int sourceFieldsMatched, int targetFieldsCount,
-                                     TemplateExtract templateExtract) {
-    this.recommendationScore = recommendationScore;
-    this.sourceFieldsMatched = sourceFieldsMatched;
-    this.targetFieldsCount = targetFieldsCount;
-    this.templateExtract = templateExtract;
-  }
+  @JsonProperty(RECOMMENDATION_SCORE)
+  public abstract double getRecommendationScore();
 
-  public double getRecommendationScore() {
-    return recommendationScore;
-  }
+  @JsonProperty(SOURCE_FIELDS_MATCHED)
+  public abstract int getSourceFieldsMatched();
 
-  public void setRecommendationScore(double recommendationScore) {
-    this.recommendationScore = recommendationScore;
-  }
+  @JsonProperty(TARGET_FIELDS_COUNT)
+  public abstract int getTargetFieldsCount();
 
-  public int getSourceFieldsMatched() {
-    return sourceFieldsMatched;
-  }
-
-  public void setSourceFieldsMatched(int sourceFieldsMatched) {
-    this.sourceFieldsMatched = sourceFieldsMatched;
-  }
-
-  public int getTargetFieldsCount() {
-    return targetFieldsCount;
-  }
-
-  public void setTargetFieldsCount(int targetFieldsCount) {
-    this.targetFieldsCount = targetFieldsCount;
-  }
-
-  @JsonProperty("templateExtract") // I'm using different mappings for serialization and deserialization
-  public TemplateExtract getTemplateExtract() {
-    return templateExtract;
-  }
-
-  @JsonProperty("resourceExtract")
-  public void setTemplateExtract(TemplateExtract templateExtract) {
-    this.templateExtract = templateExtract;
-  }
+  @JsonProperty(RESOURCE_EXTRACT)
+  public abstract ResourceExtract getResourceExtract();
 }
 
 
