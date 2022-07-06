@@ -107,7 +107,7 @@ class CedarServiceTest {
 
     var thrown = Assertions.assertThrows(FileNotFoundException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-      cedarService.getMetadataIndexByCedarId("123");
+      cedarService.getMetadataById("123");
     }, "FileNotFoundException was expected");
     assertThat(thrown.getMessage(), equalTo("Couldn't find CEDAR template instance (ID = 123). Cause: <404>"));
   }
@@ -121,7 +121,7 @@ class CedarServiceTest {
 
     var thrown = Assertions.assertThrows(BadRequestException.class, () -> {
       var cedarService = new CedarService(cedarConfig, objectMapper, requestHandler, cedarTemplateFieldsExtractor);
-      cedarService.getMetadataIndexByCedarId("123");
+      cedarService.getMetadataById("123");
     }, "BadRequestException was expected");
     assertThat(thrown.getMessage(), equalTo("Error retrieving template instance (ID = 123). Cause: <502>"));
   }

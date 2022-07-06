@@ -26,14 +26,14 @@ public abstract class SearchMetadataResponse {
 
   @Nonnull
   @JsonIgnore
-  public String getMetadataRecordId() {
-    return getMetadata().getMetadataRecordId();
+  public String getMetadataId() {
+    return getMetadata().getMetadataId();
   }
 
   @Nonnull
   @JsonIgnore
-  public String getMetadataRecordName() {
-    return getMetadata().getMetadataRecordName();
+  public String getMetadataName() {
+    return getMetadata().getMetadataName();
   }
 
   @Nonnull

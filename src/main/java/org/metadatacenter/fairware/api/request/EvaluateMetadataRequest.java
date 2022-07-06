@@ -9,19 +9,19 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class EvaluateMetadataRequest {
 
-  private static final String METADATA_RECORD_ID = "metadataRecordId";
+  private static final String METADATA_ID = "metadataId";
   private static final String TEMPLATE_ID = "templateId";
 
   @Nonnull
   @JsonCreator
-  public static EvaluateMetadataRequest create(@Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId,
+  public static EvaluateMetadataRequest create(@Nonnull @JsonProperty(METADATA_ID) String metadataId,
                                                @Nonnull @JsonProperty(TEMPLATE_ID) String templateId) {
-    return new AutoValue_EvaluateMetadataRequest(metadataRecordId, templateId);
+    return new AutoValue_EvaluateMetadataRequest(metadataId, templateId);
   }
 
   @Nonnull
-  @JsonProperty(METADATA_RECORD_ID)
-  public abstract String getMetadataRecordId();
+  @JsonProperty(METADATA_ID)
+  public abstract String getMetadataId();
 
   @Nonnull
   @JsonProperty(TEMPLATE_ID)

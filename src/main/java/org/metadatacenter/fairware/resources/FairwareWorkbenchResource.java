@@ -76,9 +76,9 @@ public class FairwareWorkbenchResource {
       "malformed syntax in the request body.")
   @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
       "it from fulfilling the request.")
-  public Response recommendTemplatesByMetadataId(@NotNull @Valid String metadataRecordId) {
+  public Response recommendTemplatesByMetadataId(@NotNull @Valid String metadataId) {
     try {
-      var metadataRecord = getMetadataRecordById(metadataRecordId);
+      var metadataRecord = getMetadataRecordById(metadataId);
       var recommendations = templateService.recommendCedarTemplates(metadataRecord);
       return Response.ok(recommendations).build();
     } catch (BadRequestException e) {
@@ -104,7 +104,7 @@ public class FairwareWorkbenchResource {
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/db57119c-7860-4569-a3c0-2ced0e0364d1\"," +
-                  "\"metadataRecordId\": \"SAMN01821557\""
+                  "\"metadataId\": \"SAMN01821557\""
               )
           }
       ))
@@ -124,7 +124,7 @@ public class FairwareWorkbenchResource {
     try {
       var fieldAlignments = metadataService.alignMetadata(
           request.getTemplateId(),
-          request.getMetadataRecordId());
+          request.getMetadataId());
       AlignMetadataResponse results = AlignMetadataResponse.create(fieldAlignments);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
@@ -149,7 +149,7 @@ public class FairwareWorkbenchResource {
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/db57119c-7860-4569-a3c0-2ced0e0364d1\"," +
-                  "\"metadataRecordId\": \"SAMN01821557\""
+                  "\"metadataId\": \"SAMN01821557\""
               )
           }
       ))
@@ -202,9 +202,9 @@ public class FairwareWorkbenchResource {
       "malformed syntax in the request body.")
   @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
       "it from fulfilling the request.")
-  public Response searchMetadata(@NotNull @Valid String metadataRecordId) {
+  public Response searchMetadata(@NotNull @Valid String metadataId) {
     try {
-      var results = metadataService.searchMetadata(metadataRecordId);
+      var results = metadataService.searchMetadata(metadataId);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
@@ -287,17 +287,17 @@ public class FairwareWorkbenchResource {
 
   private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
       throws IOException, HttpException, BadRequestException {
-    var metadataRecordId = request.getMetadataRecordId();
+    var metadataId = request.getMetadataId();
     var templateId = request.getTemplateId();
-    var fieldAlignments = metadataService.alignMetadata(templateId, metadataRecordId);
+    var fieldAlignments = metadataService.alignMetadata(templateId, metadataId);
     return metadataService.evaluateMetadata(
-        metadataRecordId,
+        metadataId,
         templateId,
         fieldAlignments);
   }
 
   /* Helper functions */
-  public ImmutableMap<String, Object> getMetadataRecordById(String metadataRecordId) throws IOException {
-    return metadataService.searchMetadata(metadataRecordId).getMetadataRecord();
+  public ImmutableMap<String, Object> getMetadataRecordById(String metadataId) throws IOException {
+    return metadataService.searchMetadata(metadataId).getMetadataRecord();
   }
 }

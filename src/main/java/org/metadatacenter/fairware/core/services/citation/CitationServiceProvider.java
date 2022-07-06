@@ -7,8 +7,8 @@ import java.io.IOException;
 
 public interface CitationServiceProvider {
 
-  boolean isCompatible(@Nonnull String metadataRecordId);
+  boolean isCompatible(@Nonnull String metadataId);
 
   @Nonnull
-  Metadata getMetadataIndex(@Nonnull String metadataRecordId) throws IOException;
+  Metadata getMetadataById(@Nonnull String metadataId) throws IOException;
 }

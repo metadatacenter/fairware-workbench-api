@@ -11,30 +11,30 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class EvaluateMetadataResponse {
 
-  private static final String METADATA_RECORD_ID = "metadataRecordId";
-  private static final String METADATA_RECORD_NAME = "metadataRecordName";
+  private static final String METADATA_ID = "metadataId";
+  private static final String METADATA_NAME = "metadataName";
   private static final String METADATA_RECORD = "metadataRecord";
   private static final String METADATA_SPECIFICATION = "metadataSpecification";
   private static final String EVALUATION_REPORT = "evaluationReport";
 
   @Nonnull
   @JsonCreator
-  public static EvaluateMetadataResponse create(@Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId,
-                                                @Nonnull @JsonProperty(METADATA_RECORD_NAME) String metadataRecordName,
+  public static EvaluateMetadataResponse create(@Nonnull @JsonProperty(METADATA_ID) String metadataId,
+                                                @Nonnull @JsonProperty(METADATA_NAME) String metadataName,
                                                 @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord,
                                                 @Nonnull @JsonProperty(METADATA_SPECIFICATION) MetadataSpecification metadataSpecification,
                                                 @Nonnull @JsonProperty(EVALUATION_REPORT) EvaluationReport evaluationReport) {
-    return new AutoValue_EvaluateMetadataResponse(metadataRecordId, metadataRecordName, metadataRecord,
+    return new AutoValue_EvaluateMetadataResponse(metadataId, metadataName, metadataRecord,
         metadataSpecification, evaluationReport);
   }
 
   @Nonnull
-  @JsonProperty(METADATA_RECORD_ID)
-  public abstract String getMetadataRecordId();
+  @JsonProperty(METADATA_ID)
+  public abstract String getMetadataId();
 
   @Nonnull
-  @JsonProperty(METADATA_RECORD_NAME)
-  public abstract String getMetadataRecordName();
+  @JsonProperty(METADATA_NAME)
+  public abstract String getMetadataName();
 
   @Nonnull
   @JsonProperty(METADATA_RECORD)

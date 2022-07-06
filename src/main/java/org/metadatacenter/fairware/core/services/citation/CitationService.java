@@ -22,12 +22,12 @@ public class CitationService {
   }
 
   @Nonnull
-  public Metadata getMetadataIndexById(String metadataRecordId) throws IOException {
+  public Metadata getMetadataById(String metadataId) throws IOException {
     for (var citationServiceProvider : citationServiceProviders) {
-      if (citationServiceProvider.isCompatible(metadataRecordId)) {
-        return citationServiceProvider.getMetadataIndex(metadataRecordId);
+      if (citationServiceProvider.isCompatible(metadataId)) {
+        return citationServiceProvider.getMetadataById(metadataId);
       }
     }
-    throw new BadRequestException("Metadata record is not yet supported to handle: " + metadataRecordId);
+    throw new BadRequestException("Metadata record is not yet supported to handle: " + metadataId);
   }
 }

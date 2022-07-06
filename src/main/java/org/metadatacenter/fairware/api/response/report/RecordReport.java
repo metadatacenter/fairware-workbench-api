@@ -8,22 +8,22 @@ import javax.annotation.Nonnull;
 public abstract class RecordReport {
 
   @Nonnull
-  public static RecordReport create(@Nonnull String metadataRecordId,
-                                    @Nonnull String metadataRecordName,
+  public static RecordReport create(@Nonnull String metadataId,
+                                    @Nonnull String metadataName,
                                     @Nonnull String templateId,
                                     @Nonnull String templateName,
                                     int fieldsCount,
                                     int missingRequiredValuesCount,
                                     int missingOptionalValuesCount) {
-    return new AutoValue_RecordReport(metadataRecordId, metadataRecordName, templateId, templateName,
+    return new AutoValue_RecordReport(metadataId, metadataName, templateId, templateName,
         fieldsCount, missingRequiredValuesCount, missingOptionalValuesCount);
   }
 
   @Nonnull
-  public abstract String getMetadataRecordId();
+  public abstract String getMetadataId();
 
   @Nonnull
-  public abstract String getMetadataRecordName();
+  public abstract String getMetadataName();
 
   @Nonnull
   public abstract String getTemplateId();
