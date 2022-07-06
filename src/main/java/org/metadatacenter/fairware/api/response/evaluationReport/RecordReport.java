@@ -9,8 +9,8 @@ import java.util.Optional;
 public abstract class RecordReport {
 
   @Nonnull
-  public static RecordReport create(@Nonnull Optional<String> metadataRecordId,
-                                    @Nonnull Optional<String> metadataRecordName,
+  public static RecordReport create(@Nonnull String metadataRecordId,
+                                    @Nonnull String metadataRecordName,
                                     @Nonnull String templateId,
                                     @Nonnull String templateName,
                                     int fieldsCount,
@@ -21,10 +21,10 @@ public abstract class RecordReport {
   }
 
   @Nonnull
-  public abstract Optional<String> getMetadataRecordId();
+  public abstract String getMetadataRecordId();
 
   @Nonnull
-  public abstract Optional<String> getMetadataRecordName();
+  public abstract String getMetadataRecordName();
 
   @Nonnull
   public abstract String getTemplateId();

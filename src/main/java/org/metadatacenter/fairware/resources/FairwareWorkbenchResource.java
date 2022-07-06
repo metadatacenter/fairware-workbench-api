@@ -14,14 +14,12 @@ import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
-import org.metadatacenter.fairware.api.request.RecommendTemplatesRequest;
 import org.metadatacenter.fairware.api.response.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
-import org.metadatacenter.fairware.core.util.CedarUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -94,31 +91,21 @@ public class FairwareWorkbenchResource {
   }
 
   @POST
-  @Operation(summary = "Align the metadata fields in the input metadata record with those in the CEDAR template.")
+  @Operation(summary = "Align the field names found in the metadata record and in the CEDAR template.")
   @Path("/metadata/align")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2) metadata record object. " +
+  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2) metadata record id. " +
       "The template fields are collected from the CEDAR template and the metadata fields are collected from " +
-      "the input metadata record.", required = true,
+      "the metadata record id.", required = true,
       content = @Content(
           schema = @Schema(implementation = AlignMetadataRequest.class),
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                  "\"metadataRecord\": {" +
-                    "\"biosample_accession\": \"1234\"," +
-                    "\"organism\": \"Homo sapiens\"," +
-                    "\"disease\": \"Diabetes\"," +
-                    "\"tissue\": \"liver\"," +
-                    "\"platform\": \"Illumina\"," +
-                    "\"cell_line\": \"\"," +
-                    "\"cell_type\": \"\"," +
-                    "\"sex\": \"male\"," +
-                    "\"age\": \"52 yo\"" +
-                    "}" +
-                  "}")
+                  "\"metadataRecordId\": \"SAMN06459514\""
+              )
           }
       ))
   @ApiResponse(
@@ -137,7 +124,7 @@ public class FairwareWorkbenchResource {
     try {
       var fieldAlignments = metadataService.alignMetadata(
           request.getTemplateId(),
-          request.getMetadataRecord());
+          request.getMetadataRecordId());
       AlignMetadataResponse results = AlignMetadataResponse.create(fieldAlignments);
       return Response.ok(results).build();
     } catch (BadRequestException e) {
@@ -162,17 +149,17 @@ public class FairwareWorkbenchResource {
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                    "\"metadataRecord\": {" +
-                    "\"biosample_accession\": \"1234\"," +
-                    "\"organism\": \"Homo sapiens\"," +
-                    "\"disease\": \"Diabetes\"," +
-                    "\"tissue\": \"liver\"," +
-                    "\"platform\": \"Illumina\"," +
-                    "\"cell_line\": \"\"," +
-                    "\"cell_type\": \"\"," +
-                    "\"sex\": \"male\"," +
-                    "\"age\": \"52 yo\"" +
-                    "}" +
+                  "\"metadataRecord\": {" +
+                  "\"biosample_accession\": \"1234\"," +
+                  "\"organism\": \"Homo sapiens\"," +
+                  "\"disease\": \"Diabetes\"," +
+                  "\"tissue\": \"liver\"," +
+                  "\"platform\": \"Illumina\"," +
+                  "\"cell_line\": \"\"," +
+                  "\"cell_type\": \"\"," +
+                  "\"sex\": \"male\"," +
+                  "\"age\": \"52 yo\"" +
+                  "}" +
                   "}")
           }
       ))
@@ -249,33 +236,33 @@ public class FairwareWorkbenchResource {
           schema = @Schema(implementation = EvaluateMetadataRequest.class),
           examples = {
               @ExampleObject(value = "{" +
-                    "\"metadataList\": [{" +
-                      "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                      "\"metadataRecord\": {" +
-                        "\"biosample_accession\": \"1234\"," +
-                        "\"organism\": \"Homo sapiens\"," +
-                        "\"disease\": \"Diabetes\"," +
-                        "\"tissue\": \"liver\"," +
-                        "\"platform\": \"Illumina\"," +
-                        "\"cell_line\": \"\"," +
-                        "\"cell_type\": \"\"," +
-                        "\"sex\": \"male\"," +
-                        "\"age\": \"52 yo\"" +
-                      "}" +
-                    "}, {" +
-                      "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                      "\"metadataRecord\": {" +
-                        "\"biosample_accession\": \"1235\"," +
-                        "\"organism\": \"Homo sapiens\"," +
-                        "\"disease\": \"Melanoma\"," +
-                        "\"tissue\": \"skin\"," +
-                        "\"platform\": \"Illumina\"," +
-                        "\"cell_line\": \"\"," +
-                        "\"cell_type\": \"\"," +
-                        "\"sex\": \"\"," +
-                        "\"age\": 35" +
-                      "}" +
-                    "}]" +
+                  "\"metadataList\": [{" +
+                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                  "\"metadataRecord\": {" +
+                  "\"biosample_accession\": \"1234\"," +
+                  "\"organism\": \"Homo sapiens\"," +
+                  "\"disease\": \"Diabetes\"," +
+                  "\"tissue\": \"liver\"," +
+                  "\"platform\": \"Illumina\"," +
+                  "\"cell_line\": \"\"," +
+                  "\"cell_type\": \"\"," +
+                  "\"sex\": \"male\"," +
+                  "\"age\": \"52 yo\"" +
+                  "}" +
+                  "}, {" +
+                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
+                  "\"metadataRecord\": {" +
+                  "\"biosample_accession\": \"1235\"," +
+                  "\"organism\": \"Homo sapiens\"," +
+                  "\"disease\": \"Melanoma\"," +
+                  "\"tissue\": \"skin\"," +
+                  "\"platform\": \"Illumina\"," +
+                  "\"cell_line\": \"\"," +
+                  "\"cell_type\": \"\"," +
+                  "\"sex\": \"\"," +
+                  "\"age\": 35" +
+                  "}" +
+                  "}]" +
                   "}")
           }
       ))
@@ -311,60 +298,16 @@ public class FairwareWorkbenchResource {
   private EvaluateMetadataResponse getEvaluateMetadataResponse(EvaluateMetadataRequest request)
       throws IOException, HttpException, BadRequestException {
     var metadataRecordId = request.getMetadataRecordId();
-    var metadataRecord = getMetadataRecord(request);
-    var templateId = getTemplateId(request, metadataRecord);
-    var fieldAlignments = metadataService.alignMetadata(templateId, metadataRecord);
+    var templateId = request.getTemplateId();
+    var fieldAlignments = metadataService.alignMetadata(templateId, metadataRecordId);
     return metadataService.evaluateMetadata(
         metadataRecordId,
-        metadataRecord,
         templateId,
         fieldAlignments);
-  }
-
-  private ImmutableMap<String, Object> getMetadataRecord(EvaluateMetadataRequest request) throws IOException {
-    var metadataRecordId = request.getMetadataRecordId();
-    if (metadataRecordId.isPresent()) {
-      return getMetadataRecordById(metadataRecordId.get());
-    }
-    var metadataRecord = request.getMetadataRecord();
-    if (!metadataRecord.isPresent()) {
-      throw new BadRequestException("Metadata record is not provided or not found");
-    }
-    return metadataRecord.get();
-  }
-
-  private String getTemplateId(EvaluateMetadataRequest request, ImmutableMap<String, Object> metadataRecord)
-      throws IOException {
-    var templateId = request.getTemplateId();
-    if (!templateId.isPresent()) {
-      templateId = getTemplateIdFromMetadataRecord(metadataRecord);
-      if (!templateId.isPresent()) {
-        throw new BadRequestException("Template ID is not provide or not found");
-      }
-    }
-    return templateId.get();
   }
 
   /* Helper functions */
   public ImmutableMap<String, Object> getMetadataRecordById(String metadataRecordId) throws IOException {
     return metadataService.searchMetadata(metadataRecordId).getMetadataRecord();
-  }
-
-  private Optional<String> getTemplateIdFromMetadataRecord(@Nonnull ImmutableMap<String, Object> metadataRecord)
-      throws IOException {
-    // First attempt is by getting it from the metadata object
-    var templateId = CedarUtil.getTemplateId(metadataRecord);
-    if (templateId.isPresent()) {
-      return templateId;
-    }
-    // Second attempt is by getting it from the template recommendation service
-    var recommendTemplatesResponse = templateService.recommendCedarTemplates(metadataRecord);
-    var candidateTemplates = recommendTemplatesResponse.getTemplateRecommendations();
-    if (!candidateTemplates.isEmpty()) {
-      var cedarId = candidateTemplates.get(0).getResourceExtract().getCedarId();  // return top-ranked template
-      return Optional.of(cedarId);
-    }
-    // Give up!
-    return Optional.empty();
   }
 }

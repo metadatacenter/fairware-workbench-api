@@ -3,35 +3,27 @@ package org.metadatacenter.fairware.api.request;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 @AutoValue
 public abstract class EvaluateMetadataRequest {
 
-  private static final String TEMPLATE_ID = "templateId";
   private static final String METADATA_RECORD_ID = "metadataRecordId";
-  private static final String METADATA_RECORD = "metadataRecord";
+  private static final String TEMPLATE_ID = "templateId";
 
   @Nonnull
   @JsonCreator
-  public static EvaluateMetadataRequest create(@Nonnull @JsonProperty(TEMPLATE_ID) Optional<String> templateId,
-                                               @Nonnull @JsonProperty(METADATA_RECORD_ID) Optional<String> metadataRecordId,
-                                               @Nonnull @JsonProperty(METADATA_RECORD) Optional<ImmutableMap<String, Object>> metadataRecord) {
-    return new AutoValue_EvaluateMetadataRequest(templateId, metadataRecordId, metadataRecord);
+  public static EvaluateMetadataRequest create(@Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId,
+                                               @Nonnull @JsonProperty(TEMPLATE_ID) String templateId) {
+    return new AutoValue_EvaluateMetadataRequest(metadataRecordId, templateId);
   }
 
   @Nonnull
-  @JsonProperty(TEMPLATE_ID)
-  public abstract Optional<String> getTemplateId();
-
-  @Nonnull
   @JsonProperty(METADATA_RECORD_ID)
-  public abstract Optional<String> getMetadataRecordId();
+  public abstract String getMetadataRecordId();
 
   @Nonnull
-  @JsonProperty(METADATA_RECORD)
-  public abstract Optional<ImmutableMap<String, Object>> getMetadataRecord();
+  @JsonProperty(TEMPLATE_ID)
+  public abstract String getTemplateId();
 }

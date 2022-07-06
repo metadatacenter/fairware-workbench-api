@@ -22,8 +22,8 @@ public abstract class EvaluateMetadataResponse {
 
   @Nonnull
   @JsonCreator
-  public static EvaluateMetadataResponse create(@Nonnull @JsonProperty(METADATA_RECORD_ID) Optional<String> metadataRecordId,
-                                                @Nonnull @JsonProperty(METADATA_RECORD_NAME) Optional<String> metadataRecordName,
+  public static EvaluateMetadataResponse create(@Nonnull @JsonProperty(METADATA_RECORD_ID) String metadataRecordId,
+                                                @Nonnull @JsonProperty(METADATA_RECORD_NAME) String metadataRecordName,
                                                 @Nonnull @JsonProperty(METADATA_RECORD) ImmutableMap<String, Object> metadataRecord,
                                                 @Nonnull @JsonProperty(METADATA_SPECIFICATION) MetadataSpecification metadataSpecification,
                                                 @Nonnull @JsonProperty(EVALUATION_REPORT) EvaluationReport evaluationReport) {
@@ -33,11 +33,11 @@ public abstract class EvaluateMetadataResponse {
 
   @Nonnull
   @JsonProperty(METADATA_RECORD_ID)
-  public abstract Optional<String> getMetadataRecordId();
+  public abstract String getMetadataRecordId();
 
   @Nonnull
   @JsonProperty(METADATA_RECORD_NAME)
-  public abstract Optional<String> getMetadataRecordName();
+  public abstract String getMetadataRecordName();
 
   @Nonnull
   @JsonProperty(METADATA_RECORD)
