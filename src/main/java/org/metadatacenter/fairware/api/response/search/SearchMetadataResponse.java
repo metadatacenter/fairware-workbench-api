@@ -12,33 +12,33 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class SearchMetadataResponse {
 
-  private static final String METADATA = "metadata";
+  private static final String METADATA_ARTIFACT = "metadataArtifact";
 
   @Nonnull
   @JsonCreator
-  public static SearchMetadataResponse create(@Nonnull @JsonProperty(METADATA) Metadata metadata) {
+  public static SearchMetadataResponse create(@Nonnull @JsonProperty(METADATA_ARTIFACT) Metadata metadata) {
     return new AutoValue_SearchMetadataResponse(metadata);
   }
 
   @Nonnull
-  @JsonProperty(METADATA)
-  public abstract Metadata getMetadata();
+  @JsonProperty(METADATA_ARTIFACT)
+  public abstract Metadata getMetadataArtifact();
 
   @Nonnull
   @JsonIgnore
   public String getMetadataId() {
-    return getMetadata().getId();
+    return getMetadataArtifact().getId();
   }
 
   @Nonnull
   @JsonIgnore
   public String getMetadataName() {
-    return getMetadata().getName();
+    return getMetadataArtifact().getName();
   }
 
   @Nonnull
   @JsonIgnore
   public ImmutableMap<String, Object> getMetadataRecord() {
-    return getMetadata().getMetadataRecord();
+    return getMetadataArtifact().getMetadataRecord();
   }
 }

@@ -15,25 +15,25 @@ import javax.annotation.Nonnull;
 @AutoValue
 public abstract class AlignMetadataResponse {
 
-  private static final String METADATA = "metadata";
+  private static final String METADATA_ARTIFACT = "metadataArtifact";
   private static final String METADATA_SPECIFICATION = "metadataSpecification";
   private static final String ALIGNMENT_REPORT = "alignmentReport";
 
   @Nonnull
-  public static AlignMetadataResponse create(@Nonnull @JsonProperty(METADATA) Metadata metadata,
+  public static AlignMetadataResponse create(@Nonnull @JsonProperty(METADATA_ARTIFACT) Metadata metadata,
                                              @Nonnull @JsonProperty(METADATA_SPECIFICATION) MetadataSpecification metadataSpecification,
                                              @Nonnull @JsonProperty(ALIGNMENT_REPORT) AlignmentReport alignmentReport) {
     return new AutoValue_AlignMetadataResponse(metadata, metadataSpecification, alignmentReport);
   }
 
   @Nonnull
-  @JsonProperty(METADATA)
-  public abstract Metadata getMetadata();
+  @JsonProperty(METADATA_ARTIFACT)
+  public abstract Metadata getMetadataArtifact();
 
   @Nonnull
   @JsonIgnore
   public ImmutableSet<String> getMetadataFields() {
-    return getMetadata().getFields();
+    return getMetadataArtifact().getFields();
   }
 
   @Nonnull

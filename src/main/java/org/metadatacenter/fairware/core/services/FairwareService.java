@@ -16,6 +16,7 @@ import org.metadatacenter.fairware.api.response.report.FieldReport;
 import org.metadatacenter.fairware.api.response.report.FieldsCompletenessReport;
 import org.metadatacenter.fairware.api.response.report.RecordReport;
 import org.metadatacenter.fairware.api.response.report.RecordsCompletenessReport;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.core.domain.CedarTemplate;
 import org.metadatacenter.fairware.core.domain.CedarTemplateField;
@@ -37,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -72,6 +72,10 @@ public class FairwareService {
     this.extraFieldsEvaluator = checkNotNull(extraFieldsEvaluator);
     this.valueTypeEvaluator = checkNotNull(valueTypeEvaluator);
     this.controlledTermEvaluator = checkNotNull(controlledTermEvaluator);
+  }
+
+  public SearchMetadataResponse searchMetadata(Metadata metadata) {
+    return SearchMetadataResponse.create(metadata);
   }
 
   public AlignMetadataResponse alignMetadata(Metadata metadata, CedarTemplate template) throws IOException, HttpException {
@@ -228,8 +232,8 @@ public class FairwareService {
 
       var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
       int fieldsCount = metadataSpecification.getTemplateFields().size();
-      var recordReport = RecordReport.create(recordEvaluationResult.getMetadata().getId(),
-          recordEvaluationResult.getMetadata().getName(),
+      var recordReport = RecordReport.create(recordEvaluationResult.getMetadataArtifact().getId(),
+          recordEvaluationResult.getMetadataArtifact().getName(),
           metadataSpecification.getTemplateId(),
           metadataSpecification.getTemplateName(),
           fieldsCount,
