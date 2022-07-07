@@ -3,24 +3,26 @@ package org.metadatacenter.fairware.core.services.evaluation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
-import org.metadatacenter.fairware.core.domain.CedarTemplateField;
-import org.metadatacenter.fairware.shared.RepairAction;
-import org.metadatacenter.fairware.shared.SuggestedOntologyTerm;
-import org.metadatacenter.fairware.shared.IssueCategory;
-import org.metadatacenter.fairware.shared.IssueType;
-import org.metadatacenter.fairware.shared.MetadataIssue;
-import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.config.CoreConfig;
+import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
+import org.metadatacenter.fairware.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.IssueCategory;
+import org.metadatacenter.fairware.shared.IssueType;
+import org.metadatacenter.fairware.shared.MetadataIssue;
+import org.metadatacenter.fairware.shared.RepairAction;
+import org.metadatacenter.fairware.shared.SuggestedOntologyTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * For metadata fields that have not been aligned to template fields, this evaluator determines whether they align with
@@ -40,9 +44,9 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
   private BioportalService bioportalService;
   private CoreConfig coreConfig;
 
-  public ExtraFieldsEvaluator(BioportalService bioportalService, CoreConfig coreConfig) {
-    this.bioportalService = bioportalService;
-    this.coreConfig = coreConfig;
+  public ExtraFieldsEvaluator(@Nonnull BioportalService bioportalService, @Nonnull CoreConfig coreConfig) {
+    this.bioportalService = checkNotNull(bioportalService);
+    this.coreConfig = checkNotNull(coreConfig);
   }
 
   @Override
@@ -51,23 +55,20 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
                                                      List<FieldAlignment> fieldAlignments)
       throws HttpException, IOException {
 
-    List<MetadataFieldInfo> nonMatchedFields = getNonMatchedMetadataFields(fieldAlignments, metadataFieldMap);
-    List<EvaluationReportItem> reportItems = new ArrayList<>();
+    var nonMatchedFields = getNonMatchedMetadataFields(fieldAlignments, metadataFieldMap);
+    var reportItems = Lists.<EvaluationReportItem>newArrayList();
 
     // Use BioPortal to find top matching ontology terms
-    for (MetadataFieldInfo mf : nonMatchedFields) {
+    for (var mf : nonMatchedFields) {
       var metadataFieldName = mf.getName();
-      var metadataFieldValue = mf.getValue().get();
-      BpPagedResults<BpClass> results = bioportalService.search(metadataFieldName);
-      List<SuggestedOntologyTerm> suggestedTerms = new ArrayList<>();
-      for (BpClass c : results.getCollection()) {
+      var metadataFieldValue = mf.getValue().get().toString();
+      var results = bioportalService.search(metadataFieldName);
+      var suggestedTerms = Lists.<SuggestedOntologyTerm>newArrayList();
+      for (var c : results.getCollection()) {
         var suggestedOntologyTerm = createSuggestedOntologyTerm(c);
         if (suggestedOntologyTerm.isPresent()) {
           var suggestedFieldName = suggestedOntologyTerm.get().getLabel();
-          if (metadataFieldName.equalsIgnoreCase(suggestedFieldName)) {
-            suggestedTerms = Lists.<SuggestedOntologyTerm>newArrayList();
-            break;
-          } else {
+          if (!metadataFieldName.equalsIgnoreCase(suggestedFieldName)) {
             suggestedTerms.add(suggestedOntologyTerm.get());
           }
           if (suggestedTerms.size() == coreConfig.getTermSuggestionsListSize()) {
@@ -81,35 +82,28 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
                   IssueCategory.FIELD_ERROR,
                   IssueType.FIELD_NOT_FOUND_IN_TEMPLATE,
                   GeneralUtil.generateFullPathDotNotation(mf),
-                  metadataFieldValue.toString()),
+                  metadataFieldValue),
               RepairAction.ofReplaceMetadataFieldWithStandardizedName(
                   ImmutableList.copyOf(suggestedTerms))));
     }
     return reportItems;
   }
 
-  /**
-   * Returns the metadata fields that have not been aligned to any template field
-   *
-   * @param fieldAlignments
-   * @param mfMap
-   * @return
-   */
-  private List<MetadataFieldInfo> getNonMatchedMetadataFields(List<FieldAlignment> fieldAlignments,
-                                                              Map<String, MetadataFieldInfo> mfMap) {
+  private ImmutableList<MetadataFieldInfo> getNonMatchedMetadataFields(List<FieldAlignment> fieldAlignments,
+                                                                       Map<String, MetadataFieldInfo> mfMap) {
     // Create set with the paths of all the metadata fields that have been aligned to the template
-    Set<String> pathsSet = new HashSet<>();
-    for (FieldAlignment fa : fieldAlignments) {
+    var pathsSet = Sets.<String>newHashSet();
+    for (var fa : fieldAlignments) {
       pathsSet.add(fa.getMetadataFieldPath());
     }
     // Keep the fields that have not been aligned to the template
-    List<MetadataFieldInfo> result = new ArrayList<>();
-    for (Map.Entry<String, MetadataFieldInfo> mf : mfMap.entrySet()) {
+    var result = Lists.<MetadataFieldInfo>newArrayList();
+    for (var mf : mfMap.entrySet()) {
       if (!pathsSet.contains(mf.getKey())) {
         result.add(mf.getValue());
       }
     }
-    return result;
+    return ImmutableList.copyOf(result);
   }
 
   private Optional<SuggestedOntologyTerm> createSuggestedOntologyTerm(BpClass bioportalTerm) {
