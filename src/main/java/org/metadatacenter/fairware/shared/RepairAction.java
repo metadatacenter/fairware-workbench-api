@@ -43,24 +43,23 @@ public abstract class RepairAction {
 
   @Nonnull
   @JsonProperty(VALUE_SUGGESTIONS)
-  public Optional<ImmutableList<?>> getValueSuggestion() {
+  public ImmutableList<?> getValueSuggestion() {
     switch (getKind()) {
       case ENTER_STRING_VALUE:
-        return Optional.of(ImmutableList.of(enterStringValue()));
+        return ImmutableList.of(enterStringValue());
       case ENTER_NUMBER_VALUE:
-        return Optional.of(ImmutableList.of(enterNumberValue()));
+        return ImmutableList.of(enterNumberValue());
       case REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE:
-        var valueSuggestions = replaceMetadataValueWithStandardizedValue().stream()
+        return replaceMetadataValueWithStandardizedValue().stream()
             .map(SuggestedOntologyTerm::getLabel)
             .collect(ImmutableList.toImmutableList());
-        return valueSuggestions.isEmpty() ? Optional.empty() : Optional.of(valueSuggestions);
       case REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME:
-        var fieldSuggestions = replaceMetadataFieldWithStandardizedName().stream()
+        return replaceMetadataFieldWithStandardizedName().stream()
             .map(SuggestedOntologyTerm::getLabel)
             .collect(ImmutableList.toImmutableList());
-        return fieldSuggestions.isEmpty() ? Optional.empty() : Optional.of(fieldSuggestions);
+      default:
+        return ImmutableList.of();
     }
-    return Optional.empty();
   }
 
   @Nonnull
