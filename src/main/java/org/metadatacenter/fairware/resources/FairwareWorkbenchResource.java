@@ -18,6 +18,7 @@ import org.metadatacenter.fairware.api.response.alignment.AlignMetadataResponse;
 import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
+import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
 import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.FairwareService;
 import org.metadatacenter.fairware.core.services.MetadataService;
@@ -217,7 +218,7 @@ public class FairwareWorkbenchResource {
       responseCode = "200",
       description = "Response showing the metadata records that are associated with the given identifier.",
       content = @Content(
-          schema = @Schema(implementation = Map.class)
+          schema = @Schema(implementation = SearchMetadataResponse.class)
       ))
   @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
       "malformed syntax in the request body.")
@@ -226,8 +227,8 @@ public class FairwareWorkbenchResource {
   public Response searchMetadata(@NotNull @Valid String metadataId) {
     try {
       var metadata = metadataService.getMetadataById(metadataId);
-      var metadataRecord = metadata.getMetadataRecord();
-      return Response.ok(metadataRecord).build();
+      var response = fairwareService.searchMetadata(metadata);
+      return Response.ok(response).build();
     } catch (BadRequestException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
