@@ -57,7 +57,7 @@ public class FieldsAlignmentUtil {
    */
   private static double calculateNameSimilarity(String fieldName1, String fieldName2) {
     // FuzzySearch.weightedRatio calculates a weighted ratio between different FuzzyWuzzy algorithms for best results
-    int ratio = FuzzySearch.weightedRatio(StringUtil.basicNormalization(fieldName1),
+    int ratio = FuzzySearch.ratio(StringUtil.basicNormalization(fieldName1),
         StringUtil.basicNormalization(fieldName2));
     return (double) ratio / (double) 100;
   }
