@@ -1,8 +1,10 @@
 package org.metadatacenter.fairware.core.services.datacite;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
@@ -16,6 +18,7 @@ import javax.annotation.Nonnull;
 import javax.ws.rs.BadRequestException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -63,10 +66,9 @@ public class DataCiteService implements MetadataServiceProvider {
         case HttpStatus.SC_OK:
           var metadata = objectMapper.readTree(new String(EntityUtils.toByteArray(response.getEntity())));
           var content = metadata.get("data").get("attributes");
-          var mapType = objectMapper.getTypeFactory().constructMapType(ImmutableMap.class, String.class, Object.class);
-          var metadataRecord = objectMapper.<ImmutableMap<String, Object>>convertValue(content, mapType);
+          var metadataRecord = flattenObject(content);  // TODO: Support nested fields
           var metadataName = content.get("titles").get(0).get("title").asText();
-          var metadataFields = metadataRecord.keySet();  // TODO: Support nested fields
+          var metadataFields = metadataRecord.keySet();
           return Metadata.create(metadataId, metadataName, metadataFields, metadataRecord);
         case HttpStatus.SC_NOT_FOUND:
           throw new FileNotFoundException(String.format("Unable to retrieve DataCite DOI metadata: %s", url));
@@ -75,5 +77,25 @@ public class DataCiteService implements MetadataServiceProvider {
       }
     }
     throw new BadRequestException(String.format("Illegal DataCite DOI: %s", metadataId));
+  }
+
+  private ImmutableMap<String, Object> flattenObject(JsonNode root) {
+    var flatMap = Maps.<String, Object>newHashMap();
+    var fieldIterator = root.fieldNames();
+    fieldIterator.forEachRemaining(fieldName -> {
+      var value = root.get(fieldName);
+      if (!value.isContainerNode()) {
+        if (value.isTextual()) {
+          flatMap.put(fieldName, value.textValue());
+        } else if (value.isNumber()) {
+          flatMap.put(fieldName, value.numberValue());
+        } else if (value.isBoolean()) {
+          flatMap.put(fieldName, value.booleanValue());
+        } else if (value.isNull()) {
+          flatMap.put(fieldName, Optional.empty());
+        }
+      }
+    });
+    return ImmutableMap.copyOf(flatMap);
   }
 }
