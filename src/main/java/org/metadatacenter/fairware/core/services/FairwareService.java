@@ -89,7 +89,11 @@ public class FairwareService {
                 .collect(collectingAndThen(
                     toMap(CedarTemplateField::getJsonPath,
                         templateField -> templateField.valueField().getJsonValueType()),
-                    ImmutableMap::copyOf))),
+                    ImmutableMap::copyOf)),
+            template.getFields().stream()
+                .filter(templateField -> templateField.valueField().isRequired())
+                .map(CedarTemplateField::getJsonPath)
+                .collect(ImmutableList.toImmutableList())),
         AlignmentReport.create(fieldAlignments));
   }
 
@@ -205,10 +209,14 @@ public class FairwareService {
             toMap(CedarTemplateField::getJsonPath,
                 field -> field.valueField().getJsonValueType()),
             ImmutableMap::copyOf));
+    var requiredFields = templateFields.stream()
+        .filter(templateField -> templateField.valueField().isRequired())
+        .map(CedarTemplateField::getJsonPath)
+        .collect(ImmutableList.toImmutableList());
 
     return EvaluateMetadataResponse.create(
         Metadata.create(metadataId, metadataName, metadataFields, metadataRecord),
-        MetadataSpecification.create(templateId, templateName, templateFieldPaths),
+        MetadataSpecification.create(templateId, templateName, templateFieldPaths, requiredFields),
         AlignmentReport.create(ImmutableList.copyOf(fieldAlignments)),
         EvaluationReport.create(ImmutableList.copyOf(reportItems), LocalDateTime.now()));
   }
