@@ -10,7 +10,6 @@ import org.metadatacenter.fairware.config.CoreConfig;
 import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.bioportal.BioportalService;
 import org.metadatacenter.fairware.core.services.bioportal.domain.BpClass;
-import org.metadatacenter.fairware.core.services.bioportal.domain.BpPagedResults;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.metadatacenter.fairware.shared.FieldAlignment;
@@ -24,12 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -64,12 +60,14 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       var metadataFieldValue = mf.getValue().get().toString();
       var results = bioportalService.search(metadataFieldName);
       var suggestedTerms = Lists.<SuggestedOntologyTerm>newArrayList();
+      var suggestedFieldNames = Sets.<String>newHashSet(metadataFieldName.toLowerCase());
       for (var c : results.getCollection()) {
         var suggestedOntologyTerm = createSuggestedOntologyTerm(c);
         if (suggestedOntologyTerm.isPresent()) {
           var suggestedFieldName = suggestedOntologyTerm.get().getLabel();
-          if (!metadataFieldName.equalsIgnoreCase(suggestedFieldName)) {
+          if (!suggestedFieldNames.contains(suggestedFieldName.toLowerCase())) {
             suggestedTerms.add(suggestedOntologyTerm.get());
+            suggestedFieldNames.add(suggestedFieldName.toLowerCase());
           }
           if (suggestedTerms.size() == coreConfig.getTermSuggestionsListSize()) {
             break; // Exit when reaching default size
