@@ -56,6 +56,9 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
 
     // Use BioPortal to find top matching ontology terms
     for (var mf : nonMatchedFields) {
+      if (!mf.getValue().isPresent()) {
+        break;
+      }
       var metadataFieldName = mf.getName();
       var metadataFieldValue = mf.getValue().get().toString();
       var results = bioportalService.search(metadataFieldName);
