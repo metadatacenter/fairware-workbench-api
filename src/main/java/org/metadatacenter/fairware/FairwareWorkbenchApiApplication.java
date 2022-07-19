@@ -11,6 +11,8 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.metadatacenter.fairware.core.services.FairwareService;
+import org.metadatacenter.fairware.core.services.HttpJsonFileParser;
+import org.metadatacenter.fairware.core.services.HttpJsonFileService;
 import org.metadatacenter.fairware.core.services.HttpRequestHandler;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
@@ -99,7 +101,8 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var citationServiceProviders = ImmutableList.of(
         cedarService,
         new DataCiteService(configuration.getMetadataServicesConfig().getDatacite()),
-        new BioSampleService(configuration.getMetadataServicesConfig().getNcbi(), new BioSampleDataParser(xmlMapper)));
+        new BioSampleService(configuration.getMetadataServicesConfig().getNcbi(), new BioSampleDataParser(xmlMapper)),
+        new HttpJsonFileService(new HttpJsonFileParser(objectMapper)));
     var metadataService = new MetadataService(citationServiceProviders);
     var mapBasedMetadataContentExtractor = new MapBasedMetadataContentExtractor();
     var cedarTemplateInstanceContentExtractor = new CedarTemplateInstanceContentExtractor();
