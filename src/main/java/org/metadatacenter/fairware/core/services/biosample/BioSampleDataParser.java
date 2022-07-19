@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -20,7 +19,6 @@ public class BioSampleDataParser {
   }
 
   public ImmutableMap<String, Object> parseToMap(String xmlText) throws JsonProcessingException {
-    var mapType = xmlMapper.getTypeFactory().constructMapType(Map.class, String.class, Object.class);
     var parsedData = xmlMapper.readTree(xmlText);
     return preprocess(parsedData);
   }
