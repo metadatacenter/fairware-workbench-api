@@ -1,0 +1,20 @@
+{
+  "sample_ID": "HBM573.VPZH.456",
+  "type": "Tissue Section",
+  "source_storage_time_value": 2,
+  "source_storage_time_unit": "hour",
+  "preparation_media": "",
+  "preparation_temperature": -10,
+  "processing_time_value": 30.0,
+  "processing_time_unit": "minute",
+  "storage_media": "",
+  "storage_temperature": -20,
+  "section_thickness_value": 1.0,
+  "section_index_number": 1,
+  "section_thickness_unit": "mm",
+  "area_value": 10.0,
+  "area_unit": "mm",
+  "notes": "",
+  "quality_criteria": "",
+  "histological_report": ""
+}
