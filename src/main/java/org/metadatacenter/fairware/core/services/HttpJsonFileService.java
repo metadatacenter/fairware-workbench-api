@@ -36,7 +36,7 @@ public class HttpJsonFileService implements MetadataServiceProvider {
     var metadataUrl = new URL(metadataId);
     try (var in = metadataUrl.openStream()) {
       var metadataString = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-      return httpJsonFileParser.parse(metadataString);
+      return httpJsonFileParser.parse(metadataString, metadataId);
     }
   }
 }

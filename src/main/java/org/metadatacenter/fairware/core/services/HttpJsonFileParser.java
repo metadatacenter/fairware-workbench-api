@@ -27,25 +27,18 @@ public class HttpJsonFileParser {
     this.objectMapper = checkNotNull(objectMapper);
   }
 
-  public Metadata parse(String metadataString) throws JsonProcessingException {
+  public Metadata parse(String metadataString, String defaultMetadataId) throws JsonProcessingException {
     var metadata = objectMapper.readTree(metadataString);
     return Metadata.create(
-        extractMetadataId(metadata, "ID-" + RandomStringUtils.random(8)),
-        extractMetadataName(metadata, "Metadata-" + RandomStringUtils.random(8)),
+        defaultMetadataId,
+        extractMetadataName(metadata, "Record #" + RandomStringUtils.randomNumeric(8)),
         extractMetadataFields(metadata),
         asImmutableMap(metadata));
   }
 
-  private String extractMetadataId(JsonNode metadata, String defaultId) {
-    var firstMatchIdField = extractMetadataFields(metadata).stream()
-        .filter((fieldName) -> fieldName.matches("(?i)id$"))
-        .findFirst();
-    return firstMatchIdField.orElse(defaultId);
-  }
-
   private String extractMetadataName(JsonNode metadata, String defaultName) {
     var firstMatchNameField = extractMetadataFields(metadata).stream()
-        .filter((fieldName) -> fieldName.matches("(?i)name$|title$"))
+        .filter((fieldName) -> fieldName.matches("(?i)id$"))
         .findFirst();
     return firstMatchNameField.orElse(defaultName);
   }
