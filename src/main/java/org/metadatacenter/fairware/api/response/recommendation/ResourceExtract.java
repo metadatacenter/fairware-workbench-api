@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.Null;
 
 @AutoValue
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,7 +25,7 @@ public abstract class ResourceExtract {
   public static ResourceExtract create(@Nonnull @JsonProperty(CEDAR_ID) String cedarId,
                                        @Nullable @JsonProperty(SCHEMA_IDENTIFIER) String id,
                                        @Nonnull @JsonProperty(SCHEMA_NAME) String name,
-                                       @Nonnull @JsonProperty(SCHEMA_DESCRIPTION) String description,
+                                       @Nullable @JsonProperty(SCHEMA_DESCRIPTION) String description,
                                        @Nonnull @JsonProperty(PAV_VERSION) String version,
                                        @Nonnull @JsonProperty(BIBO_STATUS) String status) {
     return new AutoValue_ResourceExtract(cedarId, id, name, description, version, status);
@@ -42,7 +43,7 @@ public abstract class ResourceExtract {
   @JsonProperty(SCHEMA_NAME)
   public abstract String getName();
 
-  @Nonnull
+  @Nullable
   @JsonProperty(SCHEMA_DESCRIPTION)
   public abstract String getDescription();
 
