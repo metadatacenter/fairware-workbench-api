@@ -50,15 +50,13 @@ public class FieldsAlignmentUtil {
   }
 
   /**
-   * Calculates the similarity between two field names using the FuzzyWuzzy library.
-   * @param fieldName1 a field name
-   * @param fieldName2 another field name
+   * Calculates the similarity between two labels using the FuzzyWuzzy library.
+   * @param label1 a label string
+   * @param label2 another label string
    * @return Similarity value in the range [0,1]
    */
-  private static double calculateNameSimilarity(String fieldName1, String fieldName2) {
-    // FuzzySearch.weightedRatio calculates a weighted ratio between different FuzzyWuzzy algorithms for best results
-    int ratio = FuzzySearch.ratio(StringUtil.basicNormalization(fieldName1),
-        StringUtil.basicNormalization(fieldName2));
+  private static double calculateNameSimilarity(String label1, String label2) {
+    int ratio = FuzzySearch.ratio(StringUtil.basicNormalization(label1), StringUtil.basicNormalization(label2));
     return (double) ratio / (double) 100;
   }
 

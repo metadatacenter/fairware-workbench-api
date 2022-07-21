@@ -3,8 +3,8 @@ package org.metadatacenter.fairware.core.services.evaluation;
 import com.google.common.collect.ImmutableList;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluationReportItem;
+import org.metadatacenter.fairware.shared.OntologyTerm;
 import org.metadatacenter.fairware.shared.RepairAction;
-import org.metadatacenter.fairware.shared.SuggestedOntologyTerm;
 import org.metadatacenter.fairware.shared.IssueCategory;
 import org.metadatacenter.fairware.shared.IssueType;
 import org.metadatacenter.fairware.shared.MetadataIssue;
@@ -68,12 +68,12 @@ public class ValueFromOntologyChecker {
     return Optional.empty();
   }
 
-  private ImmutableList<SuggestedOntologyTerm> collectTopSuggestions(BpPagedResults<BpClass> results,
-                                                                     int suggestionSize,
-                                                                     String ontologyAcronym) {
+  private ImmutableList<OntologyTerm> collectTopSuggestions(BpPagedResults<BpClass> results,
+                                                            int suggestionSize,
+                                                            String ontologyAcronym) {
     return results.getCollection().stream()
         .limit(suggestionSize)
-        .map(bpClass -> SuggestedOntologyTerm.create(
+        .map(bpClass -> OntologyTerm.create(
             bpClass.getId(),
             bpClass.getPrefLabel(),
             ontologyAcronym))

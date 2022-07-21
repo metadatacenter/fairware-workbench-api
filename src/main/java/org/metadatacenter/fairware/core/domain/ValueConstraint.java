@@ -1,6 +1,8 @@
 package org.metadatacenter.fairware.core.domain;
 
 import com.google.auto.value.AutoOneOf;
+import com.google.common.collect.ImmutableList;
+import org.metadatacenter.fairware.shared.OntologyTerm;
 
 import javax.annotation.Nonnull;
 
@@ -11,7 +13,7 @@ public abstract class ValueConstraint {
     ONTOLOGY,
     VALUE_SET,
     BRANCH,
-    TERM
+    CLASSES
   }
 
   @Nonnull
@@ -30,8 +32,8 @@ public abstract class ValueConstraint {
   }
 
   @Nonnull
-  public static ValueConstraint ofTerm(@Nonnull String name) {
-    return AutoOneOf_ValueConstraint.term(name);
+  public static ValueConstraint ofClasses(@Nonnull ImmutableList<OntologyTerm> classes) {
+    return AutoOneOf_ValueConstraint.classes(classes);
   }
 
   @Nonnull
@@ -47,5 +49,5 @@ public abstract class ValueConstraint {
   public abstract String branch();
 
   @Nonnull
-  public abstract String term();
+  public abstract ImmutableList<OntologyTerm> classes();
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
+import org.metadatacenter.fairware.shared.OntologyTerm;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
@@ -156,7 +157,7 @@ public class CedarTemplateFieldsExtractor {
       if ("xsd:dateTime".equals(temporalType)) {
         return ValueType.DATE_TIME;
       } else if ("xsd:date".equals(temporalType)) {
-          return ValueType.DATE;
+        return ValueType.DATE;
       } else if ("xsd:time".equals(temporalType)) {
         return ValueType.TIME;
       }
@@ -194,11 +195,14 @@ public class CedarTemplateFieldsExtractor {
     collector.addAll(branches);
 
     // Term classes as value constraints
-    var terms = Streams.<JsonNode>stream(valueConstraints.withArray("classes").elements())
-        .map(o -> o.get("uri").asText())
-        .map(ValueConstraint::ofTerm)
+    var classes = Streams.<JsonNode>stream(valueConstraints.withArray("classes").elements())
+        .map(o -> OntologyTerm.create(o.get("uri").asText(),
+                                      o.get("prefLabel").asText(),
+                                      o.get("source").asText()))
         .collect(ImmutableList.toImmutableList());
-    collector.addAll(terms);
+    if (!classes.isEmpty()) {
+      collector.add(ValueConstraint.ofClasses(classes));
+    }
 
     return collector.isEmpty()
         ? Optional.empty()

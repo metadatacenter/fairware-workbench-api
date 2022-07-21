@@ -5,7 +5,6 @@ import com.google.auto.value.AutoOneOf;
 import com.google.common.collect.ImmutableList;
 
 import javax.annotation.Nonnull;
-import java.util.Optional;
 
 @AutoOneOf(RepairAction.Kind.class)
 public abstract class RepairAction {
@@ -29,11 +28,11 @@ public abstract class RepairAction {
     return AutoOneOf_RepairAction.enterNumberValue(value);
   }
 
-  public static RepairAction ofReplaceMetadataValueWithStandardizedValue(@Nonnull ImmutableList<SuggestedOntologyTerm> ontologyTerms) {
+  public static RepairAction ofReplaceMetadataValueWithStandardizedValue(@Nonnull ImmutableList<OntologyTerm> ontologyTerms) {
     return AutoOneOf_RepairAction.replaceMetadataValueWithStandardizedValue(ontologyTerms);
   }
 
-  public static RepairAction ofReplaceMetadataFieldWithStandardizedName(@Nonnull ImmutableList<SuggestedOntologyTerm> suggestedOntologyTerms) {
+  public static RepairAction ofReplaceMetadataFieldWithStandardizedName(@Nonnull ImmutableList<OntologyTerm> suggestedOntologyTerms) {
     return AutoOneOf_RepairAction.replaceMetadataFieldWithStandardizedName(suggestedOntologyTerms);
   }
 
@@ -51,11 +50,11 @@ public abstract class RepairAction {
         return ImmutableList.of(enterNumberValue());
       case REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE:
         return replaceMetadataValueWithStandardizedValue().stream()
-            .map(SuggestedOntologyTerm::getLabel)
+            .map(OntologyTerm::getLabel)
             .collect(ImmutableList.toImmutableList());
       case REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME:
         return replaceMetadataFieldWithStandardizedName().stream()
-            .map(SuggestedOntologyTerm::getLabel)
+            .map(OntologyTerm::getLabel)
             .collect(ImmutableList.toImmutableList());
       default:
         return ImmutableList.of();
@@ -75,10 +74,10 @@ public abstract class RepairAction {
   public abstract Number enterNumberValue();
 
   @Nonnull
-  public abstract ImmutableList<SuggestedOntologyTerm> replaceMetadataValueWithStandardizedValue();
+  public abstract ImmutableList<OntologyTerm> replaceMetadataValueWithStandardizedValue();
 
   @Nonnull
-  public abstract ImmutableList<SuggestedOntologyTerm> replaceMetadataFieldWithStandardizedName();
+  public abstract ImmutableList<OntologyTerm> replaceMetadataFieldWithStandardizedName();
 
   public enum Kind {
     ENTER_MISSING_VALUE,

@@ -38,7 +38,7 @@ public class ValueTypeEvaluator implements IMetadataEvaluator {
   @Override
   public List<EvaluationReportItem> evaluateMetadata(Map<String, MetadataFieldInfo> metadataFieldInfoMap,
                                                      ImmutableMap<String, CedarTemplateField> templateFieldMap,
-                                                     List<FieldAlignment> fieldAlignments) throws HttpException, IOException {
+                                                     List<FieldAlignment> fieldAlignments) {
     var reportItems = Lists.<EvaluationReportItem>newArrayList();
     for (var fieldAlignment : fieldAlignments) {
       if (metadataFieldInfoMap.containsKey(fieldAlignment.getMetadataFieldPath())

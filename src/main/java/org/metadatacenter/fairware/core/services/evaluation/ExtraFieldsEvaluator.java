@@ -16,8 +16,8 @@ import org.metadatacenter.fairware.shared.FieldAlignment;
 import org.metadatacenter.fairware.shared.IssueCategory;
 import org.metadatacenter.fairware.shared.IssueType;
 import org.metadatacenter.fairware.shared.MetadataIssue;
+import org.metadatacenter.fairware.shared.OntologyTerm;
 import org.metadatacenter.fairware.shared.RepairAction;
-import org.metadatacenter.fairware.shared.SuggestedOntologyTerm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +62,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       var metadataFieldName = mf.getName();
       var metadataFieldValue = mf.getValue().get().toString();
       var results = bioportalService.search(metadataFieldName);
-      var suggestedTerms = Lists.<SuggestedOntologyTerm>newArrayList();
+      var suggestedTerms = Lists.<OntologyTerm>newArrayList();
       var suggestedFieldNames = Sets.<String>newHashSet(metadataFieldName.toLowerCase());
       for (var c : results.getCollection()) {
         var suggestedOntologyTerm = createSuggestedOntologyTerm(c);
@@ -107,7 +107,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
     return ImmutableList.copyOf(result);
   }
 
-  private Optional<SuggestedOntologyTerm> createSuggestedOntologyTerm(BpClass bioportalTerm) {
+  private Optional<OntologyTerm> createSuggestedOntologyTerm(BpClass bioportalTerm) {
     if (bioportalTerm.getId() == null) {
       logger.warn("Couldn't retrieve class id", bioportalTerm);
       return Optional.empty();
@@ -121,7 +121,7 @@ public class ExtraFieldsEvaluator implements IMetadataEvaluator {
       return Optional.empty();
     }
     return Optional.of(
-        SuggestedOntologyTerm.create(
+        OntologyTerm.create(
             bioportalTerm.getId(),
             bioportalTerm.getPrefLabel(),
             bioportalTerm.getLinks().getOntology()));

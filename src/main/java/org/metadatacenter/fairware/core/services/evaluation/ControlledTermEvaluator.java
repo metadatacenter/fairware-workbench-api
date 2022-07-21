@@ -19,9 +19,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ControlledTermEvaluator implements IMetadataEvaluator {
 
   private final ValueFromOntologyChecker valueFromOntologyChecker;
+  private final ValueFromOntologyClassesChecker valueFromOntologyClassesChecker;
 
-  public ControlledTermEvaluator(@Nonnull ValueFromOntologyChecker valueFromOntologyChecker) {
+  public ControlledTermEvaluator(@Nonnull ValueFromOntologyChecker valueFromOntologyChecker,
+                                 @Nonnull ValueFromOntologyClassesChecker valueFromOntologyClassesChecker) {
     this.valueFromOntologyChecker = checkNotNull(valueFromOntologyChecker);
+    this.valueFromOntologyClassesChecker = checkNotNull(valueFromOntologyClassesChecker);
   }
 
   @Override
@@ -42,6 +45,10 @@ public class ControlledTermEvaluator implements IMetadataEvaluator {
             switch (kind) {
               case ONTOLOGY:
                 valueFromOntologyChecker.checkValueAgainstOntology(metadataFieldInfo, valueConstraint.ontology())
+                    .ifPresent(reportItems::add);
+                break;
+              case CLASSES:
+                valueFromOntologyClassesChecker.checkValueAgainstOntologyClasses(metadataFieldInfo, valueConstraint.classes())
                     .ifPresent(reportItems::add);
                 break;
             }
