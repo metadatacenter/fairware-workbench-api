@@ -31,6 +31,7 @@ import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.cedar.extraction.model.MetadataFieldInfo;
 import org.metadatacenter.fairware.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.FieldSpecification;
 import org.metadatacenter.fairware.shared.IssueType;
 import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.shared.MetadataSpecification;
@@ -86,13 +87,13 @@ public class FairwareService {
             template.getId(),
             template.getName(),
             template.getFields().stream()
-                .collect(collectingAndThen(
-                    toMap(CedarTemplateField::getJsonPath,
-                        templateField -> templateField.valueField().getJsonValueType()),
-                    ImmutableMap::copyOf)),
-            template.getFields().stream()
-                .filter(templateField -> templateField.valueField().isRequired())
-                .map(CedarTemplateField::getJsonPath)
+                .map(field -> {
+                  var valueField = field.valueField();
+                  return FieldSpecification.create(
+                      valueField.getIri(), field.getJsonPath(),
+                      valueField.getPrefLabel().orElse(valueField.getName()),
+                      valueField.getJsonValueType(), valueField.isRequired());
+                })
                 .collect(ImmutableList.toImmutableList())),
         AlignmentReport.create(fieldAlignments));
   }
@@ -216,7 +217,16 @@ public class FairwareService {
 
     return EvaluateMetadataResponse.create(
         Metadata.create(metadataId, metadataName, metadataFields, metadataRecord),
-        MetadataSpecification.create(templateId, templateName, templateFieldPaths, requiredFields),
+        MetadataSpecification.create(templateId, templateName,
+            templateFields.stream()
+                .map(field -> {
+                  var valueField = field.valueField();
+                  return FieldSpecification.create(
+                      valueField.getIri(), field.getJsonPath(),
+                      valueField.getPrefLabel().orElse(valueField.getName()),
+                      valueField.getJsonValueType(), valueField.isRequired());
+                })
+                .collect(ImmutableList.toImmutableList())),
         AlignmentReport.create(ImmutableList.copyOf(fieldAlignments)),
         EvaluationReport.create(ImmutableList.copyOf(reportItems), LocalDateTime.now()));
   }
@@ -278,7 +288,10 @@ public class FairwareService {
       var metadataSpecification = recordEvaluationResult.getMetadataSpecification();
       var templateId = metadataSpecification.getTemplateId();
       // Add to the map all the fields, and assume that they don't have any missing values
-      for (var templateFieldName : metadataSpecification.getTemplateFields().keySet()) {
+      var templateFieldNames = metadataSpecification.getTemplateFields().stream()
+          .map(FieldSpecification::getName)
+          .collect(ImmutableList.toImmutableList());
+      for (var templateFieldName : templateFieldNames) {
         var key = templateId + "#" + templateFieldName;
         if (!fieldReportMap.containsKey(key)) {
           fieldReportMap.put(key, FieldReport.create(templateFieldName,

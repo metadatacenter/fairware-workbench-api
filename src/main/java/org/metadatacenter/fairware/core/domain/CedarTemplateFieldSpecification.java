@@ -11,7 +11,8 @@ import java.util.Optional;
 public abstract class CedarTemplateFieldSpecification {
 
   @Nonnull
-  public static CedarTemplateFieldSpecification create(@Nonnull String name,
+  public static CedarTemplateFieldSpecification create(@Nonnull String iri,
+                                                       @Nonnull String name,
                                                        @Nonnull Optional<String> prefLabel,
                                                        @Nonnull ValueType valueType,
                                                        boolean isRequired,
@@ -19,63 +20,71 @@ public abstract class CedarTemplateFieldSpecification {
                                                        @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                        @Nullable String nullableValueFormat,
                                                        @Nonnull Optional<CedarTemplateField> parentField) {
-    return new AutoValue_CedarTemplateFieldSpecification(name, prefLabel, valueType, isRequired, allowMultipleValues,
-        valueConstraints, nullableValueFormat, parentField);
+    return new AutoValue_CedarTemplateFieldSpecification(iri, name, prefLabel, valueType, isRequired,
+        allowMultipleValues, valueConstraints, nullableValueFormat, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofObjectField(@Nonnull String name,
+  public static CedarTemplateFieldSpecification ofObjectField(@Nonnull String iri,
+                                                              @Nonnull String name,
                                                               @Nonnull Optional<String> prefLabel,
                                                               boolean allowMultipleValues,
                                                               @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
+    return create(iri, name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
         Optional.empty(), null, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofValueField(@Nonnull String name,
+  public static CedarTemplateFieldSpecification ofValueField(@Nonnull String iri,
+                                                             @Nonnull String name,
                                                              @Nonnull Optional<String> prefLabel,
                                                              @Nonnull ValueType valueType,
                                                              boolean isRequired,
                                                              boolean allowMultipleValues,
                                                              @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                              @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(name, prefLabel, valueType, isRequired, allowMultipleValues,
+    return create(iri, name, prefLabel, valueType, isRequired, allowMultipleValues,
         valueConstraints, null, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofDateTimeField(@Nonnull String name,
+  public static CedarTemplateFieldSpecification ofDateTimeField(@Nonnull String iri,
+                                                                @Nonnull String name,
                                                                 @Nonnull Optional<String> prefLabel,
                                                                 boolean isRequired,
                                                                 boolean allowMultipleValues,
                                                                 @Nonnull String valueFormat,
                                                                 @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(name, prefLabel, ValueType.DATE_TIME, isRequired, allowMultipleValues,
+    return create(iri, name, prefLabel, ValueType.DATE_TIME, isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofDateField(@Nonnull String name,
+  public static CedarTemplateFieldSpecification ofDateField(@Nonnull String iri,
+                                                            @Nonnull String name,
                                                             @Nonnull Optional<String> prefLabel,
                                                             boolean isRequired,
                                                             boolean allowMultipleValues,
                                                             @Nonnull String valueFormat,
                                                             @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(name, prefLabel, ValueType.DATE, isRequired, allowMultipleValues,
+    return create(iri, name, prefLabel, ValueType.DATE, isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofTimeField(@Nonnull String name,
+  public static CedarTemplateFieldSpecification ofTimeField(@Nonnull String iri,
+                                                            @Nonnull String name,
                                                             @Nonnull Optional<String> prefLabel,
                                                             boolean isRequired,
                                                             boolean allowMultipleValues,
                                                             @Nonnull String valueFormat,
                                                             @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(name, prefLabel, ValueType.TIME, isRequired, allowMultipleValues,
+    return create(iri, name, prefLabel, ValueType.TIME, isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
+
+  @Nonnull
+  public abstract String getIri();
 
   @Nonnull
   public abstract String getName();

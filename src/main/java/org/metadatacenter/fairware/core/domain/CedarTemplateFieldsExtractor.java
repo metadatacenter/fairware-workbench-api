@@ -9,6 +9,7 @@ import org.metadatacenter.fairware.shared.OntologyTerm;
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_ID;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_TYPE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ITEMS;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.REQUIRED_VALUE;
@@ -79,8 +80,8 @@ public class CedarTemplateFieldsExtractor {
     var fieldNames = getFieldsFromTemplateOrElement(elementNode);
     var propertiesNode = elementNode.get("properties");
     var objectField = CedarTemplateField.ofObjectField(
-        CedarTemplateFieldSpecification.ofObjectField(
-            getName(elementNode), getPrefLabel(elementNode), allowMultipleValues, parentField));
+        CedarTemplateFieldSpecification.ofObjectField(getIri(elementNode), getName(elementNode),
+            getPrefLabel(elementNode), allowMultipleValues, parentField));
     for (var fieldName : fieldNames) {
       var node = propertiesNode.get(fieldName);
       if (isElementType(node)) {
@@ -106,29 +107,31 @@ public class CedarTemplateFieldsExtractor {
       case DATE_TIME:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofDateTimeField(
-                getName(fieldNode), getPrefLabel(fieldNode),
-                isRequired(fieldNode), allowMultipleValues,
-                getDateTimeFormat(fieldNode), parentField));
+                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), isRequired(fieldNode),
+                allowMultipleValues, getDateTimeFormat(fieldNode), parentField));
       case DATE:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofDateField(
-                getName(fieldNode), getPrefLabel(fieldNode),
-                isRequired(fieldNode), allowMultipleValues,
-                getDateFormat(fieldNode), parentField));
+                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), isRequired(fieldNode),
+                allowMultipleValues, getDateFormat(fieldNode), parentField));
       case TIME:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofTimeField(
-                getName(fieldNode), getPrefLabel(fieldNode),
-                isRequired(fieldNode), allowMultipleValues,
-                getTimeFormat(fieldNode), parentField));
+                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), isRequired(fieldNode),
+                allowMultipleValues, getTimeFormat(fieldNode), parentField));
       default:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofValueField(
-                getName(fieldNode), getPrefLabel(fieldNode),
-                getValueType(fieldNode), isRequired(fieldNode),
-                allowMultipleValues, getValueConstraints(fieldNode),
-                parentField));
+                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), getValueType(fieldNode),
+                isRequired(fieldNode), allowMultipleValues, getValueConstraints(fieldNode), parentField));
     }
+  }
+
+  private String getIri(JsonNode node) {
+    if (!node.has(JSON_LD_ID)) {
+      throw new RuntimeException("Field IRI is missing. Please validate the template in CEDAR.");
+    }
+    return node.get(JSON_LD_ID).asText();
   }
 
   private String getName(JsonNode node) {
@@ -197,8 +200,8 @@ public class CedarTemplateFieldsExtractor {
     // Term classes as value constraints
     var classes = Streams.<JsonNode>stream(valueConstraints.withArray("classes").elements())
         .map(o -> OntologyTerm.create(o.get("uri").asText(),
-                                      o.get("prefLabel").asText(),
-                                      o.get("source").asText()))
+            o.get("prefLabel").asText(),
+            o.get("source").asText()))
         .collect(ImmutableList.toImmutableList());
     if (!classes.isEmpty()) {
       collector.add(ValueConstraint.ofClasses(classes));

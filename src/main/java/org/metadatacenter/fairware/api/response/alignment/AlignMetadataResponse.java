@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.metadatacenter.fairware.shared.FieldAlignment;
+import org.metadatacenter.fairware.shared.FieldSpecification;
 import org.metadatacenter.fairware.shared.Metadata;
 import org.metadatacenter.fairware.shared.MetadataSpecification;
 
@@ -42,7 +42,7 @@ public abstract class AlignMetadataResponse {
 
   @Nonnull
   @JsonIgnore
-  public ImmutableMap<String, String> getTemplateFields() {
+  public ImmutableList<FieldSpecification> getTemplateFields() {
     return getMetadataSpecification().getTemplateFields();
   }
 
