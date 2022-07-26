@@ -50,7 +50,12 @@ public abstract class RepairAction {
         return ImmutableList.of(enterNumberValue());
       case REPLACE_METADATA_VALUE_WITH_STANDARDIZED_VALUE:
         return replaceMetadataValueWithStandardizedValue().stream()
-            .map(OntologyTerm::getLabel)
+            .map((term) -> {
+              return new StringBuilder()
+                  .append(term.getUri())
+                  .append("|")
+                  .append(term.getLabel()).toString();
+            })
             .collect(ImmutableList.toImmutableList());
       case REPLACE_METADATA_FIELD_WITH_STANDARDIZED_NAME:
         return replaceMetadataFieldWithStandardizedName().stream()
