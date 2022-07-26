@@ -8,6 +8,7 @@ public class CedarModelConstants {
   public static final String JSON_LD_TYPE = "@type";
   public static final String JSON_LD_VALUE = "@value";
   public static final String JSON_LD_CONTEXT = "@context";
+
   public static final String VALUE_CONSTRAINTS = "_valueConstraints";
   public static final String VALUE_CONSTRAINTS_VALUE_SETS = "valueSets";
   public static final String VALUE_CONSTRAINTS_URI = "uri";
@@ -24,6 +25,8 @@ public class CedarModelConstants {
   public static final String MODIFIED_BY = "oslc:modifiedBy";
 
   // Json Schema fields
+  public static final String JSON_SCHEMA_UI = "_ui";
+  public static final String JSON_SCHEMA_ORDER = "order";
   public static final String JSON_SCHEMA_ITEMS = "items";
   public static final String JSON_SCHEMA_PROPERTIES = "properties";
   public static final String JSON_SCHEMA_ONE_OF = "oneOf";

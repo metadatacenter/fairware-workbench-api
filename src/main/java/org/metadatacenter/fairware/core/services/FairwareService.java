@@ -90,9 +90,10 @@ public class FairwareService {
                 .map(field -> {
                   var valueField = field.valueField();
                   return FieldSpecification.create(
-                      valueField.getIri(), field.getJsonPath(),
+                      valueField.getSchemaIri(), valueField.getIri(), field.getJsonPath(),
                       valueField.getPrefLabel().orElse(valueField.getName()),
-                      valueField.getJsonValueType(), valueField.isRequired());
+                      valueField.getJsonValueType(), valueField.isRequired(),
+                      valueField.getValueConstraints().isPresent());
                 })
                 .collect(ImmutableList.toImmutableList())),
         AlignmentReport.create(fieldAlignments));
@@ -222,9 +223,10 @@ public class FairwareService {
                 .map(field -> {
                   var valueField = field.valueField();
                   return FieldSpecification.create(
-                      valueField.getIri(), field.getJsonPath(),
+                      valueField.getSchemaIri(), valueField.getIri(), field.getJsonPath(),
                       valueField.getPrefLabel().orElse(valueField.getName()),
-                      valueField.getJsonValueType(), valueField.isRequired());
+                      valueField.getJsonValueType(), valueField.isRequired(),
+                      valueField.getValueConstraints().isPresent());
                 })
                 .collect(ImmutableList.toImmutableList())),
         AlignmentReport.create(ImmutableList.copyOf(fieldAlignments)),

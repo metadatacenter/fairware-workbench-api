@@ -11,7 +11,8 @@ import java.util.Optional;
 public abstract class CedarTemplateFieldSpecification {
 
   @Nonnull
-  public static CedarTemplateFieldSpecification create(@Nonnull String iri,
+  public static CedarTemplateFieldSpecification create(@Nonnull String schemaIri,
+                                                       @Nonnull String iri,
                                                        @Nonnull String name,
                                                        @Nonnull Optional<String> prefLabel,
                                                        @Nonnull ValueType valueType,
@@ -20,22 +21,24 @@ public abstract class CedarTemplateFieldSpecification {
                                                        @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                        @Nullable String nullableValueFormat,
                                                        @Nonnull Optional<CedarTemplateField> parentField) {
-    return new AutoValue_CedarTemplateFieldSpecification(iri, name, prefLabel, valueType, isRequired,
+    return new AutoValue_CedarTemplateFieldSpecification(schemaIri, iri, name, prefLabel, valueType, isRequired,
         allowMultipleValues, valueConstraints, nullableValueFormat, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofObjectField(@Nonnull String iri,
+  public static CedarTemplateFieldSpecification ofObjectField(@Nonnull String schemaIri,
+                                                              @Nonnull String iri,
                                                               @Nonnull String name,
                                                               @Nonnull Optional<String> prefLabel,
                                                               boolean allowMultipleValues,
                                                               @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(iri, name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
         Optional.empty(), null, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofValueField(@Nonnull String iri,
+  public static CedarTemplateFieldSpecification ofValueField(@Nonnull String schemaIri,
+                                                             @Nonnull String iri,
                                                              @Nonnull String name,
                                                              @Nonnull Optional<String> prefLabel,
                                                              @Nonnull ValueType valueType,
@@ -43,45 +46,51 @@ public abstract class CedarTemplateFieldSpecification {
                                                              boolean allowMultipleValues,
                                                              @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                              @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(iri, name, prefLabel, valueType, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, valueType, isRequired, allowMultipleValues,
         valueConstraints, null, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofDateTimeField(@Nonnull String iri,
+  public static CedarTemplateFieldSpecification ofDateTimeField(@Nonnull String schemaIri,
+                                                                @Nonnull String iri,
                                                                 @Nonnull String name,
                                                                 @Nonnull Optional<String> prefLabel,
                                                                 boolean isRequired,
                                                                 boolean allowMultipleValues,
                                                                 @Nonnull String valueFormat,
                                                                 @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(iri, name, prefLabel, ValueType.DATE_TIME, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, ValueType.DATE_TIME, isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofDateField(@Nonnull String iri,
+  public static CedarTemplateFieldSpecification ofDateField(@Nonnull String schemaIri,
+                                                            @Nonnull String iri,
                                                             @Nonnull String name,
                                                             @Nonnull Optional<String> prefLabel,
                                                             boolean isRequired,
                                                             boolean allowMultipleValues,
                                                             @Nonnull String valueFormat,
                                                             @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(iri, name, prefLabel, ValueType.DATE, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, ValueType.DATE, isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
   @Nonnull
-  public static CedarTemplateFieldSpecification ofTimeField(@Nonnull String iri,
+  public static CedarTemplateFieldSpecification ofTimeField(@Nonnull String schemaIri,
+                                                            @Nonnull String iri,
                                                             @Nonnull String name,
                                                             @Nonnull Optional<String> prefLabel,
                                                             boolean isRequired,
                                                             boolean allowMultipleValues,
                                                             @Nonnull String valueFormat,
                                                             @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(iri, name, prefLabel, ValueType.TIME, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, ValueType.TIME, isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
+
+  @Nonnull
+  public abstract String getSchemaIri();
 
   @Nonnull
   public abstract String getIri();

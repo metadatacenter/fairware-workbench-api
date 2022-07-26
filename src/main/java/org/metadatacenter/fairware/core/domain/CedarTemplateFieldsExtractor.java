@@ -2,16 +2,23 @@ package org.metadatacenter.fairware.core.domain;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Streams;
 import org.metadatacenter.fairware.shared.OntologyTerm;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
 
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_CONTEXT;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_ID;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_TYPE;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ENUM;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ITEMS;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ORDER;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_PROPERTIES;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_UI;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.REQUIRED_VALUE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.SCHEMA_ORG_NAME;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.SKOS_PREFLABEL;
@@ -43,20 +50,42 @@ public class CedarTemplateFieldsExtractor {
 
   @Nonnull
   public ImmutableList<CedarTemplateField> extractFields(@Nonnull JsonNode templateNode) {
-    return extractFieldsFromTemplate(templateNode);
+    var fieldSchema = extractFieldContextFromTemplate(templateNode);
+    return extractFieldsFromTemplate(templateNode, fieldSchema);
   }
 
-  private ImmutableList<CedarTemplateField> extractFieldsFromTemplate(JsonNode templateNode) {
+  private ImmutableMap<String, String> extractFieldContextFromTemplate(JsonNode templateNode) {
+    var fieldContext = Maps.<String, String>newHashMap();
+    var templateFieldNames =
+        Streams.stream(templateNode.get(JSON_SCHEMA_UI).withArray(JSON_SCHEMA_ORDER).elements())
+            .map(JsonNode::asText)
+            .collect(ImmutableList.toImmutableList());
+    var contextProperties = templateNode.get(JSON_SCHEMA_PROPERTIES)
+        .get(JSON_LD_CONTEXT)
+        .get(JSON_SCHEMA_PROPERTIES);
+    var contextPropertiesIter = contextProperties.fieldNames();
+    while (contextPropertiesIter.hasNext()) {
+      var contextPropertyName = contextPropertiesIter.next();
+      if (templateFieldNames.contains(contextPropertyName)) {
+        var fieldName = contextPropertyName;
+        var fieldSchemaId = contextProperties.get(fieldName).get(JSON_SCHEMA_ENUM).get(0).asText();
+        fieldContext.put(fieldName, fieldSchemaId);
+      }
+    }
+    return ImmutableMap.copyOf(fieldContext);
+  }
+
+  private ImmutableList<CedarTemplateField> extractFieldsFromTemplate(JsonNode templateNode, ImmutableMap<String, String> fieldSchema) {
     var collector = Lists.<CedarTemplateField>newArrayList();
     var fieldNames = getFieldsFromTemplateOrElement(templateNode);
     var propertiesNode = templateNode.get("properties");
     for (var fieldName : fieldNames) {
       var node = propertiesNode.get(fieldName);
       if (isElementType(node)) {
-        var templateFields = extractFieldsFromElement(node, Optional.empty());
+        var templateFields = extractFieldsFromElement(node, fieldSchema,Optional.empty());
         collector.addAll(templateFields);
       } else if (isFieldType(node)) {
-        var templateField = getTemplateField(node, Optional.empty());
+        var templateField = getTemplateField(node, fieldSchema, Optional.empty());
         collector.add(templateField);
       } else {
         throw new RuntimeException("Element or field is not found. Please validate the template in CEDAR.");
@@ -71,7 +100,9 @@ public class CedarTemplateFieldsExtractor {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private ImmutableList<CedarTemplateField> extractFieldsFromElement(JsonNode elementNode, Optional<CedarTemplateField> parentField) {
+  private ImmutableList<CedarTemplateField> extractFieldsFromElement(JsonNode elementNode,
+                                                                     ImmutableMap<String, String> fieldSchema,
+                                                                     Optional<CedarTemplateField> parentField) {
     var allowMultipleValues = elementNode.has(JSON_SCHEMA_ITEMS);
     if (allowMultipleValues) {
       elementNode = elementNode.get(JSON_SCHEMA_ITEMS);
@@ -79,16 +110,19 @@ public class CedarTemplateFieldsExtractor {
     var collector = Lists.<CedarTemplateField>newArrayList();
     var fieldNames = getFieldsFromTemplateOrElement(elementNode);
     var propertiesNode = elementNode.get("properties");
+    String elementName = getName(elementNode);
+    String elementIri = getIri(elementNode);
+    Optional<String> elementLabel = getPrefLabel(elementNode);
     var objectField = CedarTemplateField.ofObjectField(
-        CedarTemplateFieldSpecification.ofObjectField(getIri(elementNode), getName(elementNode),
-            getPrefLabel(elementNode), allowMultipleValues, parentField));
+        CedarTemplateFieldSpecification.ofObjectField(fieldSchema.get(elementName), elementIri, elementName,
+            elementLabel, allowMultipleValues, parentField));
     for (var fieldName : fieldNames) {
       var node = propertiesNode.get(fieldName);
       if (isElementType(node)) {
-        var templateFields = extractFieldsFromElement(node, Optional.of(objectField));
+        var templateFields = extractFieldsFromElement(node, fieldSchema, Optional.of(objectField));
         collector.addAll(templateFields);
       } else if (isFieldType(node)) {
-        var templateField = getTemplateField(node, Optional.of(objectField));
+        var templateField = getTemplateField(node, fieldSchema, Optional.of(objectField));
         collector.add(templateField);
       } else {
         throw new RuntimeException("Element or field is not found. Please validate the template in CEDAR.");
@@ -97,33 +131,38 @@ public class CedarTemplateFieldsExtractor {
     return ImmutableList.copyOf(collector);
   }
 
-  private CedarTemplateField getTemplateField(JsonNode fieldNode, Optional<CedarTemplateField> parentField) {
+  private CedarTemplateField getTemplateField(JsonNode fieldNode, ImmutableMap<String, String> fieldSchema,
+                                              Optional<CedarTemplateField> parentField) {
     var allowMultipleValues = fieldNode.has(JSON_SCHEMA_ITEMS);
     if (allowMultipleValues) {
       fieldNode = fieldNode.get(JSON_SCHEMA_ITEMS);
     }
+    var fieldName = getName(fieldNode);
+    var fieldIri = getIri(fieldNode);
+    var fieldLabel = getPrefLabel(fieldNode);
+    var isRequired = isRequired(fieldNode);
     var valueType = getValueType(fieldNode);
     switch (valueType) {
       case DATE_TIME:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofDateTimeField(
-                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), isRequired(fieldNode),
+                fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, isRequired,
                 allowMultipleValues, getDateTimeFormat(fieldNode), parentField));
       case DATE:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofDateField(
-                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), isRequired(fieldNode),
+                fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, isRequired,
                 allowMultipleValues, getDateFormat(fieldNode), parentField));
       case TIME:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofTimeField(
-                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), isRequired(fieldNode),
+                fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, isRequired,
                 allowMultipleValues, getTimeFormat(fieldNode), parentField));
       default:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofValueField(
-                getIri(fieldNode), getName(fieldNode), getPrefLabel(fieldNode), getValueType(fieldNode),
-                isRequired(fieldNode), allowMultipleValues, getValueConstraints(fieldNode), parentField));
+                fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, valueType,
+                isRequired, allowMultipleValues, getValueConstraints(fieldNode), parentField));
     }
   }
 
