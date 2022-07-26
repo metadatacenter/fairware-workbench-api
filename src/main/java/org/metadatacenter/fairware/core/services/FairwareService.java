@@ -24,7 +24,7 @@ import org.metadatacenter.fairware.core.services.evaluation.ControlledTermEvalua
 import org.metadatacenter.fairware.core.services.evaluation.ExtraFieldsEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.OptionalValuesEvaluator;
 import org.metadatacenter.fairware.core.services.evaluation.RequiredValuesEvaluator;
-import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
+import org.metadatacenter.fairware.core.services.evaluation.DataTypeEvaluator;
 import org.metadatacenter.fairware.core.util.FieldsAlignmentUtil;
 import org.metadatacenter.fairware.core.util.GeneralUtil;
 import org.metadatacenter.fairware.core.util.HungarianAlgorithm;
@@ -56,7 +56,7 @@ public class FairwareService {
   private final RequiredValuesEvaluator requiredValuesEvaluator;
   private final OptionalValuesEvaluator optionalValuesEvaluator;
   private final ExtraFieldsEvaluator extraFieldsEvaluator;
-  private final ValueTypeEvaluator valueTypeEvaluator;
+  private final DataTypeEvaluator dataTypeEvaluator;
   private final ControlledTermEvaluator controlledTermEvaluator;
 
   public FairwareService(@Nonnull CoreConfig coreConfig,
@@ -64,14 +64,14 @@ public class FairwareService {
                          @Nonnull RequiredValuesEvaluator requiredValuesEvaluator,
                          @Nonnull OptionalValuesEvaluator optionalValuesEvaluator,
                          @Nonnull ExtraFieldsEvaluator extraFieldsEvaluator,
-                         @Nonnull ValueTypeEvaluator valueTypeEvaluator,
+                         @Nonnull DataTypeEvaluator dataTypeEvaluator,
                          @Nonnull ControlledTermEvaluator controlledTermEvaluator) {
     this.coreConfig = checkNotNull(coreConfig);
     this.metadataContentExtractor = checkNotNull(metadataContentExtractor);
     this.requiredValuesEvaluator = checkNotNull(requiredValuesEvaluator);
     this.optionalValuesEvaluator = checkNotNull(optionalValuesEvaluator);
     this.extraFieldsEvaluator = checkNotNull(extraFieldsEvaluator);
-    this.valueTypeEvaluator = checkNotNull(valueTypeEvaluator);
+    this.dataTypeEvaluator = checkNotNull(dataTypeEvaluator);
     this.controlledTermEvaluator = checkNotNull(controlledTermEvaluator);
   }
 
@@ -92,7 +92,7 @@ public class FairwareService {
                   return FieldSpecification.create(
                       valueField.getSchemaIri(), valueField.getIri(), field.getJsonPath(),
                       valueField.getPrefLabel().orElse(valueField.getName()),
-                      valueField.getJsonValueType(), valueField.isRequired(),
+                      valueField.getDataType(), valueField.isRequired(),
                       valueField.getValueConstraints().isPresent());
                 })
                 .collect(ImmutableList.toImmutableList())),
@@ -188,7 +188,7 @@ public class FairwareService {
     reportItems.addAll(missingFieldsReports);
 
     // Check value types
-    var valueTypeReports = valueTypeEvaluator.evaluateMetadata(
+    var valueTypeReports = dataTypeEvaluator.evaluateMetadata(
         metadataFieldInfoMap,
         templateFieldMap,
         fieldAlignments);
@@ -209,7 +209,7 @@ public class FairwareService {
     var templateFieldPaths = templateFields.stream()
         .collect(collectingAndThen(
             toMap(CedarTemplateField::getJsonPath,
-                field -> field.valueField().getJsonValueType()),
+                field -> field.valueField().getDataType()),
             ImmutableMap::copyOf));
     var requiredFields = templateFields.stream()
         .filter(templateField -> templateField.valueField().isRequired())
@@ -225,7 +225,7 @@ public class FairwareService {
                   return FieldSpecification.create(
                       valueField.getSchemaIri(), valueField.getIri(), field.getJsonPath(),
                       valueField.getPrefLabel().orElse(valueField.getName()),
-                      valueField.getJsonValueType(), valueField.isRequired(),
+                      valueField.getDataType(), valueField.isRequired(),
                       valueField.getValueConstraints().isPresent());
                 })
                 .collect(ImmutableList.toImmutableList())),

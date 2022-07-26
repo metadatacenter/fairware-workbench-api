@@ -26,6 +26,9 @@ public class CedarModelConstants {
 
   // Json Schema fields
   public static final String JSON_SCHEMA_UI = "_ui";
+  public static final String JSON_SCHEMA_INPUT_TYPE = "inputType";
+  public static final String JSON_SCHEMA_NUMBER_TYPE = "numberType";
+  public static final String JSON_SCHEMA_TEMPORAL_TYPE = "temporalType";
   public static final String JSON_SCHEMA_ORDER = "order";
   public static final String JSON_SCHEMA_ITEMS = "items";
   public static final String JSON_SCHEMA_PROPERTIES = "properties";

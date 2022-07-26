@@ -32,7 +32,7 @@ import org.metadatacenter.fairware.core.services.evaluation.StringValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.TimeValueChecker;
 import org.metadatacenter.fairware.core.services.evaluation.ValueFromOntologyChecker;
 import org.metadatacenter.fairware.core.services.evaluation.ValueFromOntologyClassesChecker;
-import org.metadatacenter.fairware.core.services.evaluation.ValueTypeEvaluator;
+import org.metadatacenter.fairware.core.services.evaluation.DataTypeEvaluator;
 import org.metadatacenter.fairware.core.util.MapBasedMetadataContentExtractor;
 import org.metadatacenter.fairware.core.util.MetadataContentExtractor;
 import org.metadatacenter.fairware.core.domain.CedarTemplateFieldsExtractor;
@@ -115,7 +115,7 @@ public class FairwareWorkbenchApiApplication extends Application<FairwareWorkben
     var dateTimeValueChecker = new DateTimeValueChecker();
     var dateValueChecker = new DateValueChecker();
     var timeValueChecker = new TimeValueChecker();
-    var valueTypeEvaluator = new ValueTypeEvaluator(stringValueChecker, numberValueChecker,
+    var valueTypeEvaluator = new DataTypeEvaluator(stringValueChecker, numberValueChecker,
         dateTimeValueChecker, dateValueChecker, timeValueChecker);
     var extraFieldsEvaluator = new ExtraFieldsEvaluator(bioportalService, coreConfig);
     var valueFromOntologyChecker = new ValueFromOntologyChecker(coreConfig, bioportalService);

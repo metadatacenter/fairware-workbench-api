@@ -15,13 +15,13 @@ public abstract class CedarTemplateFieldSpecification {
                                                        @Nonnull String iri,
                                                        @Nonnull String name,
                                                        @Nonnull Optional<String> prefLabel,
-                                                       @Nonnull ValueType valueType,
+                                                       @Nonnull String dataType,
                                                        boolean isRequired,
                                                        boolean allowMultipleValues,
                                                        @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                        @Nullable String nullableValueFormat,
                                                        @Nonnull Optional<CedarTemplateField> parentField) {
-    return new AutoValue_CedarTemplateFieldSpecification(schemaIri, iri, name, prefLabel, valueType, isRequired,
+    return new AutoValue_CedarTemplateFieldSpecification(schemaIri, iri, name, prefLabel, dataType, isRequired,
         allowMultipleValues, valueConstraints, nullableValueFormat, parentField);
   }
 
@@ -32,7 +32,7 @@ public abstract class CedarTemplateFieldSpecification {
                                                               @Nonnull Optional<String> prefLabel,
                                                               boolean allowMultipleValues,
                                                               @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(schemaIri, iri, name, prefLabel, ValueType.OBJECT, false, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, "object", false, allowMultipleValues,
         Optional.empty(), null, parentField);
   }
 
@@ -41,12 +41,12 @@ public abstract class CedarTemplateFieldSpecification {
                                                              @Nonnull String iri,
                                                              @Nonnull String name,
                                                              @Nonnull Optional<String> prefLabel,
-                                                             @Nonnull ValueType valueType,
+                                                             @Nonnull String dataType,
                                                              boolean isRequired,
                                                              boolean allowMultipleValues,
                                                              @Nonnull Optional<ImmutableList<ValueConstraint>> valueConstraints,
                                                              @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(schemaIri, iri, name, prefLabel, valueType, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, dataType, isRequired, allowMultipleValues,
         valueConstraints, null, parentField);
   }
 
@@ -59,7 +59,7 @@ public abstract class CedarTemplateFieldSpecification {
                                                                 boolean allowMultipleValues,
                                                                 @Nonnull String valueFormat,
                                                                 @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(schemaIri, iri, name, prefLabel, ValueType.DATE_TIME, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, "xsd:dateTime", isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
@@ -72,7 +72,7 @@ public abstract class CedarTemplateFieldSpecification {
                                                             boolean allowMultipleValues,
                                                             @Nonnull String valueFormat,
                                                             @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(schemaIri, iri, name, prefLabel, ValueType.DATE, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, "xsd:date", isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
@@ -85,7 +85,7 @@ public abstract class CedarTemplateFieldSpecification {
                                                             boolean allowMultipleValues,
                                                             @Nonnull String valueFormat,
                                                             @Nonnull Optional<CedarTemplateField> parentField) {
-    return create(schemaIri, iri, name, prefLabel, ValueType.TIME, isRequired, allowMultipleValues,
+    return create(schemaIri, iri, name, prefLabel, "xsd:time", isRequired, allowMultipleValues,
         Optional.empty(), valueFormat, parentField);
   }
 
@@ -102,24 +102,7 @@ public abstract class CedarTemplateFieldSpecification {
   public abstract Optional<String> getPrefLabel();
 
   @Nonnull
-  public abstract ValueType getValueType();
-
-  @Nonnull
-  public String getJsonValueType() {
-    switch (getValueType()) {
-      case STRING:
-      case DATE_TIME:
-      case DATE:
-      case TIME:
-        return "string";
-      case NUMBER:
-        return "number";
-      case OBJECT:
-        return "object";
-      default:
-        return "string";
-    }
-  }
+  public abstract String getDataType();
 
   public abstract boolean isRequired();
 

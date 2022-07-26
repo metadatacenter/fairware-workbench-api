@@ -15,9 +15,12 @@ import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_ID;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_LD_TYPE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ENUM;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_INPUT_TYPE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ITEMS;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_NUMBER_TYPE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_ORDER;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_PROPERTIES;
+import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_TEMPORAL_TYPE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.JSON_SCHEMA_UI;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.REQUIRED_VALUE;
 import static org.metadatacenter.fairware.constants.CedarModelConstants.SCHEMA_ORG_NAME;
@@ -141,19 +144,19 @@ public class CedarTemplateFieldsExtractor {
     var fieldIri = getIri(fieldNode);
     var fieldLabel = getPrefLabel(fieldNode);
     var isRequired = isRequired(fieldNode);
-    var valueType = getValueType(fieldNode);
-    switch (valueType) {
-      case DATE_TIME:
+    var dataType = getDataType(fieldNode);
+    switch (dataType) {
+      case "xsd:dateTime":
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofDateTimeField(
                 fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, isRequired,
                 allowMultipleValues, getDateTimeFormat(fieldNode), parentField));
-      case DATE:
+      case "xsd:date":
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofDateField(
                 fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, isRequired,
                 allowMultipleValues, getDateFormat(fieldNode), parentField));
-      case TIME:
+      case "xsd:time":
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofTimeField(
                 fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, isRequired,
@@ -161,7 +164,7 @@ public class CedarTemplateFieldsExtractor {
       default:
         return CedarTemplateField.ofValueField(
             CedarTemplateFieldSpecification.ofValueField(
-                fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, valueType,
+                fieldSchema.get(fieldName), fieldIri, fieldName, fieldLabel, dataType,
                 isRequired, allowMultipleValues, getValueConstraints(fieldNode), parentField));
     }
   }
@@ -188,23 +191,15 @@ public class CedarTemplateFieldsExtractor {
     return prefLabel;
   }
 
-  private ValueType getValueType(JsonNode node) {
-    var inputType = node.get("_ui").get("inputType").asText();
-    if ("textfield".equals(inputType)) {
-      return ValueType.STRING;
-    } else if ("numeric".equals(inputType)) {
-      return ValueType.NUMBER;
+  private String getDataType(JsonNode node) {
+    var inputType = node.get(JSON_SCHEMA_UI).get(JSON_SCHEMA_INPUT_TYPE).asText();
+    if ("numeric".equals(inputType)) {
+      return node.get(VALUE_CONSTRAINTS).get(JSON_SCHEMA_NUMBER_TYPE).asText();
     } else if ("temporal".equals(inputType)) {
-      var temporalType = node.get("_valueConstraints").get("temporalType").asText();
-      if ("xsd:dateTime".equals(temporalType)) {
-        return ValueType.DATE_TIME;
-      } else if ("xsd:date".equals(temporalType)) {
-        return ValueType.DATE;
-      } else if ("xsd:time".equals(temporalType)) {
-        return ValueType.TIME;
-      }
+      return node.get(VALUE_CONSTRAINTS).get(JSON_SCHEMA_TEMPORAL_TYPE).asText();
+    } else {
+      return "xsd:string";
     }
-    return ValueType.UNSUPPORTED_TYPE;
   }
 
   private boolean isRequired(JsonNode node) {
