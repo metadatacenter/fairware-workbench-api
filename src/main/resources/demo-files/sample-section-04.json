@@ -1,5 +1,5 @@
 {
-  "sample_ID": "Visium_9OLC_A4_S1",
+  "sample_ID": "Visium_9OLC_I4_S2",
   "type": "section",
   "source_storage_time_value": 208,
   "source_storage_time_unit": "days",
@@ -10,9 +10,9 @@
   "storage_media": "OCT Embedded",
   "storage_temperature": "-80 Celsius",
   "section_thickness_value": 10,
-  "section_index_number": 2,
+  "section_index_number": 3,
   "section_thickness_unit": "_m",
-  "area_value": 12.24,
+  "area_value": 15.84,
   "area_unit": "mm^2",
   "notes": "",
   "quality_criteria": "",
