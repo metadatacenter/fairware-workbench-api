@@ -1,8 +1,5 @@
 package org.metadatacenter.fairware.resources;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -13,17 +10,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.http.HttpException;
 import org.metadatacenter.fairware.api.request.AlignMetadataRequest;
 import org.metadatacenter.fairware.api.request.EvaluateMetadataRequest;
-import org.metadatacenter.fairware.api.request.EvaluationReportRequest;
 import org.metadatacenter.fairware.api.response.alignment.AlignMetadataResponse;
-import org.metadatacenter.fairware.api.response.alignment.AlignmentReport;
 import org.metadatacenter.fairware.api.response.evaluation.EvaluateMetadataResponse;
 import org.metadatacenter.fairware.api.response.recommendation.RecommendTemplatesResponse;
 import org.metadatacenter.fairware.api.response.search.SearchMetadataResponse;
-import org.metadatacenter.fairware.core.domain.CedarTemplateField;
 import org.metadatacenter.fairware.core.services.FairwareService;
 import org.metadatacenter.fairware.core.services.MetadataService;
 import org.metadatacenter.fairware.core.services.TemplateService;
-import org.metadatacenter.fairware.shared.MetadataSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,11 +31,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toMap;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -233,76 +223,6 @@ public class FairwareWorkbenchResource {
       logger.error(e.getMessage());
       return Response.status(Response.Status.BAD_REQUEST).build();
     } catch (Exception e) {
-      logger.error(e.getMessage());
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
-    }
-  }
-
-  @POST
-  @Operation(summary = "Evaluate the metadata in batch and produce the summary report.")
-  @Path("/metadata/report")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Tag(name = "Metadata")
-  @RequestBody(description = "A list of metadata record and its associated template to evaluate.", required = true,
-      content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataRequest.class),
-          examples = {
-              @ExampleObject(value = "{" +
-                  "\"metadataList\": [{" +
-                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                  "\"metadataRecord\": {" +
-                  "\"biosample_accession\": \"1234\"," +
-                  "\"organism\": \"Homo sapiens\"," +
-                  "\"disease\": \"Diabetes\"," +
-                  "\"tissue\": \"liver\"," +
-                  "\"platform\": \"Illumina\"," +
-                  "\"cell_line\": \"\"," +
-                  "\"cell_type\": \"\"," +
-                  "\"sex\": \"male\"," +
-                  "\"age\": \"52 yo\"" +
-                  "}" +
-                  "}, {" +
-                  "\"templateId\": \"https://repo.metadatacenter.org/templates/6d9f4a83-a7ba-42be-a6af-f3cad7b2f7e3\"," +
-                  "\"metadataRecord\": {" +
-                  "\"biosample_accession\": \"1235\"," +
-                  "\"organism\": \"Homo sapiens\"," +
-                  "\"disease\": \"Melanoma\"," +
-                  "\"tissue\": \"skin\"," +
-                  "\"platform\": \"Illumina\"," +
-                  "\"cell_line\": \"\"," +
-                  "\"cell_type\": \"\"," +
-                  "\"sex\": \"\"," +
-                  "\"age\": 35" +
-                  "}" +
-                  "}]" +
-                  "}")
-          }
-      ))
-  @ApiResponse(
-      responseCode = "200",
-      description = "Response showing the the evaluation summary report.",
-      content = @Content(
-          schema = @Schema(implementation = EvaluateMetadataResponse.class)
-      ))
-  @ApiResponse(responseCode = "400", description = "The request could not be understood by the server due to " +
-      "malformed syntax in the request body.")
-  @ApiResponse(responseCode = "500", description = "The server encountered an unexpected condition that prevented " +
-      "it from fulfilling the request.")
-  public Response evaluationReport(@NotNull @Valid EvaluationReportRequest request) {
-    try {
-      // Evaluate record by record
-      var evaluationResponses = Lists.<EvaluateMetadataResponse>newArrayList();
-      for (var evaluationRequest : request.getEvaluateMetadataRequests()) {
-        var evaluationResponse = getEvaluateMetadataResponse(evaluationRequest);
-        evaluationResponses.add(evaluationResponse);
-      }
-      var report = fairwareService.generateEvaluationReport(ImmutableList.copyOf(evaluationResponses));
-      return Response.ok(report).build();
-    } catch (BadRequestException e) {
-      logger.error(e.getMessage());
-      return Response.status(Response.Status.BAD_REQUEST).build();
-    } catch (HttpException | IOException e) {
       logger.error(e.getMessage());
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e).build();
     }
