@@ -5,16 +5,16 @@
   "source_storage_time_unit": "day",
   "preparation_media": "",
   "preparation_temperature": "-20 Degrees Celsius",
-  "processing_time_value": "4 minutes",
+  "processing_time_value": 4,
   "processing_time_unit": "minute",
-  "storage_media": "OCT Embedded",
+  "storage_media": "Cryostat embedded",
   "storage_temperature": "-80 Degrees Celsius",
   "section_thickness_value": 10,
   "section_index_number": 3,
   "section_thickness_unit": "millimeter",
   "area_value": 15.84,
-  "area_unit": "square millimeter",
+  "area_unit": "mm^2",
   "notes": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   "quality_criteria": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  "histological_report": ""
+  "histological_report": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 }
