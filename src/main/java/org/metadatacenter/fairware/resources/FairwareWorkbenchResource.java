@@ -105,7 +105,7 @@ public class FairwareWorkbenchResource {
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/db57119c-7860-4569-a3c0-2ced0e0364d1\"," +
-                  "\"metadataId\": \"SAMN01821557\""
+                  "\"metadataId\": \"SAMN01821557\"" + "}"
               )
           }
       ))
@@ -149,7 +149,7 @@ public class FairwareWorkbenchResource {
           examples = {
               @ExampleObject(value = "{" +
                   "\"templateId\": \"https://repo.metadatacenter.org/templates/db57119c-7860-4569-a3c0-2ced0e0364d1\"," +
-                  "\"metadataId\": \"SAMN01821557\""
+                  "\"metadataId\": \"SAMN01821557\"" + "}"
               )
           }
       ))
