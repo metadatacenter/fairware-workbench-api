@@ -13,7 +13,7 @@
   "section_index_number": 3,
   "section_thickness_unit": "millimeter",
   "area_value": 15.84,
-  "area_unit": "mm^2",
+  "area_unit": "square millimeter",
   "notes": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   "quality_criteria": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   "histological_report": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
