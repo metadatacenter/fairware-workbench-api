@@ -234,7 +234,7 @@ public class CedarTemplateFieldsExtractor {
     // Term classes as value constraints
     var classes = Streams.<JsonNode>stream(valueConstraints.withArray("classes").elements())
         .map(o -> OntologyTerm.create(o.get("uri").asText(),
-            o.get("prefLabel").asText(),
+            o.get("label").asText(),
             o.get("source").asText()))
         .collect(ImmutableList.toImmutableList());
     if (!classes.isEmpty()) {
