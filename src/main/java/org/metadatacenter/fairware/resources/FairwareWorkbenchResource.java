@@ -97,7 +97,7 @@ public class FairwareWorkbenchResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2) metadata record id. " +
+  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2) metadata id. " +
       "The template fields are collected from the CEDAR template and the metadata fields are collected from " +
       "the metadata record id.", required = true,
       content = @Content(
@@ -142,8 +142,7 @@ public class FairwareWorkbenchResource {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2a) CEDAR template instance id or " +
-      "2b) metadata record object", required = true,
+  @RequestBody(description = "A JSON object containing: 1) CEDAR template id and 2) metadata id.", required = true,
       content = @Content(
           schema = @Schema(implementation = EvaluateMetadataRequest.class),
           examples = {
@@ -197,7 +196,8 @@ public class FairwareWorkbenchResource {
   @Consumes(MediaType.TEXT_PLAIN)
   @Produces(MediaType.APPLICATION_JSON)
   @Tag(name = "Metadata")
-  @RequestBody(description = "A string of metadata indentifier", required = true,
+  @RequestBody(description = "A string of metadata indentifier. Currently, it supports only the DataCite DOI, " +
+                  "BioSample ID and JSON resource URL", required = true,
       content = @Content(
           schema = @Schema(implementation = String.class),
           examples = {

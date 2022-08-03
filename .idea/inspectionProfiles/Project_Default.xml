@@ -30,6 +30,7 @@
           <option value="http://tiles.apache.org/" />
           <option value="http://purl.bioontology.org" />
           <option value="http://purl.obolibrary.org" />
+          <option value="http://ncicb.nci.nih.gov" />
         </list>
       </option>
     </inspection_tool>
